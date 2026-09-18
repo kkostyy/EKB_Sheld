@@ -1,0 +1,200 @@
+menu_title: '&8Газета'
+open_command:
+  - press
+  - пресса
+size: 54
+
+items:
+
+  'latest':
+    material: WRITTEN_BOOK
+    slot: 13
+    display_name: '&6&lСвежий выпуск'
+    lore:
+      - '&7Номер, автор и дата.'
+      - ''
+      - '&aЛКМ &8— что вышло'
+    left_click_commands:
+      - '[player] news'
+
+  'buy':
+    material: BOOK
+    slot: 20
+    display_name: '&a&lКупить копию'
+    lore:
+      - '&b1💎&7 в Казну Спавна.'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] newsbuy'
+
+  'issue':
+    material: WRITABLE_BOOK
+    slot: 22
+    display_name: '&e&lСдать выпуск'
+    lore:
+      - '&7Возьми в руку ПОДПИСАННУЮ книгу.'
+      - '&cКнига с пером не годится: у неё для Skript'
+      - '&cноль страниц, сколько бы текста в ней ни было.'
+      - ''
+      - '&aЛКМ &8— сдать в печать'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.journalist
+    left_click_commands:
+      - '[player] newsissue'
+
+  'flash':
+    material: BELL
+    slot: 24
+    display_name: '&c&lЭкстренная новость'
+    lore:
+      - '&7На весь сервер. &b16💎&7 в Казну.'
+      - ''
+      - '&aЛКМ &8— как разослать'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.journalist
+    left_click_commands:
+      - '[message] &6&lЭКСТРЕННО: &f/newsflash <текст>'
+
+  'onair':
+    material: REDSTONE_TORCH
+    slot: 31
+    display_name: '&d&lАнонс эфира'
+    lore:
+      - '&7Стрим или ролик — на весь сервер.'
+      - '&7Бесплатно, раз в 4 часа.'
+      - ''
+      - '&aЛКМ &8— как анонсировать'
+    view_requirement:
+      minimum_requirements: 1
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.media.streamer
+        perm2:
+          type: has permission
+          permission: ekb.media.youtuber
+    left_click_commands:
+      - '[message] &d&lЭФИР: &f/onair <текст или ссылка>'
+
+  'header':
+    material: WRITTEN_BOOK
+    slot: 4
+    display_name: '&6&lEKB SHIELD Times'
+    lore:
+      - '&7Выпуск пишет живой журналист'
+      - '&7настоящей книгой, а не командой.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_world'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

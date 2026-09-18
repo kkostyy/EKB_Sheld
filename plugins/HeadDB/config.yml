@@ -1,0 +1,104 @@
+# HeadDB configuration.
+
+remote:
+  # Remote database settings.
+  # URL to the remote HeadDB manifest.json.
+  manifest-url: https://data.headsdb.com/manifest.json
+  # Preferred remote mirror ID. If missing from the manifest, HeadDB falls back to the first mirror.
+  preferred-mirror-id: primary
+
+cache:
+  # Artifact and item cache settings.
+  # Directory inside the plugin data folder used for cached remote artifacts.
+  directory: cache
+  item:
+    # Caches created head item prototypes and returns cloned ItemStacks.
+    enabled: true
+    # Max cache size for head item prototypes. Set to 0 for unbounded lazy caching.
+    max-size: 4096
+
+refresh:
+  # Database refresh settings.
+  # Loads the last verified cached artifacts before remote refresh.
+  load-cache-on-startup: true
+  # Refreshes the remote database during startup.
+  refresh-on-startup: true
+  scheduled:
+    # Checks the remote database periodically while the server remains online.
+    enabled: true
+    # Interval between scheduled remote database checks.
+    # Unchanged manifests do not re-download catalog or revocation artifacts.
+    interval-hours: 6
+
+http:
+  # HTTP client settings.
+  # HTTP connect timeout in seconds.
+  connect-timeout-seconds: 10
+  # HTTP read timeout in seconds.
+  read-timeout-seconds: 30
+
+storage:
+  sqlite:
+    # Mutable storage settings.
+    # SQLite database file inside the plugin data folder used by Strata-backed local data.
+    # This is separate from the immutable remote artifact cache.
+    file: storage/headdb.db
+
+remote-overrides:
+  # Enables local metadata overrides for immutable remote heads.
+  enabled: true
+
+custom-heads:
+  # Enables durable per-server custom heads.
+  enabled: true
+
+player-heads:
+  # Enables player heads derived from known/offline player profiles.
+  enabled: true
+  # TTL for successful player head cache entries.
+  cache-ttl-hours: 12
+  # TTL for failed player head lookups.
+  failed-cache-ttl-minutes: 10
+  # Allows explicit player:<name|uuid> lookups outside the local known-player list.
+  allow-external-lookup: true
+
+messages:
+  # Message and localization settings.
+  # Directory inside the plugin data folder used for locale message files.
+  directory: messages
+  # Default locale used when no player-specific locale is selected.
+  default-locale: en-US
+  # Locale used for console messages.
+  console-locale: en-US
+
+gui:
+  # GUI runtime settings.
+  # If true, /hdb opens the main GUI for players with headdb.gui.main.
+  open-main-command: true
+
+update-checker:
+  # Update checker settings.
+  # Checks the official HeadDB GitHub Releases feed for newer versions and builds.
+  # The GitHub repository is hardcoded by the plugin.
+  enabled: true
+  # Checks for updates shortly after HeadDB starts or reloads.
+  check-on-startup: true
+  # Logs update notifications to console when an update is available.
+  notify-console: true
+  # Notifies online players with headdb.admin.update when an update is available.
+  notify-admins: true
+  # Includes prerelease GitHub Releases such as alpha, beta, and rc versions.
+  include-prereleases: true
+  # Includes newer build metadata releases such as 7.0.0-rc.2+build.5.
+  include-builds: false
+
+auto-updater:
+  # Auto updater settings.
+  # If true, the newest plugin jar is installed in place when possible or staged in the server update folder.
+  # The server is not restarted automatically. Restart the server to load the new version.
+  # Disabled by default.
+  install-updates: false
+
+# Diagnostics.
+# Runs extra startup diagnostics and logs config/runtime validation details.
+debug: false

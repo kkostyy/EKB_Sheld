@@ -1,0 +1,191 @@
+menu_title: '&8Контракты'
+open_command:
+  - contracts
+  - контракты
+size: 54
+
+items:
+
+  'board':
+    material: OAK_SIGN
+    slot: 13
+    display_name: '&c&lДоска контрактов'
+    lore:
+      - '&7Головы целей, награда и статус.'
+      - '&aКлик по голове — взять исполнение.'
+      - '&8Заказчик не указан, ты — под псевдонимом.'
+      - ''
+      - '&aЛКМ &8— открыть доску'
+      - '&aПКМ &8— списком в чат'
+    left_click_commands:
+      - '[player] ctmenu board'
+    right_click_commands:
+      - '[player] contract board'
+
+  'new':
+    material: DIAMOND
+    slot: 20
+    display_name: '&4&lЗаказать устранение'
+    lore:
+      - '&7Выбираешь голову цели и награду:'
+      - '&716, 32, 64, 128 или 256💎.'
+      - '&7Депозит списывается сразу.'
+      - '&4Докажут заказ — сядешь вместе с исполнителем.'
+      - ''
+      - '&aЛКМ &8— выбрать цель'
+    left_click_commands:
+      - '[player] ctmenu'
+
+  'mine':
+    material: WRITABLE_BOOK
+    slot: 22
+    display_name: '&7&lМои дела'
+    lore:
+      - '&7Свои заказы и взятые контракты.'
+      - ''
+      - '&aЛКМ &8— показать'
+    left_click_commands:
+      - '[player] contract mine'
+
+  'law':
+    material: IRON_BARS
+    slot: 24
+    display_name: '&6&lЧто говорит закон'
+    lore:
+      - '&7Статья 4 — самосуд, статья 5 — контракт.'
+      - ''
+      - '&aЛКМ &8— статьи в чат'
+    left_click_commands:
+      - '[message] &6&lУК 4.1: &7убивать можно только защищаясь, на войне'
+      - '[message] &6&lУК 4.1: &7или исполняя оплаченный контракт.'
+      - '[message] &6&lУК 5.2: &7контракт не оправдывает — отвечают оба, и заказчик тоже.'
+      - '[message] &6&lУК 5.3: &7свидетели в 48 блоках получают уведомление и вправе подать иск.'
+
+  'witness':
+    material: SPYGLASS
+    slot: 31
+    display_name: '&e&lЕсли ты видел убийство'
+    lore:
+      - '&7Показания — основа дела: без них Суд не начнёт.'
+      - '&8/report <ник> убийство'
+      - '&7Молчать тоже можно. У каждого свои счёты.'
+      - ''
+      - '&aЛКМ &8— как дать показания'
+    left_click_commands:
+      - '[message] &8&lПоказания: &7/report <ник> убийство'
+
+  'header':
+    material: IRON_SWORD
+    slot: 4
+    display_name: '&4&lКонтракты на устранение'
+    lore:
+      - '&4Убийство вне контракта — самосуд, статья 4.'
+      - '&4Контракт не оправдывает: отвечают оба.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_profile'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

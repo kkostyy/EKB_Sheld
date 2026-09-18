@@ -1,0 +1,270 @@
+# EKB SHIELD — plugins/TablePlays/config.yml
+# TablePlays 3.14159-1 (Modrinth, bukkit/paper/purpur/spigot, 26.1.2).
+# Настольные игры: фишки, кости, карты как display-сущности на столе.
+#
+# ⚠️ Русский язык у плагина свой, в jar лежат en.yml и ru.yml — ставим ru.
+#
+# ⚠️ CustomModelData. Плагин вешает свои модели на ванильные предметы через
+# basecmd и занимает весь диапазон 33000-33790 (карты 33000, наборы 33100,
+# шашки 33200, шахматы 33210, доски 33230, нарды 33240, домино 33300,
+# кости 33400, фишки 33770). У проекта заняты 1001-1014 (BreweryX),
+# 2001-2016 (Nirvana), 6666 (Тетрадь), 7001-7003 и 7200 (тюрьма) —
+# пересечений нет. Базовые предметы пересекаются: PAPER и DIAMOND наш пак
+# уже переопределяет. Это не страшно: range_dispatch на неизвестный порог
+# отдаёт базовую модель, то есть до мерджа моделей TablePlays в
+# shield_resourcepack фишки просто выглядят обычной бумагой и алмазом.
+#
+# ⚠️ Пересечение с MiniBoardGames, который уже стоит на сервере: тот даёт
+# шахматы/шашки доской-интерфейсом, TablePlays — физические фишки и кости
+# на столе. Оставлены оба намеренно; если решишь убрать один, убирай
+# MiniBoardGames — у TablePlays есть русская локализация.
+
+lang: ru
+
+# Крупные наборы (колода, стопка фишек) складывать в saved.yml, а не в NBT
+# предмета: раздутый тег предмета — это трафик на каждый клик по инвентарю.
+allow_files: true
+file_threshold: 36
+
+# 64 фишки в стопке — потолок плагина по его же комментарию; выше начинается
+# заметный лаг на каждой раздаче. Взято 32: столу на четверых хватает,
+# а казино Бармена не должно ронять тик.
+chip_bundle_size: 32
+
+# НИЖЕ — карта CustomModelData плагина. Правится только вместе с
+# ресурспаком (resourcepack/assets/minecraft/items/*.json).
+items:
+  chip:
+    basecmd: 33770
+    max_stack: 16
+    pitch: 90
+    hitbox:
+      - 0.25
+      - 0.015
+    transformation:
+      - 0
+      - 0
+      - -0.0075
+      - 0
+      - 0
+      - 0
+      - 1
+      - 0.2
+      - 0.2
+      - 0.2
+      - 0
+      - 0
+      - 0
+      - 1
+    variants:
+      PAPER: 0
+      EMERALD: 1
+      GOLD_INGOT: 2
+      DIAMOND: 3
+      DEEPSLATE_DIAMOND_ORE: 4
+      DIAMOND_BLOCK: 5
+      NETHERITE_INGOT: 6
+      NETHERITE_BLOCK: 7
+  dice:
+    pitch: 0
+    hitbox:
+      - 0.35
+      - 0.35
+    transformation:
+      - 0
+      - 0.17
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 0.35
+      - 0.35
+      - 0.35
+      - 0
+      - 0
+      - 0
+      - 1
+    basecmd: 33400
+    max_stack: 4
+  card:
+    pitch: 90
+    hitbox:
+      - 0.35
+      - 0.001
+    transformation:
+      - 0
+      - -0.030
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 0.95
+      - 0.95
+      - 0.95
+      - 0
+      - 0
+      - 0
+      - 1
+    basecmd: 33000
+  bundle:
+    pitch: 90
+    hitbox:
+      - 0.45
+      - 0.001
+    transformation:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 0.55
+      - 0.55
+      - 0.55
+      - 0
+      - 0
+      - 0
+      - 1
+    basecmd: 33100
+    variants:
+      GOLD_NUGGET: 10
+      WHITE_DYE: 11
+      LIME_DYE: 12
+      YELLOW_DYE: 13
+      RED_DYE: 14
+      BLUE_DYE: 15
+      MAGENTA_DYE: 16
+      GRAY_DYE: 17
+      ORANGE_DYE: 18
+  domino:
+    pitch: 0
+    hitbox:
+      - 0.15
+      - 0.01
+    transformation:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 0.35
+      - 0.35
+      - 0.35
+      - 0
+      - 0
+      - 0
+      - 1
+    basecmd: 33300
+  board:
+    pitch: 0
+    hitbox:
+      - 2
+      - 0.061
+    transformation:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 1
+      - 1
+      - 1
+      - 0
+      - 0
+      - 0
+      - 1
+    basecmd: 33230
+  checker:
+    pitch: 0
+    hitbox:
+      - 0.18
+      - 0.03
+    transformation:
+      - 0
+      - 0.25
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 0.5
+      - 0.5
+      - 0.5
+      - 0
+      - 0
+      - 0
+      - 1
+    basecmd: 33200
+    max_stack: 12
+  chess:
+    pitch: 0
+    hitbox:
+      - 0.2
+      - 0.05
+    transformation:
+      - 0
+      - 0.25
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 0.5
+      - 0.5
+      - 0.5
+      - 0
+      - 0
+      - 0
+      - 1
+    basecmd: 33210
+    max_stack: 8
+  nardyboard:
+    pitch: 0
+    hitbox:
+      - 2
+      - 0.061
+    transformation:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 1
+      - 1
+      - 1
+      - 0
+      - 0
+      - 0
+      - 1
+    basecmd: 33240
+  nardy:
+    pitch: 0
+    hitbox:
+      - 0.095
+      - 0.03
+    transformation:
+      - 0
+      - 0.25
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+      - 0.5
+      - 0.5
+      - 0.5
+      - 0
+      - 0
+      - 0
+      - 1
+    basecmd: 33240
+    max_stack: 15

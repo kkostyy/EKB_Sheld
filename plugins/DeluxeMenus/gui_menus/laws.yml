@@ -1,0 +1,208 @@
+menu_title: '&8Законы'
+open_command:
+  - laws
+  - законы
+size: 54
+
+items:
+
+  'constitution':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
+    slot: 13
+    display_name: '&e&lКонституция'
+    lore:
+      - '&aЛКМ &8— выжимка в чат'
+    left_click_commands:
+      - '[message] &e&lКОНСТИТУЦИЯ'
+      - '[message] &71.1 Телепорты и приваты игрокам недоступны.'
+      - '[message] &71.2 Спор решает CoreProtect, а не слова.'
+      - '[message] &72.3 Город: глава, от 3 жителей, Устав в Discord.'
+      - '[message] &74.1 Территория до 8×8 чанков.'
+      - '[message] &75.1 Война объявляется за 24 часа.'
+      - '[message] &76.2 Спавн — нейтральная зона.'
+
+  'criminal':
+    material: IRON_BARS
+    slot: 20
+    display_name: '&c&lУголовный кодекс'
+    lore:
+      - '&aЛКМ &8— выжимка в чат'
+    left_click_commands:
+      - '[message] &c&lУГОЛОВНЫЙ КОДЕКС'
+      - '[message] &71.1 Кража: возврат вдвое + штраф 16💎.'
+      - '[message] &71.2 Грабёж с убийством: 32–64💎 + тюрьма от 10ч.'
+      - '[message] &76.1 Лавка вне Рынка — снос и конфискация.'
+      - '[message] &76.3 Демпинг — изъятие товара + 64💎.'
+      - '[message] &77.1 Побег из тюрьмы — срок вдвое.'
+
+  'jail':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
+    slot: 22
+    display_name: '&8&lКак судят'
+    lore:
+      - '&aЛКМ &8— порядок суда'
+    left_click_commands:
+      - '[message] &8&lСУД: &7иск в Discord (/иск) → судья поднимает логи CoreProtect'
+      - '[message] &7→ приговор в ОНЛАЙН-часах → имущество уходит Суду.'
+      - '[message] &7В камере нельзя ломать и ставить, есть и пить — можно.'
+
+  'prices':
+    material: DIAMOND
+    slot: 24
+    display_name: '&b&lЦены'
+    lore:
+      - '&aЛКМ &8— курс и главные цены'
+    left_click_commands:
+      - '[message] &b&lПРАЙС: &71💎 монета &8· &7алмазный блок 9💎 &8· &7незерит 128💎'
+      - '[message] &7Клиника: лечение 64–160💎 &8· &7Тетрадь Смерти: 6 незеритовых блоков'
+      - '[message] &7Аренда точки на Спавне: 10💎/неделю'
+
+  'sheriff':
+    material: IRON_SWORD
+    slot: 30
+    display_name: '&c&lШериф Спавна'
+    lore:
+      - '&7Кто следит за порядком на Рынке'
+      - '&7и в нейтральной зоне.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_sheriff'
+
+  'forensics':
+    material: SPYGLASS
+    slot: 31
+    display_name: '&9&lКриминалистика'
+    lore:
+      - '&7Осмотр места убийства, реестр происшествий.'
+      - '&7Экспертиза — основание для иска.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_forensics'
+
+  'court':
+    material: WRITABLE_BOOK
+    slot: 32
+    display_name: '&6&lПодать иск'
+    lore:
+      - '&aЛКМ &8— как подать'
+    left_click_commands:
+      - '[message] &6&lИСК: &7в Discord командой &f/иск&7, со статьёй УК и ником.'
+      - '[message] &7Доказательства собирать не нужно — CoreProtect помнит всё.'
+
+  'header':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
+    slot: 4
+    display_name: '&6&lЗаконы'
+    lore:
+      - '&7Клик отправляет выжимку в чат,'
+      - '&7чтобы её можно было перечитать.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_main'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

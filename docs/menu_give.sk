@@ -1,0 +1,169 @@
+# EKB SHIELD — menu_give.sk
+# Выдача кастомных вещей самому себе одной командой, без ников.
+#
+# Зачем: кнопки DeluxeMenus звали `/nirvana give %player_name% seeds 1`,
+# но плейсхолдер в команду не подставлялся — в Skript прилетала строка
+# «%player_name%», аргумент типа <player> её не разбирал, и команда
+# отвечала «Укажи ник». Выглядело так, будто игрок не в сети, а предметы
+# при этом не выдавались. Здесь ник не нужен вовсе: команда выдаёт тому,
+# кто её выполнил, а меню зовёт её без аргументов-подстановок.
+#
+# Требует nirvana.sk (функции nirvana_item и brew_recipe).
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &6&l[ВЫДАЧА] &r
+
+# ---------------------------------------------------------------------------
+# Трава и снадобья
+# ---------------------------------------------------------------------------
+
+command /giveherb <text> [<integer>]:
+    permission: ekb.nirvana.admin
+    permission message: &cВыдача — право Администрации.
+    description: Выдать себе предмет конопли
+    usage: /giveherb <id> [кол-во]
+    trigger:
+        set {_n} to arg-2
+        if {_n} is not set:
+            set {_n} to 1
+        set {_item} to nirvana_item(arg-1)
+        if {_item} is air:
+            send "{@prefix}&cНет такого предмета: &f%arg-1%" to player
+            send "{@prefix}&7seeds, hemp, weed, cloth, burlap, joint, pipe, stuffed_pipe," to player
+            send "{@prefix}&7pipe_suspicious, pipe_smouldering, empty_bong, bong, salve," to player
+            send "{@prefix}&7brownie, deerstalker, thc" to player
+            stop
+        give {_n} of {_item} to player
+        send "{@prefix}&aВыдано: &f%{_n}%x %name of {_item}%" to player
+
+# ---------------------------------------------------------------------------
+# Напитки BreweryX
+# ---------------------------------------------------------------------------
+
+# Настоящий напиток собирает сам BreweryX: внутри у бутылки закодированы
+# данные рецепта, руками такой предмет не собрать. Поэтому команда — обёртка
+# над штатной /brew create, как в меню /nirvana.
+command /givedrink <text> [<integer>]:
+    permission: brewery.admin
+    permission message: &cВыдача напитков — право Администрации.
+    description: Выдать себе напиток BreweryX
+    usage: /givedrink <рецепт> [качество 1-10]
+    trigger:
+        set {_q} to arg-2
+        if {_q} is not set:
+            set {_q} to 10
+        if {_q} > 10:
+            set {_q} to 10
+        if {_q} < 1:
+            set {_q} to 1
+        make player execute command "brew create %arg-1% %{_q}%"
+        send "{@prefix}&aНапиток &f%arg-1%&a, качество &f%{_q}%&a." to player
+
+# ---------------------------------------------------------------------------
+# Тетрадь — своей командой, чтобы записались правила и владелец
+# ---------------------------------------------------------------------------
+
+command /givenote:
+    permission: ekb.deathnote.admin
+    permission message: &cТетрадь — забота главного админа.
+    description: Выдать Тетрадь Смерти себе
+    trigger:
+        make player execute command "deathnote give %player%"
+
+# ---------------------------------------------------------------------------
+# Боковое табло
+# ---------------------------------------------------------------------------
+
+# ⚠ `toggle-command` у TAB — не настоящая команда: плагин ловит её из чата
+# через событие ввода. Кнопка меню выполняет команду напрямую, минуя чат,
+# поэтому до TAB она не доходила и «показать HUD» не работало. Здесь /hud
+# зарегистрирована по-настоящему и дёргает штатное /tab scoreboard toggle.
+command /hud [<text>]:
+    description: Показать или убрать информацию на экране
+    usage: /hud [top|side]
+    trigger:
+        if arg-1 is "top":
+            make player execute command "tab bossbar toggle"
+            stop
+        if arg-1 is "side":
+            make player execute command "tab scoreboard toggle"
+            stop
+        # без аргумента убираем и возвращаем всё сразу
+        make player execute command "tab bossbar toggle"
+        make player execute command "tab scoreboard toggle"
+
+# ---------------------------------------------------------------------------
+# Вещи новых плагинов (обновление 18.09.2026)
+# ---------------------------------------------------------------------------
+#
+# ⚠️ ВКЛАДКИ В ТВОРЧЕСКОМ ИНВЕНТАРЕ НЕ БУДЕТ, и это не лень.
+#
+# Вкладки креатива (CreativeModeTab) собираются НА КЛИЕНТЕ из его собственных
+# реестров: сервер их не шлёт и добавить туда ничего не может — ни плагином,
+# ни датапаком, ни ресурспаком. По той же причине в поиске креатива нет ни
+# предметов Nirvana, ни напитков Brewery: у нас обычные бумага, тростник и
+# зелья с CustomModelData, а отдельного типа предмета Bukkit завести не даёт.
+# Вкладку может добавить только клиентский мод.
+#
+# Замена — меню-каталог: /allitems (конопля, напитки, Тетрадь) и /newitems
+# (стволы QualityArmory и настолки TablePlays). Выдают они тому, кто нажал,
+# без ников: подставить %player_name% в кнопку DeluxeMenus нельзя, эта грабля
+# описана в шапке файла.
+
+# Особые артефакты. Выдача идёт через /artifact give, а не прямым
+# give: там живёт реестр, который держит лимит в два экземпляра и выдаёт
+# номер. Обёртка нужна ради кнопки: подставить %player_name% в DeluxeMenus
+# нельзя — эта грабля описана в шапке файла.
+command /giveartifact <text>:
+    permission: ekb.artifact.admin
+    permission message: &cАртефакты выдаёт главный администратор.
+    description: Выдать себе особый артефакт
+    usage: /giveartifact <compass|dagger|hourglass|journal|mark|mask>
+    executable by: players
+    trigger:
+        make player execute command "artifact give %player% %arg-1%"
+
+# Стволы QualityArmory. Своё право, а не qualityarmory.give: выдача стволов
+# закреплена за главным админом (у restricted_admin стоит -qualityarmory.give),
+# и команду исполняет консоль, у которой право есть всегда.
+command /givegun <text> [<integer>]:
+    permission: qualityarmory.admin
+    permission message: &cОружие выдаёт только главный администратор.
+    description: Выдать себе ствол или патроны QualityArmory
+    usage: /givegun <id> [кол-во]
+    executable by: players
+    trigger:
+        set {_n} to arg-2
+        if {_n} is not set:
+            set {_n} to 1
+        # ⚠ Порядок аргументов: /qa give <предмет> <игрок> [кол-во]. Сначала
+        # стоял ник, и плагин искал ПРЕДМЕТ с таким именем: в логе
+        # 18.09.2026 на каждый /givegun отвечало
+        # «[ОРУЖЕЙНАЯ] Could not find item "kosyvx"», а ствол не выдавался.
+        # Сверено по GiveCommandHandler.java в jar'е QualityArmory 2.1.4:
+        # arg(1) — предмет, arg(2) — игрок, arg(3) — количество
+        # (у стволов количество игнорируется, у патронов — работает).
+        execute console command "qa give %arg-1% %player% %{_n}%"
+        send "{@prefix}&aВыдано: &f%arg-1%&a x%{_n}%" to player
+        send "{@prefix}&7Список стволов — в папке plugins/QualityArmory/newGuns/ (70 штук)." to player
+
+# Настолки TablePlays. У команды /gimme в plugin.yml стоит permission: op,
+# то есть это нода с именем «op» — админы её получают вместе с оператором.
+command /givetable <text>:
+    description: Выдать себе предмет настольной игры
+    usage: /givetable <board|bundle|card|checker|chess|chip|dice|domino|nardy|nardyboard>
+    executable by: players
+    trigger:
+        # Две роли, а поле permission: принимает одну ноду — отсюда проверка
+        # внутри. Крупье без набора фишек и карт — это роль-вывеска, а стол
+        # он держит свой, не админский.
+        set {_ok} to false
+        if player has permission "ekb.menu.admin":
+            set {_ok} to true
+        if player has permission "ekb.duty.dealer":
+            set {_ok} to true
+        if {_ok} is false:
+            send "{@prefix}&cНабор для игры выдаёт крупье или Администрация."
+            stop
+        make player execute command "gimme %arg-1%"

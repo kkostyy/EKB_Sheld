@@ -1,0 +1,453 @@
+# EKB SHIELD — borders.sk
+# Границы государств на веб-карте. Глава обходит свою землю НОГАМИ,
+# отмечая углы, и получившийся многоугольник появляется на squaremap.
+#
+# ПОЧЕМУ ОБХОД, А НЕ РИСОВАНИЕ В КАБИНЕТЕ.
+# Телепортов на сервере нет (Конституция 1.1), и расстояние здесь — то
+# немногое, что ограничивает аппетит. Граница, которую надо обойти ногами,
+# сама себя и ограничивает: заявить пол-карты можно, но идти придётся
+# пол-карты. Поэтому лимита площади в скрипте НЕТ — ограничение физическое.
+#
+# ПОЧЕМУ ГРАНИЦА НЕ ЗАЩИЩАЕТ ЗЕМЛЮ.
+# Регион ставится с флагом `passthrough allow`, то есть WorldGuard его
+# при проверке застройки игнорирует. Это ВИТРИНА, а не приват: кто пришёл
+# и построил на чужой земле — дело Суда (Глава 1 УК), а не плагина.
+# Иначе половина исков исчезла бы вместе с поводом для войн.
+#
+# КАК ЭТО ПОПАДАЕТ НА КАРТУ.
+# squaremap сам рисовать полигоны из конфига не умеет — нужен мост.
+# Мост — аддон `squaremap-worldguard` (jpenilla): он обходит регионы
+# WorldGuard и для каждого зовёт `Marker.rectangle()` (cuboid) или
+# `Marker.polygon(region.getPoints())` (poly2d). Стиль берёт из флагов
+# `squaremap-fill-color`, `squaremap-stroke-color`, `squaremap-click-tooltip`
+# и соседних — их аддон регистрирует сам при загрузке.
+#
+# ⚠ РЕГИОН СОЗДАЁТСЯ КОМАНДАМИ ОТ ИМЕНИ АДМИНА, а не записью в regions.yml
+# (как приват Спавна в build_spawn_region.py). Причина: у консоли нет
+# выделения WorldEdit, а вот у админа оно есть, и `//pos1`/`//pos2`
+# принимают КООРДИНАТЫ аргументом (сверено по SelectionCommands в
+# worldedit-bukkit-7.4.5: «Coordinates to set position 1 to»). Значит,
+# полигон можно выложить командами и подхватить его сразу, без /rg load
+# и без перезаписи файла под работающим сервером.
+#
+# ⚠ ID РЕГИОНА — ЛАТИНИЦЕЙ. У WorldGuard 7.0.18 в ProtectedRegion.isValidId
+# стоит `^[A-Za-z0-9_,'\-\+/]{1,}$`, то есть кириллица в id не проходит
+# вообще. Поэтому id технический — `ekb_town_<N>`, а настоящее название
+# города живёт во флаге `squaremap-click-tooltip` и показывается на карте
+# при клике. Связка «город -> id» лежит в {border::rid::<город>}.
+#
+# Требует: WorldEdit, WorldGuard, squaremap + аддон squaremap-worldguard.
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &a&l[ГРАНИЦА] &r
+    line:   &8&m----------------------------------------
+    mayor:  ekb.town.mayor
+    admin:  coreprotect.rollback
+    minstep: 16     # минимум блоков между соседними углами
+    maxpts:  20     # больше углов карта не покажет разборчиво
+
+# Хранилище:
+#   {border::draft::%uuid%::N}   — угол черновика (локация)
+#   {border::draftcity::%uuid%}  — какой город обходят
+#   {border::pts::<город>::N}    — углы утверждённой границы
+#   {border::world::<город>}     — мир
+#   {border::rid::<город>}       — id региона WorldGuard
+#   {border::color::<город>}     — цвет на карте
+#   {border::head::<город>}      — кто подал
+#   {border::at::<город>}        — когда утверждена
+#   {border::seq}                — счётчик id регионов
+
+# ---------------------------------------------------------------------------
+# Палитра
+# ---------------------------------------------------------------------------
+
+# Цвета разведены по тону, а не по яркости: на карте squaremap заливка идёт
+# полупрозрачной поверх рельефа, и два соседних оттенка одного цвета
+# сливаются в одно пятно.
+function bd_colors() :: texts:
+    return "#d94f4f", "#3f8ddb", "#4fbf6a", "#d9a441", "#9a5fd0", "#3fbfbf", "#d95fa0" and "#8a8f99"
+
+function bd_colorname(hex: text) :: text:
+    if {_hex} is "#d94f4f":
+        return "красный"
+    if {_hex} is "#3f8ddb":
+        return "синий"
+    if {_hex} is "#4fbf6a":
+        return "зелёный"
+    if {_hex} is "#d9a441":
+        return "охра"
+    if {_hex} is "#9a5fd0":
+        return "фиолетовый"
+    if {_hex} is "#3fbfbf":
+        return "бирюзовый"
+    if {_hex} is "#d95fa0":
+        return "малиновый"
+    if {_hex} is "#8a8f99":
+        return "серый"
+    return {_hex}
+
+# Первый цвет, которым ещё никто не занят. Кончились — берём по кругу:
+# восемь государств на карте и так читаются с трудом.
+function bd_freecolor() :: text:
+    loop bd_colors():
+        set {_c} to loop-value
+        set {_used} to false
+        loop {border::color::*}:
+            if loop-value-2 is {_c}:
+                set {_used} to true
+        if {_used} is false:
+            return {_c}
+    return random element out of bd_colors()
+
+# ---------------------------------------------------------------------------
+# Геометрия
+# ---------------------------------------------------------------------------
+
+function bd_count(city: text) :: number:
+    return size of {border::pts::%{_city}%::*}
+
+# Площадь многоугольника по формуле шнурков. Нужна не для лимита, а для
+# отчёта: Суду и Мэрии полезно видеть, сколько земли заявлено.
+function bd_area(city: text) :: number:
+    set {_n} to bd_count({_city})
+    if {_n} < 3:
+        return 0
+    set {_s} to 0
+    loop integers from 1 to {_n}:
+        set {_i} to loop-number
+        set {_j} to {_i} + 1
+        if {_j} > {_n}:
+            set {_j} to 1
+        set {_a} to {border::pts::%{_city}%::%{_i}%}
+        set {_b} to {border::pts::%{_city}%::%{_j}%}
+        set {_s} to {_s} + ((x coordinate of {_a}) * (z coordinate of {_b}))
+        set {_s} to {_s} - ((x coordinate of {_b}) * (z coordinate of {_a}))
+    return abs({_s}) / 2
+
+function bd_perimeter(city: text) :: number:
+    set {_n} to bd_count({_city})
+    if {_n} < 2:
+        return 0
+    set {_p} to 0
+    loop integers from 1 to {_n}:
+        set {_i} to loop-number
+        set {_j} to {_i} + 1
+        if {_j} > {_n}:
+            set {_j} to 1
+        set {_a} to {border::pts::%{_city}%::%{_i}%}
+        set {_b} to {border::pts::%{_city}%::%{_j}%}
+        set {_dx} to (x coordinate of {_a}) - (x coordinate of {_b})
+        set {_dz} to (z coordinate of {_a}) - (z coordinate of {_b})
+        set {_p} to {_p} + sqrt(({_dx} * {_dx}) + ({_dz} * {_dz}))
+    return {_p}
+
+# Плоское расстояние: высота в границе не участвует, регион всё равно
+# идёт на всю высоту мира.
+function bd_flat(a: location, b: location) :: number:
+    set {_dx} to (x coordinate of {_a}) - (x coordinate of {_b})
+    set {_dz} to (z coordinate of {_a}) - (z coordinate of {_b})
+    return sqrt(({_dx} * {_dx}) + ({_dz} * {_dz}))
+
+function bd_xz(l: location) :: text:
+    return "%floor(x coordinate of {_l})%, %floor(z coordinate of {_l})%"
+
+# ---------------------------------------------------------------------------
+# Обход: команда главы
+# ---------------------------------------------------------------------------
+
+command /border [<text>] [<text>]:
+    permission: {@mayor}
+    permission message: &cГраницу обходит глава города.
+    aliases: /граница
+    description: Обойти и заявить границу своего государства
+    usage: /border start <город> | point | undo | show | finish | cancel
+    executable by: players
+    trigger:
+        set {_k} to "%uuid of player%"
+        set {_a1} to arg-1
+        set {_a2} to arg-2
+
+        # -------- начать обход --------
+        if {_a1} is "start":
+            if {_a2} is not set:
+                send "{@prefix}&cУкажи название города: &b/border start <город>"
+                send "{@prefix}&8Название то же, что в &b/regime&8 — по нему всё и связано."
+                stop
+            delete {border::draft::%{_k}%::*}
+            set {border::draftcity::%{_k}%} to {_a2}
+            send "{@line}"
+            send "{@prefix}&eОбход начат: &f%{_a2}%"
+            send "&7Встань в углу своей земли и жми &b/border point&7."
+            send "&7Затем иди по меже и отмечай каждый следующий угол."
+            send "&8Углов: от 3 до {@maxpts}, между соседними не меньше {@minstep} блоков."
+            send "&8Ошибся — &b/border undo&8. Закончил — &b/border finish&8."
+            send "{@line}"
+            stop
+
+        if {border::draftcity::%{_k}%} is not set:
+            if {_a1} is not set:
+                send "{@line}"
+                send "{@prefix}&eГраница государства"
+                send "&b/border start <город> &8- &7начать обход"
+                send "&b/border point &8- &7отметить угол, стоя в нём"
+                send "&b/border undo &8- &7убрать последний угол"
+                send "&b/border show &8- &7что уже отмечено"
+                send "&b/border finish &8- &7подать заявку Администрации"
+                send "&b/border cancel &8- &7бросить обход"
+                send "&b/borders &8- &7все границы на карте"
+                send "&7Граница не защищает землю: это витрина, а не приват."
+                send "&7Чужую застройку разбирает Суд, Глава 1 УК."
+                send "{@line}"
+                stop
+            send "{@prefix}&cОбход не начат: &b/border start <город>"
+            stop
+
+        set {_city} to {border::draftcity::%{_k}%}
+        set {_n} to size of {border::draft::%{_k}%::*}
+
+        # -------- отметить угол --------
+        if {_a1} is "point":
+            if {_n} >= {@maxpts}:
+                send "{@prefix}&cУглов уже {@maxpts} — больше карта не покажет разборчиво."
+                send "{@prefix}&7Заканчивай: &b/border finish"
+                stop
+            set {_l} to location of player
+            if {_n} > 0:
+                set {_prev} to {border::draft::%{_k}%::%{_n}%}
+                if world of {_prev} is not world of {_l}:
+                    send "{@prefix}&cГраница не может идти через два мира."
+                    stop
+                set {_d} to bd_flat({_prev}, {_l})
+                if {_d} < {@minstep}:
+                    send "{@prefix}&cДо прошлого угла &f%floor({_d})%&c блоков, нужно хотя бы {@minstep}."
+                    send "{@prefix}&8Углы ставят на поворотах межи, а не через шаг."
+                    stop
+            set {_n} to {_n} + 1
+            set {border::draft::%{_k}%::%{_n}%} to {_l}
+            send "{@prefix}Угол &f%{_n}%&r: &7%bd_xz({_l})%"
+            if {_n} >= 3:
+                send "&8Можно закончить: &b/border finish"
+            stop
+
+        # -------- убрать последний --------
+        if {_a1} is "undo":
+            if {_n} is 0:
+                send "{@prefix}&cУбирать нечего."
+                stop
+            delete {border::draft::%{_k}%::%{_n}%}
+            send "{@prefix}&7Угол &f%{_n}%&7 убран. Осталось: &f%{_n} - 1%"
+            stop
+
+        # -------- показать --------
+        if {_a1} is "show":
+            send "{@line}"
+            send "{@prefix}&eЧерновик: &f%{_city}%&e, углов &f%{_n}%"
+            loop integers from 1 to {_n}:
+                set {_l} to {border::draft::%{_k}%::%loop-number%}
+                send "&8 %loop-number%. &7%bd_xz({_l})%"
+            send "{@line}"
+            stop
+
+        # -------- бросить --------
+        if {_a1} is "cancel":
+            delete {border::draft::%{_k}%::*}
+            delete {border::draftcity::%{_k}%}
+            send "{@prefix}&7Обход брошен, ничего не записано."
+            stop
+
+        # -------- подать заявку --------
+        if {_a1} is "finish":
+            if {_n} < 3:
+                send "{@prefix}&cУглов всего &f%{_n}%&c. Меньше трёх — это не участок, а отрезок."
+                stop
+            # Черновик переносим в заявку. Сама граница на карту не попадёт,
+            # пока Администрация не выполнит /borderapply: земля — вопрос
+            # Мэрии и Суда, а не того, кто первым обошёл поле.
+            delete {border::pts::%{_city}%::*}
+            loop integers from 1 to {_n}:
+                set {border::pts::%{_city}%::%loop-number%} to {border::draft::%{_k}%::%loop-number%}
+            set {_first} to {border::draft::%{_k}%::1}
+            set {border::world::%{_city}%} to "%world of {_first}%"
+            set {border::head::%{_city}%} to "%player%"
+            if {border::color::%{_city}%} is not set:
+                set {border::color::%{_city}%} to bd_freecolor()
+            delete {border::draft::%{_k}%::*}
+            delete {border::draftcity::%{_k}%}
+
+            set {_area} to bd_area({_city})
+            set {_per} to bd_perimeter({_city})
+            send "{@line}"
+            send "{@prefix}&aЗаявка подана: &f%{_city}%"
+            send "&7Углов: &f%{_n}%&7, периметр &f%floor({_per})%&7 блоков,"
+            send "&7площадь около &f%floor({_area})%&7 блоков."
+            set {_col} to {border::color::%{_city}%}
+            send "&7Цвет на карте: &f%bd_colorname({_col})%"
+            send "&8Ждать утверждения Администрации. До него границы на карте нет."
+            send "{@line}"
+            send "[ГРАНИЦА] %player% заявил границу %{_city}%: %{_n}% углов, площадь %floor({_area})%" to console
+            loop all players:
+                if loop-player has permission "{@admin}":
+                    send "{@prefix}&e%player% &7заявил границу города &f%{_city}%&7." to loop-player
+                    send "&8Утвердить: &b/borderapply %{_city}%" to loop-player
+            stop
+
+        send "{@prefix}&cНе понял. Подсказка: &b/border"
+
+# ---------------------------------------------------------------------------
+# Утверждение: команда Администрации
+# ---------------------------------------------------------------------------
+
+# ⚠ Команды WorldEdit выполняет САМ АДМИН, а не консоль: выделение живёт
+# в его сессии. `//sel poly` переключает селектор на многоугольный, первый
+# угол кладётся через `//pos1`, остальные — повторными `//pos2` (так устроен
+# PolygonalRegionSelector), `//expand vert` растягивает выделение на всю
+# высоту мира, и только потом `/rg define ... -2dpoly`.
+#
+# ⚠ В `make player execute command` Skript срезает ОДИН ведущий слэш,
+# поэтому команды WorldEdit пишутся с двумя: "//pos1 ..." доходит до
+# сервера как `/pos1 ...` — а именно так и называется её bukkit-команда.
+
+command /borderapply <text>:
+    permission: {@admin}
+    permission message: &cГраницы утверждает Администрация.
+    description: Утвердить заявленную границу города и вывести её на карту
+    executable by: players
+    trigger:
+        set {_city} to arg-1
+        set {_n} to bd_count({_city})
+        if {_n} < 3:
+            send "{@prefix}&cПо городу &f%{_city}%&c заявки нет."
+            send "{@prefix}&7Список: &b/borders"
+            stop
+        set {_w} to {border::world::%{_city}%}
+        if "%world of player%" is not {_w}:
+            send "{@prefix}&cГраница заявлена в мире &f%{_w}%&c, а ты в &f%world of player%&c."
+            send "{@prefix}&8Выделение WorldEdit живёт в твоём мире — перейди туда."
+            stop
+
+        if {border::rid::%{_city}%} is not set:
+            if {border::seq} is not set:
+                set {border::seq} to 0
+            set {border::seq} to {border::seq} + 1
+            set {border::rid::%{_city}%} to "ekb_town_%{border::seq}%"
+        set {_id} to {border::rid::%{_city}%}
+
+        # Старый регион убираем: /rg define на существующий id ругается,
+        # а границы двигают — города растут и проигрывают войны.
+        make player execute command "rg remove %{_id}%"
+        make player execute command "//sel poly"
+        loop integers from 1 to {_n}:
+            set {_l} to {border::pts::%{_city}%::%loop-number%}
+            set {_c} to "%floor(x coordinate of {_l})%,%floor(y coordinate of {_l})%,%floor(z coordinate of {_l})%"
+            if loop-number is 1:
+                make player execute command "//pos1 %{_c}%"
+            else:
+                make player execute command "//pos2 %{_c}%"
+        make player execute command "//expand vert"
+        make player execute command "rg define %{_id}% -2dpoly"
+
+        # Витрина, а не приват: passthrough выключает проверку застройки.
+        make player execute command "rg flag %{_id}% passthrough allow"
+
+        set {_color} to {border::color::%{_city}%}
+        set {_tip} to {_city}
+        set {_reg} to {regime::type::%{_city}%}
+        if {_reg} is set:
+            set {_tip} to "%{_city}% — %rg_name({_reg})%"
+        # Флаги стиля регистрирует аддон squaremap-worldguard. Нет аддона —
+        # WorldGuard ответит «неизвестный флаг», регион при этом останется
+        # рабочим, просто карта его не покажет.
+        make player execute command "rg flag %{_id}% squaremap-fill-color %{_color}%"
+        make player execute command "rg flag %{_id}% squaremap-stroke-color %{_color}%"
+        make player execute command "rg flag %{_id}% squaremap-fill-opacity 0.15"
+        make player execute command "rg flag %{_id}% squaremap-stroke-weight 3"
+        make player execute command "rg flag %{_id}% squaremap-click-tooltip %{_tip}%"
+        set {_who} to {border::head::%{_city}%}
+        if {_who} is set:
+            make player execute command "rg addowner %{_id}% %{_who}%"
+
+        set {border::at::%{_city}%} to now
+        send "{@line}"
+        send "{@prefix}&aГраница &f%{_city}%&a на карте."
+        send "&7Регион &f%{_id}%&7, углов &f%{_n}%&7, цвет &f%bd_colorname({_color})%&7."
+        send "&8Аддон перерисовывает слой раз в несколько минут — сразу не ищи."
+        send "{@line}"
+        broadcast "{@prefix}Государство &f%{_city}%&r обозначило свои границы на карте."
+        send "[ГРАНИЦА] %{_city}% -> %{_id}% (утвердил %player%)" to console
+
+command /borderdrop <text>:
+    permission: {@admin}
+    permission message: &cГраницы снимает Администрация.
+    description: Снять границу города с карты
+    executable by: players
+    trigger:
+        set {_city} to arg-1
+        if {border::rid::%{_city}%} is not set:
+            send "{@prefix}&cГраницы у &f%{_city}%&c нет."
+            stop
+        set {_id} to {border::rid::%{_city}%}
+        make player execute command "rg remove %{_id}%"
+        delete {border::pts::%{_city}%::*}
+        delete {border::rid::%{_city}%}
+        delete {border::world::%{_city}%}
+        delete {border::color::%{_city}%}
+        delete {border::head::%{_city}%}
+        delete {border::at::%{_city}%}
+        send "{@prefix}&7Граница &f%{_city}%&7 снята."
+        broadcast "{@prefix}Границы государства &f%{_city}%&r сняты с карты."
+        send "[ГРАНИЦА] снята: %{_city}% (%{_id}%, %player%)" to console
+
+command /bordercolor <text> <text>:
+    permission: {@admin}
+    permission message: &cЦвет на карте назначает Администрация.
+    description: Сменить цвет государства на карте
+    usage: /bordercolor <город> <#rrggbb>
+    executable by: players
+    trigger:
+        set {_city} to arg-1
+        set {_c} to arg-2
+        if {border::rid::%{_city}%} is not set:
+            send "{@prefix}&cГраницы у &f%{_city}%&c нет."
+            stop
+        set {border::color::%{_city}%} to {_c}
+        set {_id} to {border::rid::%{_city}%}
+        make player execute command "rg flag %{_id}% squaremap-fill-color %{_c}%"
+        make player execute command "rg flag %{_id}% squaremap-stroke-color %{_c}%"
+        send "{@prefix}&7Цвет &f%{_city}%&7: &f%{_c}%"
+
+# ---------------------------------------------------------------------------
+# Кто чем владеет — открыто всем: чужая межа должна быть известна заранее,
+# иначе спор о ней не рассудишь.
+# ---------------------------------------------------------------------------
+
+command /borders:
+    description: Границы государств на карте
+    aliases: /границы
+    executable by: players
+    trigger:
+        send "{@line}"
+        send "{@prefix}&eГраницы государств"
+        set {_any} to false
+        loop {border::rid::*}:
+            set {_city} to loop-index
+            set {_any} to true
+            set {_area} to bd_area({_city})
+            set {_col} to {border::color::%{_city}%}
+            send "&7 %{_city}%&8 — &f%bd_count({_city})%&8 углов, около &f%floor({_area})%&8 блоков, &f%bd_colorname({_col})%"
+            set {_who} to {border::head::%{_city}%}
+            if {_who} is set:
+                send "&8   заявил: &7%{_who}%"
+        if {_any} is false:
+            send "&7Пока ни одно государство не обозначило границ."
+            send "&8Глава города: &b/border start <город>"
+        else:
+            send "&8Карта: слой «Государства». Граница не защищает землю —"
+            send "&8застройку на чужой меже разбирает Суд, Глава 1 УК."
+        send "{@line}"
+
+# Черновик не переживает перезаход: локации в нём живые, а игрок за это
+# время мог уйти в другой мир. Пусть обходит заново — это минута.
+on quit:
+    delete {border::draft::%uuid of player%::*}
+    delete {border::draftcity::%uuid of player%}

@@ -1,0 +1,255 @@
+# EKB SHIELD — regimes.sk
+# Формы правления городов: от демократии до анархии.
+#
+# Строй — это не декорация: он задаёт, кто назначает должности и как
+# снимается глава. Суд при разборе споров смотрит на строй города:
+# в демократии глава, правящий мимо голосования, отвечает перед Судом,
+# в диктатуре — нет, потому что там так и задумано.
+#
+# Строй хранится по названию города, а не по игроку: города живут дольше,
+# чем их главы. Название вводит сам глава — ClansLite своих названий
+# наружу не отдаёт, а плейсхолдеры PAPI в Skript без аддона недоступны.
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &6&l[СТРОЙ] &r
+    line: &8&m----------------------------------------
+
+# Хранилище:
+#   {regime::type::%город%}   — id строя
+#   {regime::head::%город%}   — ник главы, который его установил
+#   {regime::since::%город%}  — когда установлен
+
+# ---------------------------------------------------------------------------
+# Справочник строёв
+# ---------------------------------------------------------------------------
+
+function rg_name(id: text) :: text:
+    if {_id} is "democracy":
+        return "Демократия"
+    if {_id} is "dictatorship":
+        return "Диктатура"
+    if {_id} is "authoritarian":
+        return "Авторитаризм"
+    if {_id} is "monarchy":
+        return "Монархия"
+    if {_id} is "oligarchy":
+        return "Олигархия"
+    if {_id} is "theocracy":
+        return "Теократия"
+    if {_id} is "anarchy":
+        return "Анархия"
+    if {_id} is "commune":
+        return "Коммуна"
+    return "не установлен"
+
+function rg_desc(id: text) :: text:
+    if {_id} is "democracy":
+        return "Глава избирается жителями и может быть смещён голосованием."
+    if {_id} is "dictatorship":
+        return "Вся власть у главы. Никаких советов, никаких выборов."
+    if {_id} is "authoritarian":
+        return "Правит глава, но опирается на совет и слушает его."
+    if {_id} is "monarchy":
+        return "Власть передаётся преемнику, которого глава называет заранее."
+    if {_id} is "oligarchy":
+        return "Решают те, у кого казна: совет казначеев и крупных торговцев."
+    if {_id} is "theocracy":
+        return "Власть у хранителя веры, светские должности ему подчинены."
+    if {_id} is "anarchy":
+        return "Должностей нет вовсе, договариваются напрямую."
+    return "Общая казна и равные доли, решения принимают сообща."
+
+# Кто в этом строе есть и кто кого назначает
+function rg_posts(id: text) :: text:
+    if {_id} is "democracy":
+        return "Глава (выборный) · Советник · Казначей · Страж"
+    if {_id} is "dictatorship":
+        return "Глава · Страж (личная охрана). Советников нет."
+    if {_id} is "authoritarian":
+        return "Глава · Советник · Страж. Казначей подотчётен главе."
+    if {_id} is "monarchy":
+        return "Глава (наследный) · Преемник · Казначей · Страж"
+    if {_id} is "oligarchy":
+        return "Совет казначеев · Глава-представитель · Страж"
+    if {_id} is "theocracy":
+        return "Хранитель · Советник · Страж. Казна общая."
+    if {_id} is "anarchy":
+        return "Должностей нет. Никто никого не назначает."
+    return "Казначей (общий) · Совет жителей. Главы нет."
+
+# Как уходит глава — это и есть главное различие
+function rg_change(id: text) :: text:
+    if {_id} is "democracy":
+        return "Голосованием жителей в любой момент."
+    if {_id} is "dictatorship":
+        return "Никак. Только силой или решением Суда."
+    if {_id} is "authoritarian":
+        return "Совет вправе требовать отчёта, сместить — только Суд."
+    if {_id} is "monarchy":
+        return "Назначенным преемником после ухода или гибели."
+    if {_id} is "oligarchy":
+        return "Решением совета казначеев."
+    if {_id} is "theocracy":
+        return "Только преемственностью хранителя."
+    if {_id} is "anarchy":
+        return "Некому уходить."
+    return "Общим собранием жителей."
+
+function rg_icon(id: text) :: item:
+    if {_id} is "democracy":
+        return 1 of paper
+    if {_id} is "dictatorship":
+        return 1 of iron sword
+    if {_id} is "authoritarian":
+        return 1 of shield
+    if {_id} is "monarchy":
+        return 1 of golden helmet
+    if {_id} is "oligarchy":
+        return 1 of gold ingot
+    if {_id} is "theocracy":
+        return 1 of enchanted book
+    if {_id} is "anarchy":
+        return 1 of tnt
+    return 1 of bread
+
+function rg_cmd(i: item) :: number:
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+# ---------------------------------------------------------------------------
+# Команда
+# ---------------------------------------------------------------------------
+
+command /regime [<text>] [<text>] [<text>]:
+    description: Форма правления города
+    usage: /regime | list | info <город> | set <город> <тип>
+    trigger:
+        if arg-1 is not set:
+            if sender is a player:
+                rg_menu(player)
+            else:
+                send "{@prefix}&7Меню открывается только в игре. Список: &b/regime list" to sender
+            stop
+
+        if arg-1 is "list":
+            set {_n} to 0
+            loop {regime::type::*}:
+                add 1 to {_n}
+                set {_city} to loop-index
+                set {_t} to rg_name(loop-value)
+                send "&7 - &f%{_city}%&7: &e%{_t}%" to sender
+            if {_n} is 0:
+                send "{@prefix}&7Ни один город строя пока не объявил." to sender
+            stop
+
+        if arg-1 is "info":
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи город." to sender
+                stop
+            set {_t} to {regime::type::%arg-2%}
+            if {_t} is not set:
+                send "{@prefix}&7Город &f%arg-2%&7 строя не объявлял." to sender
+                stop
+            rg_show(sender, arg-2, {_t})
+            stop
+
+        if arg-1 is "set":
+            if sender does not have permission "ekb.town.mayor":
+                if sender does not have permission "coreprotect.rollback":
+                    send "{@prefix}&cСтрой объявляет глава города." to sender
+                    stop
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи название города." to sender
+                stop
+            if arg-3 is not set:
+                send "{@prefix}&7Типы: democracy, dictatorship, authoritarian, monarchy," to sender
+                send "{@prefix}&7oligarchy, theocracy, anarchy, commune" to sender
+                stop
+            if rg_name(arg-3) is "не установлен":
+                send "{@prefix}&cНет такого строя: &f%arg-3%" to sender
+                stop
+            set {regime::type::%arg-2%} to arg-3
+            set {regime::head::%arg-2%} to "%sender%"
+            set {regime::since::%arg-2%} to now
+            set {_t} to rg_name(arg-3)
+            broadcast "{@prefix}Город &f%arg-2%&r объявил строй: &e%{_t}%&r."
+            broadcast "&7%rg_desc(arg-3)%"
+            send "[СТРОЙ] %arg-2% -> %arg-3% (объявил %sender%)" to console
+            stop
+
+        send "{@prefix}&7/regime &8— все формы правления" to sender
+        send "{@prefix}&7/regime list &8— строй каждого города" to sender
+        send "{@prefix}&7/regime info <город>" to sender
+        send "{@prefix}&7/regime set <город> <тип> &8— объявить (глава)" to sender
+
+function rg_show(p: commandsender, city: text, id: text):
+    set {_t} to rg_name({_id})
+    send "{@line}" to {_p}
+    send "{@prefix}&f%{_city}%&7: &e%{_t}%" to {_p}
+    send "&7%rg_desc({_id})%" to {_p}
+    send "&7Должности: &f%rg_posts({_id})%" to {_p}
+    send "&7Смена главы: &f%rg_change({_id})%" to {_p}
+    if {regime::head::%{_city}%} is set:
+        send "&8Объявил: %{regime::head::%{_city}%}%" to {_p}
+    send "{@line}" to {_p}
+
+# ---------------------------------------------------------------------------
+# Меню форм правления
+# ---------------------------------------------------------------------------
+
+function rg_menu(p: player):
+    set {_inv} to a chest inventory with 6 rows named "&8Формы правления"
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7500
+    set name of {_f} to " "
+    set {_fr::*} to 0, 1, 2, 3, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 50, 51 and 52
+    loop {_fr::*}:
+        set slot loop-value of {_inv} to {_f}
+
+    set {_head} to 1 of oak sign
+    set custom model data of {_head} to 7500
+    set name of {_head} to "&6&lФормы правления"
+    set lore of {_head} to "&7Строй решает, кто назначает должности" and "&7и как уходит глава. Суд это учитывает." and "&8Объявить: /regime set <город> <тип>"
+    set slot 4 of {_inv} to {_head}
+
+    set {_ids::*} to "democracy", "dictatorship", "authoritarian", "monarchy", "oligarchy", "theocracy", "anarchy" and "commune"
+    set {_slots::*} to 20, 22, 24, 29, 30, 32, 33 and 40
+    loop {_ids::*}:
+        set {_id} to loop-value
+        set {_i} to rg_icon({_id})
+        set custom model data of {_i} to 7501
+        set name of {_i} to "&e&l%rg_name({_id})%"
+        set lore of {_i} to "&7%rg_desc({_id})%" and "" and "&7Должности: &f%rg_posts({_id})%" and "&7Смена главы: &f%rg_change({_id})%" and "" and "&8id: %{_id}%"
+        set slot ({_slots::%loop-index%}) of {_inv} to {_i}
+
+    set {_x} to 1 of barrier
+    set custom model data of {_x} to 7502
+    set name of {_x} to "&cЗакрыть"
+    set slot 49 of {_inv} to {_x}
+    set {_l} to 1 of map
+    set custom model data of {_l} to 7503
+    set name of {_l} to "&7Строй городов"
+    set lore of {_l} to "&8Кто что объявил"
+    set slot 53 of {_inv} to {_l}
+    open {_inv} to {_p}
+
+on inventory click:
+    event-item is not air
+    set {_c} to rg_cmd(event-item)
+    if {_c} is between 7500 and 7503:
+        cancel event
+        if {_c} is 7502:
+            close player's inventory
+        else if {_c} is 7503:
+            close player's inventory
+            make player execute command "regime list"
+        else if {_c} is 7501:
+            set {_lore::*} to lore of event-item
+            set {_id} to uncoloured ({_lore::6})
+            replace all "id: " with "" in {_id}
+            close player's inventory
+            send "{@prefix}&7Объявить этот строй: &b/regime set <город> %{_id}%" to player
+            rg_show(player, "образец", {_id})

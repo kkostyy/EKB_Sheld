@@ -1,0 +1,221 @@
+menu_title: '&8Наёмники САП'
+open_command:
+  - mercs
+  - наёмники
+size: 54
+
+# Витрина услуг и бронь. Оплата и договор — вручную через Суд/Discord:
+# автоматического списания нет, потому что валюта на сервере физическая
+# (алмазы в сундуке), а не цифра на счету.
+# Кнопка брони пишет заявку в консоль — она уходит и в Discord-канал логов,
+# так что Администрация увидит её даже будучи оффлайн.
+
+items:
+  'rules':
+    material: WRITTEN_BOOK
+    slot: 10
+    display_name: '&e&lКак это работает'
+    lore:
+      - '&7Сотрудник САП может выйти в поле как обычный'
+      - '&7игрок — без админ-команд, ваниша и телепортов'
+      - '&7(Конституция 6.3). На это время он наёмник.'
+      - ''
+      - '&f1. &7Забронируй услугу кнопкой ниже.'
+      - '&f2. &7Заявка уйдёт Администрации.'
+      - '&f3. &7Условия и срок согласуете в Discord.'
+      - '&f4. &7Оплата — алмазами, из рук в руки'
+      - '&7   или через Суд как гаранта.'
+      - ''
+      - '&4Наёмник не применяет служебные полномочия'
+      - '&4в интересах нанимателя — это Трибунал.'
+
+  'guard':
+    material: SHIELD
+    slot: 11
+    display_name: '&a&lОхрана каравана'
+    lore:
+      - '&7Сопровождение груза между городами.'
+      - '&7Один маршрут, туда и обратно.'
+      - ''
+      - '&7Цена: &f64–96💎'
+      - ''
+      - '&aЛКМ &8— забронировать'
+    left_click_commands:
+      - '[close]'
+      - '[console] say &c[НАЁМ] &f%player_name% &7бронирует: &fОхрана каравана &8(64–96💎)'
+      - '[message] &aЗаявка отправлена. Условия согласуй в Discord.'
+
+  'siege':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDA0NTY1MWMwODNiOTg3MzM4NmFjYzA3YjY2Yzc4MGQ3ZGJjODMxOWRkZWJhYjFkMTM4Y2VhZjA5ZjQ5N2UyNyJ9fX0=
+    slot: 12
+    display_name: '&c&lУчастие в войне'
+    lore:
+      - '&7Наёмник воюет на стороне города как'
+      - '&7обычный боец: своя броня, свои риски.'
+      - ''
+      - '&7Цена: &f256–384💎 &7за объявленную войну'
+      - ''
+      - '&4Война должна быть объявлена по правилам'
+      - '&4— за 24 часа в &f#военный-трибунал&4.'
+      - '&4Наёмника на незаконное нападение не берут.'
+      - ''
+      - '&aЛКМ &8— забронировать'
+    left_click_commands:
+      - '[close]'
+      - '[console] say &c[НАЁМ] &f%player_name% &7бронирует: &fУчастие в войне &8(256–384💎)'
+      - '[message] &aЗаявка отправлена. Война должна быть объявлена по правилам.'
+
+  'builder':
+    material: DIAMOND_PICKAXE
+    slot: 13
+    display_name: '&6&lСтроительные работы'
+    lore:
+      - '&7Руками, без админ-инструментов.'
+      - ''
+      - '&7Терраформинг чанка — &f32–48💎'
+      - '&7Плато 5×5 чанков — &f256–512💎'
+      - '&7Раскопка чанка до бедрока — &f256–384💎'
+      - '&7Незер-метро за 500 блоков — &f32–48💎'
+      - ''
+      - '&aЛКМ &8— забронировать'
+    left_click_commands:
+      - '[close]'
+      - '[console] say &c[НАЁМ] &f%player_name% &7бронирует: &fСтроительные работы'
+      - '[message] &aЗаявка отправлена. Объём работ согласуй в Discord.'
+
+  'escort':
+    material: LEAD
+    slot: 14
+    display_name: '&b&lКонвой заключённого'
+    lore:
+      - '&7Доставка осуждённого в тюрьму и охрана'
+      - '&7во время срока — служебная работа САП,'
+      - '&7она бесплатна и делается по решению Суда.'
+      - ''
+      - '&7Нанимать её нельзя: это не услуга,'
+      - '&7а обязанность.'
+
+  'wanted':
+    material: PLAYER_HEAD
+    slot: 15
+    display_name: '&4&lЗаказ на игрока'
+    lore:
+      - '&7Такой услуги нет и не будет.'
+      - ''
+      - '&7Убийство по найму — это грабёж с убийством'
+      - '&7(УК 1.2): возмещение, штраф 32–64💎'
+      - '&7и тюрьма от 10 часов. И заказчику тоже.'
+      - ''
+      - '&7Хочешь чужого добра — иди в Суд.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_town'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_4':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 4
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

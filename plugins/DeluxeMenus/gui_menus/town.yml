@@ -1,0 +1,256 @@
+menu_title: '&8Город'
+open_command:
+  - town
+  - город
+size: 54
+
+items:
+
+  'info':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjI1YjI3Y2U2MmNhODg3NDM4NDBhOTVkMWMzOTg2OGY0M2NhNjA2OTZhODRmNTY0ZmJkN2RkYTI1OWJlMDBmZSJ9fX0=
+    slot: 13
+    display_name: '&e&lМой город'
+    lore:
+      - '&7Название, глава, жители, союзы.'
+      - ''
+      - '&aЛКМ &8— показать'
+    left_click_commands:
+      - '[player] clan info'
+
+  'create':
+    material: OAK_SIGN
+    slot: 20
+    display_name: '&a&lОснователь города'
+    lore:
+      - '&7По Конституции 2.3 нужны название, флаг,'
+      - '&7не меньше 3 жителей, границы и устав,'
+      - '&7зарегистрированные в Discord.'
+      - ''
+      - '&aЛКМ &8— как основать'
+    left_click_commands:
+      - '[message] &a&lГОРОД: &7/clan create <название>'
+      - '[message] &8Название потом не сменить — только префикс.'
+
+  'settings':
+    material: COMPARATOR
+    slot: 22
+    display_name: '&6&lНастройки города'
+    lore:
+      - '&7Префикс, союзы, враги, PvP,'
+      - '&7передача власти и роспуск.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_town_settings'
+
+  'invite':
+    material: PLAYER_HEAD
+    slot: 24
+    display_name: '&b&lЖители'
+    lore:
+      - '&7До 8 жителей в городе.'
+      - ''
+      - '&aЛКМ &8— позвать или выгнать'
+    left_click_commands:
+      - '[message] &b&lЖИТЕЛИ: &7/clan invite <ник>&8 — позвать'
+      - '[message] &b&lЖИТЕЛИ: &7/clan kick <ник>&8 — выгнать'
+
+  'chat':
+    material: PAPER
+    slot: 28
+    display_name: '&a&lЧат города'
+    lore:
+      - '&7Слышат только свои, расстояние не мешает.'
+      - ''
+      - '&aЛКМ &8— сидеть в чате города'
+      - '&aПКМ &8— написать разово'
+    left_click_commands:
+      - '[player] cc toggle'
+    right_click_commands:
+      - '[message] &a&lЧАТ ГОРОДА: &7/cc <сообщение>'
+
+  'gov':
+    material: GOLDEN_HELMET
+    slot: 29
+    display_name: '&6&lУровни власти'
+    lore:
+      - '&7Глава, советник, казначей, страж, житель.'
+      - ''
+      - '&aЛКМ &8— кто за что отвечает'
+    left_click_commands:
+      - '[openguimenu] ekb_town_gov'
+
+  'regime':
+    material: CRAFTING_TABLE
+    slot: 30
+    display_name: '&6&lФорма правления'
+    lore:
+      - '&7Восемь строёв. Строй решает, кто назначает'
+      - '&7должности и как меняется глава — и Суд это учитывает.'
+      - ''
+      - '&aЛКМ &8— мой строй'
+      - '&aПКМ &8— строй городов'
+    left_click_commands:
+      - '[player] regime'
+    right_click_commands:
+      - '[player] regime list'
+
+  'points':
+    material: EXPERIENCE_BOTTLE
+    slot: 31
+    display_name: '&d&lОчки города'
+    lore:
+      - '&aЛКМ &8— очки города'
+      - '&aПКМ &8— мои очки'
+    left_click_commands:
+      - '[player] clan points'
+    right_click_commands:
+      - '[player] clan playerpoints'
+
+  'list':
+    material: MAP
+    slot: 32
+    display_name: '&f&lГорода сервера'
+    lore:
+      - '&aЛКМ &8— все города'
+      - '&aПКМ &8— сильнейшие'
+    left_click_commands:
+      - '[player] clan list'
+    right_click_commands:
+      - '[player] topclans'
+
+  'mercs':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDA0NTY1MWMwODNiOTg3MzM4NmFjYzA3YjY2Yzc4MGQ3ZGJjODMxOWRkZWJhYjFkMTM4Y2VhZjA5ZjQ5N2UyNyJ9fX0=
+    slot: 33
+    display_name: '&c&lНаёмники САП'
+    lore:
+      - '&7Охрана каравана, война, стройка.'
+      - ''
+      - '&aЛКМ &8— прайс и бронь'
+    left_click_commands:
+      - '[openguimenu] ekb_mercenaries'
+
+  'noteleport':
+    material: BARRIER
+    slot: 34
+    display_name: '&4&lПочему нет /clan home'
+    lore:
+      - '&7Телепорты игрокам запрещены Конституцией 1.1,'
+      - '&7поэтому clan-home.enabled стоит false.'
+      - '&7До города добираются ногами или по Незер-метро.'
+
+  'header':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjI1YjI3Y2U2MmNhODg3NDM4NDBhOTVkMWMzOTg2OGY0M2NhNjA2OTZhODRmNTY0ZmJkN2RkYTI1OWJlMDBmZSJ9fX0=
+    slot: 4
+    display_name: '&a&lГород'
+    lore:
+      - '&7Город = клан ClansLite.'
+      - '&7Территория и устав живут в Discord.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_world'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

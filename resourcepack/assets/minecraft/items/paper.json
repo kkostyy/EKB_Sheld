@@ -1,0 +1,33 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/paper"
+    },
+    "entries": [
+      {
+        "threshold": 2004.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/hemp_cloth"
+        }
+      },
+      {
+        "threshold": 2006.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/joint"
+        }
+      },
+      {
+        "threshold": 2013.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/hemp_burlap"
+        }
+      }
+    ]
+  }
+}

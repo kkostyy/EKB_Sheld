@@ -1,0 +1,9 @@
+Sit:
+  SitOnStairs: true
+  SitOnBottomStairs: true
+  SitOnTerrain: true
+Pose:
+  LayEnabled: true
+PlayerSit:
+  Enabled: true
+  ToggleDefault: true

@@ -1,0 +1,298 @@
+# EKB SHIELD — LuckPerms groups.yml (справочная структура прав)
+#
+# ТЕЛЕПОРТЫ: запрещены ТОЛЬКО обычным игрокам (Конституция 1.1 — режим Pure Vanilla/RP).
+# Администрация телепортируется свободно: доставка приговорённых в тюрьму, выезд на
+# место преступления по иску, модерация войн (п. 1.1.1). Поэтому группа default получает
+# явные ЗАПРЕТЫ (ноды с минусом), а не просто «отсутствие прав» — иначе любой плагин,
+# выдающий дефолтные права всем, тихо вернёт игрокам /tpa и /home.
+#
+# ВАЖНО: точные имена нод SuperVanish / spark / OpenInv сверь с plugin.yml
+# установленных версий — ниже перечислены ноды по документации на момент написания.
+
+# ГРАБЛИ, НА КОТОРЫЕ УЖЕ НАСТУПИЛИ. Группу default наследуют ВСЕ, включая главного
+# админа. В LuckPerms явная нода всегда бьёт wildcard, поэтому каждый минус из
+# default закрывал админу доступ, несмотря на '*' в группе admin — вес групп тут
+# не помогает, wildcard проверяется последним. Лечится только явным плюсом на ту же
+# ноду в группе admin (и весами, чтобы плюс победил минус). Добавляешь минус в
+# default — добавь зеркальный плюс в admin, иначе отберёшь право у себя же.
+#
+groups:
+  admin:
+    weight: 100               # выше default(0) и restricted_admin(50)
+    permissions:
+      - '*'
+      # '*' уже включает OpenInv.exempt — инвентарь главного админа
+      # не открывается операторами, у которых нет OpenInv.override (см. ниже).
+
+      # --- Зеркало всех минусов группы default ---
+      # Без этих строк главный админ теряет их вместе с обычными игроками:
+      # явная нода в default сильнее, чем '*' здесь.
+      - minecraft.command.teleport
+      - essentials.tp
+      - essentials.tpa
+      - essentials.tpahere
+      - essentials.tpaccept
+      - essentials.tpdeny
+      - essentials.tpo
+      - essentials.tppos
+      - essentials.home
+      - essentials.sethome
+      - essentials.back
+      - essentials.spawn
+      - essentials.warp
+      - worldguard.region.claim
+      - essentials.protect
+      - sv.use
+      - sv.see
+      - sv.list
+      - sv.others
+      - sv.silentchest
+      - spark
+      - spark.tps
+      - OpenInv.openinv
+      - OpenInv.openender
+      - OpenInv.search
+      - ekb.nirvana.admin
+      - ekb.deathnote.admin
+      - ekb.artifact.admin
+
+      # Зеркала минусов default по плагинам обновления 18.09.2026.
+      # QualityArmory: выдача и крафт стволов. ImageFrame: чужие картины,
+      # анимация, массовое удаление.
+      - qualityarmory.admin
+      - qualityarmory.craft
+      - qualityarmory.shop
+      - imageframe.create.animated
+      - imageframe.create.others
+      - imageframe.overlay
+      - imageframe.list.others
+      - imageframe.marker.unlimited
+      - imageframe.purge
+      - imageframe.purge.all
+      - imageframe.adminbypass
+
+      # Четыре должности обновления 18.09.2026. Главному админу они нужны
+      # не ради самих меню, а чтобы видеть их глазами исполнителя:
+      # проверить, что у приказчика открывается журнал Казны, а у
+      # следователя — список происшествий.
+      - ekb.duty.clerk
+      - ekb.duty.barman
+      - ekb.duty.dealer
+      - ekb.duty.detective
+      - ekb.duty.journalist
+      - ekb.media.streamer
+      - ekb.media.youtuber
+      - ekb.shadow.member
+
+      - ekb.menu.admin          # /menu -> раздел Администрации (DeluxeMenus)
+      - ekb.roles.manage        # /ekbroles — раздача ролей головами.
+                                # Группу admin это меню не выдаёт: главного
+                                # администратора назначают только вручную.
+
+  restricted_admin: # Разграниченный доступ для операторов (не главных админов)
+    weight: 50
+    permissions:
+      - ekb.admin.help          # /ahelp — справочник админских команд
+      - ekb.nirvana.admin       # /nirvana — меню выдачи конопли и напитков.
+                                # Отдельная нода, а не coreprotect.rollback: операторам
+                                # выдача нужна, а откаты — нет.
+      - minecraft.command.teleport
+      - minecraft.command.gamemode
+      # ⚠️ Режим игры даёт EssentialsX, а не ваниль: /gamemode и все его
+      # алиасы (/gmc, /gms, /gmsp) сидят на своих узлах. Одного
+      # minecraft.command.gamemode не хватало — помощник не мог встать ни
+      # в творческий, ни в наблюдателя. Узлы сверены по plugin.yml
+      # EssentialsX 2.22.0.
+      - essentials.gamemode
+      - essentials.gamemode.creative
+      - essentials.gamemode.survival
+      - essentials.gamemode.spectator
+      - essentials.gamemode.adventure
+
+      # Раздача ролей головами (/ekbroles). Лифтом к главному админу
+      # это не становится: группу admin меню не выдаёт вообще
+      # (docs/menu_roles.sk). Но помощник может назначить второго
+      # помощника — это осознанно.
+      - ekb.roles.manage
+      - coreprotect.inspect
+      - coreprotect.lookup
+      - -coreprotect.rollback   # Запрет на откат без решения главного админа
+      - -ekb.deathnote.admin    # Тетрадь Смерти — только главный админ
+      - -ekb.artifact.admin     # То же для шести особых артефактов
+      - -plugman.admin          # Запрет на управление плагинами
+      - ekb.menu.helper         # /menu -> раздел помощника администратора
+      - brewery.admin
+
+      # --- QualityArmory: стволы выдаёт ТОЛЬКО главный админ ---
+      # Та же логика, что у -ekb.deathnote.admin: предмет, который решает
+      # исход конфликта, не должен раздаваться в обход главного админа.
+      # Стрелять помощник может (право наследуется из default).
+      - -qualityarmory.admin
+      - -qualityarmory.give
+
+      # --- ImageFrame: чужие картины видно, трогать нельзя ---
+      # Картина на стене — имущество игрока, а Ст. 1-4 УК требуют возврата
+      # вещей по решению Суда. Удаление чужой вывески «на месте» — это
+      # уничтожение имущества без приговора, ровно как -OpenInv.editinv.
+      - imageframe.create.animated
+      - imageframe.list.others  # посмотреть, что игрок создал
+      - -imageframe.adminbypass # но не править и не удалять чужое
+      - -imageframe.purge
+      - -imageframe.purge.all
+
+      # --- Служебные телепорты (нужны для исполнения приговоров и разбора исков) ---
+      - essentials.tp
+      - essentials.tp.others
+      - essentials.tppos
+      - essentials.tphere
+      - essentials.back
+
+      # --- SuperVanish 6.3.0: наблюдение за подозреваемым ---
+      # Список сверен с кодом плагина. Ноды sv.nopickup / sv.notarget / sv.fakejoin /
+      # sv.fakequit НЕ существуют — это настройки в config.yml SuperVanish, а не права.
+      - sv.use                    # /vanish
+      - sv.silentchest            # открыть сундук, не оставив следа взаимодействия
+      - sv.toggleitempickups      # переключать подбор предметов в ванише
+      - sv.joinvanished           # заходить на сервер сразу невидимым
+      - sv.list                   # /vanish-list
+      - sv.help
+      - -sv.see                   # НЕ видит других невидимых — главный админ остаётся
+                                  # незаметен и для операторов. Сними минус, если нужна
+                                  # совместная работа нескольких админов в ванише.
+      - -sv.others                # не может прятать/показывать других игроков
+      - -sv.notoggle
+      - -sv.reload
+      - -sv.recreatecfg
+      - -sv.updatecfg
+
+      # --- spark: диагностика лагов ---
+      - spark.tps
+      - spark.healthreport
+      - spark.activity
+      - -spark.profiler         # Профилирование грузит сервер — только главный админ
+      - -spark.heapsummary
+      - -spark.gc
+
+      # --- OpenInv: доказательная база по кражам (Глава 1 УК) ---
+      - OpenInv.openinv         # просмотр инвентаря, в т.ч. оффлайн-игрока
+      - OpenInv.openender
+      - OpenInv.search
+      - OpenInv.crossworld
+      - OpenInv.silent
+      - -OpenInv.editinv        # ТОЛЬКО просмотр: изъятие краденого — по решению Суда
+      - -OpenInv.editender
+      - -OpenInv.override       # не может открыть инвентарь того, у кого есть exempt
+      - -OpenInv.anychest
+
+  default:
+    weight: 0
+    permissions:
+      - essentials.help
+      - gsit.sit
+      - gsit.lay
+      - plasmovoice.use
+      - cpm.use
+
+      # --- Запрет телепортов для обычных игроков (Конституция 1.1) ---
+      - -minecraft.command.teleport
+      - -essentials.tp
+      - -essentials.tpa
+      - -essentials.tpahere
+      - -essentials.tpaccept
+      - -essentials.tpdeny
+      - -essentials.tpo
+      - -essentials.tppos
+      - -essentials.home
+      - -essentials.sethome
+      - -essentials.back
+      - -essentials.spawn
+      - -essentials.warp
+
+      # --- Запрет приватов (Конституция 1.1: без /claim) ---
+      - -worldguard.region.claim
+      - -essentials.protect
+
+      # --- Админ-инструменты закрыты явно ---
+      - -sv.use
+      - -sv.see                 # игрок не должен обнаруживать админа в ванише
+      - -sv.list
+      - -sv.others
+      - -sv.silentchest
+      - -spark                  # spark по умолчанию доступен оператору — закрываем всем
+      - -spark.tps
+      - -OpenInv.openinv
+      - -OpenInv.openender
+      - -OpenInv.search
+
+      # --- Выдача предметов закрыта: вся экономика прайс-листа держится на том,
+      #     что конопля добывается только из семян в джунглях (шанс 8%) ---
+      - -ekb.nirvana.admin
+      - -ekb.deathnote.admin
+      - -ekb.artifact.admin
+
+      # --- QualityArmory (обновление 18.09.2026) ---
+      # Стрелять умеют все, потому что ствол нельзя скрафтить и нельзя
+      # купить (enableCrafting/enableShop: false в config.yml плагина) —
+      # оружие в игре появляется только из рук Администрации, и отбирать
+      # право на выстрел у того, кому ствол уже выдали, незачем.
+      # ⚠️ enable_permssionsToShoot в конфиге плагина обязан быть true,
+      # иначе право не проверяется и стреляет вообще кто угодно.
+      - qualityarmory.usegun
+      - -qualityarmory.admin
+      - -qualityarmory.craft
+      - -qualityarmory.shop
+
+      # --- ImageFrame: картины на картах в рамках ---
+      # Создавать, переименовывать и удалять СВОИ — можно: карта стоит
+      # бумаги и компаса (RequireEmptyMaps: true), то есть вывеска добыта
+      # руками, как и всё остальное на сервере.
+      - imageframe.create
+      - imageframe.createlimit.default
+      - imageframe.info
+      - imageframe.list
+      - imageframe.get
+      - imageframe.delete
+      - imageframe.rename
+      - imageframe.clone
+      - imageframe.select
+      - imageframe.marker
+      - imageframe.refresh
+      - imageframe.setaccess
+      - imageframe.playback
+      # Анимация (GIF) — отдельный рендер на каждый кадр, на стене города
+      # это постоянный трафик; оставлено Администрации.
+      - -imageframe.create.animated
+      - -imageframe.create.others
+      - -imageframe.overlay      # рисование поверх ванильных карт-заготовок
+      - -imageframe.list.others
+      - -imageframe.marker.unlimited
+      - -imageframe.purge
+      - -imageframe.purge.all
+      - -imageframe.adminbypass
+
+      # --- Должности обновления 18.09.2026 ---
+      # Все четыре выдаются поимённо через /ekbroles и по умолчанию
+      # закрыты. Минусы здесь явные, а не «просто отсутствие права»:
+      # иначе любой плагин, раздающий дефолтные права всем, тихо откроет
+      # игрокам журнал Казны и список открытых убийств.
+      #   /ekbroles -> голова игрока -> Приказчик Мэрии / Бармен /
+      #                Крупье / Следователь
+      - -ekb.duty.clerk
+      - -ekb.duty.barman
+      - -ekb.duty.dealer
+      - -ekb.duty.detective
+      - -ekb.duty.journalist
+      - -ekb.media.streamer
+      - -ekb.media.youtuber
+      - -ekb.shadow.member
+
+      # --- Меню (DeluxeMenus). Кочевник — состояние по умолчанию: игрок без
+      #     государства и без прописки на Спавне. Гражданство выдаётся руками:
+      #       /lp user <ник> permission set ekb.menu.citizen true   — гражданин государства
+      #       /lp user <ник> permission set ekb.menu.capital true   — житель Спавна
+      #     Отбирается тем же с false или unset.
+      #     Вместе с гражданством имеет смысл поднять лимит картин ImageFrame
+      #     (5 -> 10, тарифы в plugins/ImageFrame/config.yml):
+      #       /lp user <ник> permission unset imageframe.createlimit.default
+      #       /lp user <ник> permission set   imageframe.createlimit.citizen true ---
+      - ekb.menu.nomad

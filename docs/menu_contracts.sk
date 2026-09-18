@@ -1,0 +1,195 @@
+# EKB SHIELD — menu_contracts.sk
+# Контракты головами: выбрать цель, назначить награду, взять исполнение —
+# всё кликами, без ввода ников и номеров.
+#
+# Опознание кликов — по CustomModelData (7400-7420), как в остальных меню:
+# переменная-флаг здесь не годится, её гасит событие закрытия предыдущего
+# инвентаря (см. menu_players.sk).
+#
+#   7400 — рамка          7401 — голова цели (заказ)
+#   7402 — сумма награды  7403 — закрыть
+#   7404 — назад          7405 — открытый контракт на доске
+#   7406 — мои дела
+#
+# Требует contracts.sk. Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &4&l[КОНТРАКТ] &r
+
+# {ctm::target::%uuid%} — выбранная цель, пока заказчик выбирает сумму
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+function ctm_cmd(i: item) :: number:
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function ctm_button(i: item, cmd: number, title: text, note: text) :: item:
+    set custom model data of {_i} to {_cmd}
+    set name of {_i} to {_title}
+    set lore of {_i} to {_note}
+    return {_i}
+
+function ctm_frame(inv: inventory):
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7400
+    set name of {_f} to " "
+    set {_slots::*} to 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 46, 47, 48, 50, 51 and 52
+    loop {_slots::*}:
+        set slot loop-value of {_inv} to {_f}
+
+# ---------------------------------------------------------------------------
+# Шаг 1 — выбрать цель
+# ---------------------------------------------------------------------------
+
+command /ctmenu [<text>]:
+    description: Контракты через меню
+    usage: /ctmenu [new|board]
+    trigger:
+        if arg-1 is "board":
+            ctm_board(player)
+            stop
+        ctm_targets(player)
+
+function ctm_targets(p: player):
+    set {_u} to "%uuid of {_p}%"
+    delete {ctm::target::%{_u}%}
+    set {_inv} to a chest inventory with 6 rows named "&8Заказ: на кого"
+    ctm_frame({_inv})
+    set {_slots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+    set {_n} to 0
+    loop all players:
+        if loop-player is not {_p}:
+            if {_n} < 28:
+                add 1 to {_n}
+                set {_h} to 1 of player head
+                set skull owner of {_h} to loop-player
+                set custom model data of {_h} to 7401
+                set name of {_h} to "&f%loop-player%"
+                set lore of {_h} to "&7Клик — назначить награду" and "&8Депозит платится вперёд"
+                set slot ({_slots::%{_n}%}) of {_inv} to {_h}
+    if {_n} is 0:
+        set slot 22 of {_inv} to ctm_button(1 of barrier, 7403, "&7Некого заказывать", "&8В сети только ты.")
+    set slot 45 of {_inv} to ctm_button(1 of arrow, 7404, "&7Назад", "&8В меню контрактов")
+    set slot 49 of {_inv} to ctm_button(1 of barrier, 7403, "&cЗакрыть", "&8Передумать")
+    set slot 53 of {_inv} to ctm_button(1 of oak sign, 7406, "&6Доска контрактов", "&8Открытые заказы")
+    open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Шаг 2 — сумма
+# ---------------------------------------------------------------------------
+
+function ctm_price(p: player, target: text):
+    set {_u} to "%uuid of {_p}%"
+    set {ctm::target::%{_u}%} to {_target}
+    set {_inv} to a chest inventory with 3 rows named "&8Награда за %{_target}%"
+
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7400
+    set name of {_f} to " "
+    set {_fr::*} to 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25 and 26
+    loop {_fr::*}:
+        set slot loop-value of {_inv} to {_f}
+
+    set {_h} to 1 of player head
+    set skull owner of {_h} to {_target} parsed as offline player
+    set custom model data of {_h} to 7400
+    set name of {_h} to "&c%{_target}%"
+    set lore of {_h} to "&7Выбери награду ниже" and "&4Заказ — статья УК 5, отвечают оба"
+    set slot 4 of {_inv} to {_h}
+
+    set {_sums::*} to 16, 32, 64, 128 and 256
+    set {_slots::*} to 10, 11, 12, 13 and 14
+    loop {_sums::*}:
+        set {_i} to 1 of diamond
+        set {_sum} to loop-value
+        set {_have} to number of diamond in {_p}'s inventory
+        set custom model data of {_i} to 7402
+        set name of {_i} to "&b%{_sum}%💎"
+        if {_have} >= {_sum}:
+            set lore of {_i} to "&aХватает: у тебя &f%{_have}%💎" and "&8Спишется сразу в депозит"
+        else:
+            set lore of {_i} to "&cНе хватает: у тебя &f%{_have}%💎" and "&8Нужно принести с собой"
+        set slot ({_slots::%loop-index%}) of {_inv} to {_i}
+
+    set slot 16 of {_inv} to ctm_button(1 of arrow, 7404, "&7К списку", "&8Выбрать другую цель")
+    set slot 22 of {_inv} to ctm_button(1 of barrier, 7403, "&cОтмена", "&8Ничего не заказывать")
+    open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Доска: открытые контракты головами целей
+# ---------------------------------------------------------------------------
+
+function ctm_board(p: player):
+    set {_inv} to a chest inventory with 6 rows named "&8Доска контрактов"
+    ctm_frame({_inv})
+    set {_slots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+    set {_n} to 0
+    loop {ct::target::*}:
+        set {_id} to loop-index
+        if {_n} < 28:
+            add 1 to {_n}
+            set {_h} to 1 of player head
+            set skull owner of {_h} to loop-value parsed as offline player
+            set custom model data of {_h} to 7405
+            set {_price} to {ct::price::%{_id}%}
+            if {ct::taker::%{_id}%} is set:
+                set {_alias} to ct_alias({ct::taker::%{_id}%})
+                set name of {_h} to "&8№%{_id}% &7%loop-value%"
+                set lore of {_h} to "&7Награда: &b%{_price}%💎" and "&8Взят: %{_alias}%" and "&8Свободных исполнителей нет"
+            else:
+                set name of {_h} to "&c№%{_id}% &f%loop-value%"
+                set lore of {_h} to "&7Награда: &b%{_price}%💎" and "&aКлик — взять исполнение" and "&8Ты останешься под псевдонимом"
+            set slot ({_slots::%{_n}%}) of {_inv} to {_h}
+    if {_n} is 0:
+        set slot 22 of {_inv} to ctm_button(1 of barrier, 7403, "&7Контрактов нет", "&8Доска пуста.")
+    set slot 45 of {_inv} to ctm_button(1 of arrow, 7404, "&7Назад", "&8В меню контрактов")
+    set slot 49 of {_inv} to ctm_button(1 of barrier, 7403, "&cЗакрыть", "")
+    set slot 53 of {_inv} to ctm_button(1 of writable book, 7406, "&7Мои дела", "&8Заказы и взятые контракты")
+    open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Клики
+# ---------------------------------------------------------------------------
+
+on inventory click:
+    event-item is not air
+    set {_c} to ctm_cmd(event-item)
+    if {_c} is between 7400 and 7406:
+        cancel event
+        set {_u} to "%uuid of player%"
+
+        if {_c} is 7403:
+            close player's inventory
+        else if {_c} is 7404:
+            if {ctm::target::%{_u}%} is set:
+                delete {ctm::target::%{_u}%}
+                ctm_targets(player)
+            else:
+                close player's inventory
+                make player say "/menu"   # команда меню живёт в перехвате чата, не в карте команд
+        else if {_c} is 7406:
+            if {ctm::target::%{_u}%} is set:
+                close player's inventory
+                make player execute command "contract mine"
+            else:
+                ctm_board(player)
+        else if {_c} is 7401:
+            ctm_price(player, uncoloured (name of event-item))
+        else if {_c} is 7402:
+            set {_target} to {ctm::target::%{_u}%}
+            set {_sum} to uncoloured (name of event-item)
+            replace all "💎" with "" in {_sum}
+            close player's inventory
+            delete {ctm::target::%{_u}%}
+            make player execute command "contract new %{_target}% %{_sum}%"
+        else if {_c} is 7405:
+            set {_line} to uncoloured (name of event-item)
+            if {_line} contains "№":
+                set {_id} to first element out of (split {_line} at " ")
+                replace all "№" with "" in {_id}
+                close player's inventory
+                make player execute command "contract take %{_id}%"

@@ -1,0 +1,215 @@
+# EKB SHIELD — service_calls.sk
+# Вызов служб: медик, суд, шериф, строительная бригада, почта.
+#
+# Телепортов на сервере нет, поэтому вызов — это не «служба появится рядом»,
+# а объявление с координатами: сотрудник читает, отвечает и идёт ногами.
+# Поэтому в заявке всегда есть мир и координаты, а сотрудник может её
+# принять — чтобы вызвавший знал, что к нему уже вышли, и не звал второй раз.
+#
+# Заявка уходит:
+#   — всем, у кого есть право этой службы;
+#   — в консоль (а оттуда в Discord-канал логов через DiscordSRV).
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &b&l[ВЫЗОВ] &r
+    line: &8&m----------------------------------------
+    cooldown: 120       # секунд между вызовами одной службы от одного игрока
+
+# Хранилище:
+#   {call::last::%uuid%::%служба%} — unix-время последнего вызова
+#   {call::id}                     — счётчик заявок
+#   {call::owner::%номер%}         — кто вызвал
+#   {call::kind::%номер%}          — какая служба
+#   {call::where::%номер%}         — где ждут
+#   {call::taken::%номер%}         — кто принял
+
+# ---------------------------------------------------------------------------
+# Справочник служб
+# ---------------------------------------------------------------------------
+
+function call_title(kind: text) :: text:
+    if {_kind} is "medic":
+        return "Клиника"
+    if {_kind} is "court":
+        return "Суд"
+    if {_kind} is "sheriff":
+        return "Шериф"
+    if {_kind} is "builder":
+        return "Строительная бригада"
+    if {_kind} is "post":
+        return "Почта"
+    if {_kind} is "clerk":
+        return "Приказчик Мэрии"
+    if {_kind} is "barman":
+        return "Бармен"
+    if {_kind} is "dealer":
+        return "Крупье"
+    if {_kind} is "detective":
+        return "Следователь"
+    return "Служба"
+
+function call_perm(kind: text) :: text:
+    if {_kind} is "medic":
+        return "ekb.menu.doctor"
+    if {_kind} is "court":
+        return "ekb.menu.judge"
+    if {_kind} is "sheriff":
+        return "ekb.duty.sheriff"
+    if {_kind} is "builder":
+        return "ekb.duty.builder"
+    if {_kind} is "post":
+        return "ekb.duty.postman"
+    if {_kind} is "clerk":
+        return "ekb.duty.clerk"
+    if {_kind} is "barman":
+        return "ekb.duty.barman"
+    if {_kind} is "dealer":
+        return "ekb.duty.dealer"
+    if {_kind} is "detective":
+        return "ekb.duty.detective"
+    return ""
+
+function call_price(kind: text) :: text:
+    if {_kind} is "medic":
+        return "осмотр бесплатно, курс 64–160💎, выезд +32💎"
+    if {_kind} is "court":
+        return "по решению Суда, пошлин нет"
+    if {_kind} is "sheriff":
+        return "бесплатно: охрана порядка — обязанность"
+    if {_kind} is "builder":
+        return "по Строительной бирже: от 32💎 за чанк"
+    if {_kind} is "clerk":
+        return "аренда 10💎/неделю, скупка — половина прайса"
+    if {_kind} is "barman":
+        return "по прайсу бара: 6–80💎 за бутылку"
+    if {_kind} is "dealer":
+        return "по договорённости за стол"
+    if {_kind} is "detective":
+        return "осмотр места — 20💎 в Казну"
+    return "доставка письма — по договорённости"
+
+# Сколько сотрудников службы сейчас в сети
+function call_staff(kind: text) :: number:
+    set {_perm} to call_perm({_kind})
+    set {_n} to 0
+    loop all players:
+        if loop-player has permission {_perm}:
+            add 1 to {_n}
+    return {_n}
+
+# ---------------------------------------------------------------------------
+# Вызов
+# ---------------------------------------------------------------------------
+
+command /call <text> [<text>]:
+    description: Вызвать службу к своим координатам
+    usage: /call <medic|court|sheriff|builder|post|clerk|barman|dealer|detective> [причина]
+    trigger:
+        set {_kind} to arg-1
+        if {_kind} is "take":
+            call_take(player, arg-2)
+            stop
+        set {_perm} to call_perm({_kind})
+        if {_perm} is "":
+            send "{@prefix}&cСлужбы: &fmedic&c, &fcourt&c, &fsheriff&c, &fbuilder&c, &fpost&c," to player
+            send "{@prefix}&fclerk&c (Мэрия), &fbarman&c, &fdealer&c (крупье), &fdetective&c." to player
+            stop
+
+        set {_u} to "%uuid of player%"
+        set {_now} to unix timestamp of now
+        set {_last} to {call::last::%{_u}%::%{_kind}%}
+        if {_last} is set:
+            if ({_now} - {_last}) < {@cooldown}:
+                set {_wait} to {@cooldown} - ({_now} - {_last})
+                send "{@prefix}&cТу же службу можно вызвать через &f%{_wait}%&c сек." to player
+                stop
+        set {call::last::%{_u}%::%{_kind}%} to {_now}
+
+        set {_title} to call_title({_kind})
+        set {_loc} to location of player
+        set {_where} to "%world of {_loc}% %round(x coordinate of {_loc})%, %round(y coordinate of {_loc})%, %round(z coordinate of {_loc})%"
+        set {_why} to arg-2
+        if {_why} is not set:
+            set {_why} to "без уточнения"
+
+        add 1 to {call::id}
+        set {_id} to {call::id}
+        set {call::owner::%{_id}%} to "%player%"
+        set {call::kind::%{_id}%} to {_kind}
+        set {call::where::%{_id}%} to {_where}
+        delete {call::taken::%{_id}%}
+
+        set {_staff} to call_staff({_kind})
+        send "{@prefix}&aВызов №&f%{_id}%&a отправлен: &f%{_title}%&a." to player
+        send "{@prefix}&7Координаты в заявке: &f%{_where}%" to player
+        send "{@prefix}&7Цена: &f%call_price({_kind})%" to player
+        if {_staff} is 0:
+            send "{@prefix}&cСейчас никого из этой службы нет в сети — заявка осталась в Discord." to player
+        else:
+            send "{@prefix}&7Сотрудников в сети: &f%{_staff}%&7. Жди ответа." to player
+
+        set {_perm} to call_perm({_kind})
+        loop all players:
+            if loop-player has permission {_perm}:
+                send "{@line}" to loop-player
+                send "{@prefix}&e%{_title}%&7, вызов №&f%{_id}%" to loop-player
+                send "&7Кто: &f%player%" to loop-player
+                send "&7Где: &f%{_where}%" to loop-player
+                send "&7Причина: &f%{_why}%" to loop-player
+                send "&7Принять: &b/call take %{_id}%" to loop-player
+                send "{@line}" to loop-player
+                play sound "block.note_block.pling" with volume 0.6 at loop-player
+
+        # в консоль — оттуда заявка уходит в Discord
+        send "[ВЫЗОВ] №%{_id}% %{_title}%: %player% в %{_where}% — %{_why}%" to console
+
+# ---------------------------------------------------------------------------
+# Принять вызов
+# ---------------------------------------------------------------------------
+
+function call_take(p: player, id: text):
+    if {_id} is not set:
+        send "{@prefix}&cУкажи номер: &b/call take <номер>" to {_p}
+    else:
+        set {_kind} to {call::kind::%{_id}%}
+        if {_kind} is not set:
+            send "{@prefix}&cЗаявки №%{_id}% нет." to {_p}
+        else:
+            if {_p} does not have permission call_perm({_kind}):
+                send "{@prefix}&cЭто заявка не твоей службы." to {_p}
+            else:
+                if {call::taken::%{_id}%} is set:
+                    send "{@prefix}&7Заявку уже принял &f%{call::taken::%{_id}%}%&7." to {_p}
+                else:
+                    set {call::taken::%{_id}%} to "%{_p}%"
+                    set {_owner} to {call::owner::%{_id}%}
+                    set {_where} to {call::where::%{_id}%}
+                    send "{@prefix}&aПринято. Идти сюда: &f%{_where}%" to {_p}
+                    set {_who} to {_owner} parsed as player
+                    if {_who} is set:
+                        send "{@prefix}&a%{_p}% &7принял вызов №&f%{_id}%&7 и выехал к тебе." to {_who}
+                    send "[ВЫЗОВ] №%{_id}% принял %{_p}%" to console
+
+# ---------------------------------------------------------------------------
+# Список открытых заявок — для сотрудников
+# ---------------------------------------------------------------------------
+
+command /calls:
+    description: Открытые вызовы служб
+    trigger:
+        set {_n} to 0
+        loop {call::kind::*}:
+            set {_id} to loop-index
+            set {_kind} to loop-value
+            if player has permission call_perm({_kind}):
+                if {call::taken::%{_id}%} is not set:
+                    add 1 to {_n}
+                    set {_who} to {call::owner::%{_id}%}
+                    set {_where} to {call::where::%{_id}%}
+                    set {_title} to call_title({_kind})
+                    send "&7 №&f%{_id}% &e%{_title}%&7: &f%{_who}%&7 — %{_where}%" to player
+                    send "&8   принять: &b/call take %{_id}%" to player
+        if {_n} is 0:
+            send "{@prefix}&7Открытых заявок твоей службы нет." to player

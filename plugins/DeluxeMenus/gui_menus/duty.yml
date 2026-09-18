@@ -1,0 +1,334 @@
+menu_title: '&8Служба'
+open_command:
+  - duty
+  - служба
+size: 54
+
+items:
+
+  'admin':
+    material: NETHER_STAR
+    slot: 13
+    display_name: '&c&lАдминистрация'
+    lore:
+      - '&7Суд, тюрьма, предметы, мир, сервис.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.admin
+    left_click_commands:
+      - '[openguimenu] ekb_admin'
+
+  'helper':
+    material: IRON_SWORD
+    slot: 20
+    display_name: '&6&lПомощник админа'
+    lore:
+      - '&7Смотреть можно, менять — нет.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.helper
+    left_click_commands:
+      - '[openguimenu] ekb_helper'
+
+  'judge':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
+    slot: 22
+    display_name: '&6&lСудья'
+    lore:
+      - '&7Дела, приговоры, имущество.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.judge
+    left_click_commands:
+      - '[openguimenu] ekb_judge'
+
+  'doctor':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmU3YTgxMGQyMTEyMjc1Y2MxODIxZGNjNmUyOWRhM2QyYjhmYzY1OWFmNzI5MGEzY2I3MGJlNTM2YWUyMDQwYSJ9fX0=
+    slot: 24
+    display_name: '&a&lВрач Клиники'
+    lore:
+      - '&7Осмотр, лечение, вытрезвитель.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.doctor
+    left_click_commands:
+      - '[openguimenu] ekb_doctor'
+
+  'sheriff':
+    material: IRON_SWORD
+    slot: 28
+    display_name: '&c&lШериф Спавна'
+    lore:
+      - '&7Порядок на Рынке и в нейтральной зоне.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.sheriff
+    left_click_commands:
+      - '[openguimenu] ekb_sheriff'
+
+  'builder':
+    material: DIAMOND_PICKAXE
+    slot: 29
+    display_name: '&e&lБригадир строителей'
+    lore:
+      - '&7Заказы Строительной биржи.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.builder
+    left_click_commands:
+      - '[openguimenu] ekb_builder'
+
+  'postman':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
+    slot: 30
+    display_name: '&f&lПочтальон'
+    lore:
+      - '&7Доставка писем и посылок.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.postman
+    left_click_commands:
+      - '[openguimenu] ekb_postman'
+
+  'clerk':
+    material: LECTERN
+    slot: 31
+    display_name: '&b&lПриказчик Мэрии'
+    lore:
+      - '&7Казна, аренда палаток, скупщик, лоты.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.clerk
+    left_click_commands:
+      - '[openguimenu] ekb_clerk'
+
+  'barman':
+    material: BREWING_STAND
+    slot: 32
+    display_name: '&6&lБармен'
+    lore:
+      - '&7Стойка, вытрезвитель, состояние гостя.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.barman
+    left_click_commands:
+      - '[openguimenu] ekb_barman'
+
+  'dealer':
+    material: OAK_PRESSURE_PLATE
+    slot: 33
+    display_name: '&d&lКрупье'
+    lore:
+      - '&7Настольные игры, кости, ставки.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.dealer
+    left_click_commands:
+      - '[openguimenu] ekb_dealer'
+
+  'detective':
+    material: SPYGLASS
+    slot: 34
+    display_name: '&9&lСледователь'
+    lore:
+      - '&7Осмотр мест убийств, открытые дела.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.detective
+    left_click_commands:
+      - '[openguimenu] ekb_detective'
+
+  'press':
+    material: WRITTEN_BOOK
+    slot: 39
+    display_name: '&6&lГазета'
+    lore:
+      - '&7Выпуски, копии, экстренные новости,'
+      - '&7анонсы эфиров.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_press'
+
+  'assassin':
+    material: IRON_SWORD
+    slot: 40
+    display_name: '&4&lТёмное ремесло'
+    lore:
+      - '&7Контракты на устранение.'
+      - '&4Профессия вне закона — статья УК 5.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_assassin'
+
+  'callmenu':
+    material: BELL
+    slot: 41
+    display_name: '&b&lВызвать службу'
+    lore:
+      - '&7Медик, Суд, шериф, бригада, почта.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_calls'
+
+  'header':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
+    slot: 4
+    display_name: '&c&lСлужба'
+    lore:
+      - '&7Пустые слоты — это должности,'
+      - '&7которых у тебя нет.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_main'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

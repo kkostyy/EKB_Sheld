@@ -1,0 +1,281 @@
+# EKB SHIELD — addiction.sk
+# Зависимость от алкоголя и от травы. Две РАЗДЕЛЬНЫЕ шкалы: пьяница и
+# курильщик ломаются по-разному и лечатся отдельно.
+#
+# Как это устроено:
+#   каждая доза поднимает свою шкалу на 1 и обнуляет счётчик трезвости;
+#   после {@threshold} доз игрок считается зависимым, и дальше время без
+#   дозы начинает работать против него: {@stage1} секунд ОНЛАЙН — первая
+#   стадия ломки (тошнота и голод), {@stage2} — вторая (плюс слабость и
+#   замедление). Урона ломка не наносит.
+#
+# Время считается только пока игрок в сети — как срок в jail_online_time.sk:
+# отсидеться в оффлайне, чтобы «перетерпеть», нельзя.
+#
+# ⚠ Сама шкала НЕ спадает от воздержания. Слезть можно тремя способами:
+#   — рассол (CMD 1014) и молоко глушат симптомы на {@relief} секунд,
+#     но зависимость остаётся;
+#   — /addiction cure <ник> — лечение у админа или отыгрывающего врача;
+#   — смерть обнуляет обе шкалы.
+#
+# Требуется: Skript 2.16.2. Дозы травы засчитывает nirvana.sk вызовом
+# addict_dose(player, "weed") — алкоголь этот скрипт ловит сам.
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &4&l[ЗАВИСИМОСТЬ] &r
+    threshold: 10       # доз, после которых игрок считается зависимым
+    stage1: 1200        # секунд онлайн без дозы -> первая стадия ломки
+    stage2: 2700        # секунд онлайн без дозы -> вторая стадия
+    relief: 300         # на сколько секунд рассол и молоко глушат ломку
+    tick: 30            # период проверки; эффекты вешаются чуть дольше него
+
+# Хранилище (ключ — UUID, см. предупреждение в jail_online_time.sk:
+# %player% в имени переменной даёт UUID, а %offlineplayer% — ник):
+#   {addict::level::alco::%uuid%}  — сколько доз принято
+#   {addict::level::weed::%uuid%}
+#   {addict::clean::alco::%uuid%}  — секунд онлайн без дозы
+#   {addict::clean::weed::%uuid%}
+#   {addict::relief::%uuid%}       — unix-время, до которого симптомы заглушены
+#   {addict::name::%uuid%}         — ник для списков
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+# У пустой руки и у ванильных предметов CMD равен 0
+function addict_cmd(i: item) :: number:
+    # У воздуха нет меты: `custom model data of air` кидает исключение,
+    # а проверять пустые слоты приходится постоянно.
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function addict_label(kind: text) :: text:
+    if {_kind} is "alco":
+        return "алкоголь"
+    return "трава"
+
+# Полоска для /addiction: 10 делений
+function addict_bar(n: number, max: number) :: text:
+    set {_full} to round((({_n} / {_max}) * 10))
+    if {_full} > 10:
+        set {_full} to 10
+    if {_full} < 0:
+        set {_full} to 0
+    set {_s} to "&c"
+    loop 10 times:
+        if loop-number <= {_full}:
+            set {_s} to "%{_s}%█"
+        else:
+            set {_s} to "%{_s}%&8░&c"
+    return {_s}
+
+# ---------------------------------------------------------------------------
+# Доза
+# ---------------------------------------------------------------------------
+
+# kind: "alco" или "weed". Вызывается и отсюда (алкоголь), и из nirvana.sk.
+function addict_dose(p: player, kind: text):
+    set {_u} to "%uuid of {_p}%"
+    set {addict::name::%{_u}%} to "%{_p}%"
+    add 1 to {addict::level::%{_kind}%::%{_u}%}
+    set {addict::clean::%{_kind}%::%{_u}%} to 0
+    set {_lvl} to {addict::level::%{_kind}%::%{_u}%}
+    if {_lvl} is {@threshold}:
+        send "{@prefix}&cТебя затянуло. Без этого теперь будет ломать." to {_p}
+        send "{@prefix}&7Лечит только врач &b/addiction cure&7 — или смерть." to {_p}
+
+# Рассол и молоко: симптомы уходят, зависимость остаётся
+function addict_relief(p: player, what: text):
+    set {_u} to "%uuid of {_p}%"
+    set {addict::relief::%{_u}%} to (unix timestamp of now) + {@relief}
+    if addict_is_sick({_p}) is true:
+        send "{@prefix}&aОтпустило. Ненадолго — %{_what}% лечит симптом, а не тягу." to {_p}
+
+# Есть ли у игрока хоть одна зависимость
+function addict_is_sick(p: player) :: boolean:
+    set {_u} to "%uuid of {_p}%"
+    if {addict::level::alco::%{_u}%} >= {@threshold}:
+        return true
+    if {addict::level::weed::%{_u}%} >= {@threshold}:
+        return true
+    return false
+
+# ---------------------------------------------------------------------------
+# Алкоголь: напитки BreweryX — это зелья с CMD 1001-1014
+# ---------------------------------------------------------------------------
+
+# Рассол (1014) сделан напитком с отрицательным alcohol и трезвит, поэтому
+# дозой он не считается — наоборот, глушит ломку.
+on consume of potion:
+    set {_cmd} to addict_cmd(the consumed item)
+    if {_cmd} is 1014:
+        addict_relief(player, "рассол")
+    else if {_cmd} is between 1001 and 1013:
+        addict_dose(player, "alco")
+
+on consume of milk bucket:
+    addict_relief(player, "молоко")
+
+# ---------------------------------------------------------------------------
+# Ломка
+# ---------------------------------------------------------------------------
+
+# Условия внутри цикла обязаны быть в блоках if: голое условие в Skript
+# обрывает ВЕСЬ триггер, а не переходит к следующему игроку (грабли nirvana.sk).
+every {@tick} seconds:
+    loop all players:
+        addict_tick(loop-player, "alco")
+        addict_tick(loop-player, "weed")
+
+# Голый `return` в функции без типа возврата Skript 2.16.2 не понимает
+# ("Can't understand this condition/effect: return"), поэтому выход из
+# середины сделан вложенными if, а не досрочным возвратом.
+function addict_tick(p: player, kind: text):
+    set {_u} to "%uuid of {_p}%"
+    set {_lvl} to {addict::level::%{_kind}%::%{_u}%}
+    if {_lvl} is set:
+        if {_lvl} >= {@threshold}:
+            add {@tick} to {addict::clean::%{_kind}%::%{_u}%}
+            set {_clean} to {addict::clean::%{_kind}%::%{_u}%}
+            if {_clean} >= {@stage1}:
+                # рассол и молоко: тяга копится, но ломать не начинает
+                set {_muted} to false
+                set {_relief} to {addict::relief::%{_u}%}
+                if {_relief} is set:
+                    if (unix timestamp of now) < {_relief}:
+                        set {_muted} to true
+                if {_muted} is false:
+                    set {_what} to addict_label({_kind})
+                    apply nausea 1 to {_p} for 35 seconds
+                    apply hunger 1 to {_p} for 35 seconds
+                    if {_clean} >= {@stage2}:
+                        apply weakness 1 to {_p} for 35 seconds
+                        apply slowness 1 to {_p} for 35 seconds
+                        send action bar "&4Ломка: %{_what}% &8(тяжёлая)" to {_p}
+                    else:
+                        send action bar "&cЛомка: %{_what}%" to {_p}
+
+# Смерть обнуляет обе шкалы — на том свете не курят
+# Составное `A is set or B is set` Skript не разбирает — проверяем по флагу
+on death of player:
+    set {_u} to "%uuid of victim%"
+    set {_had} to false
+    if {addict::level::alco::%{_u}%} is set:
+        set {_had} to true
+    if {addict::level::weed::%{_u}%} is set:
+        set {_had} to true
+    if {_had} is true:
+        delete {addict::level::alco::%{_u}%}
+        delete {addict::level::weed::%{_u}%}
+        delete {addict::clean::alco::%{_u}%}
+        delete {addict::clean::weed::%{_u}%}
+        delete {addict::relief::%{_u}%}
+        send "{@prefix}&7Смерть списала всё: тяги больше нет." to victim
+
+# ---------------------------------------------------------------------------
+# Команда
+# ---------------------------------------------------------------------------
+
+command /addiction [<text>] [<offlineplayer>] [<text>] [<number>]:
+    description: Зависимость от алкоголя и травы
+    usage: /addiction | info <ник> | cure <ник> [alco|weed] | set <ник> <alco|weed> <n> | clean <ник> <alco|weed> <мин>
+    aliases: /zavisimost, /lomka
+    trigger:
+        if arg-1 is not set:
+            addict_show(player, "%uuid of player%", "Твоё состояние")
+            stop
+
+        if sender does not have permission "coreprotect.rollback":
+            send "{@prefix}&cЭто дело врача." to sender
+            stop
+
+        if arg-2 is not set:
+            send "{@prefix}&7/addiction info <ник>" to sender
+            send "{@prefix}&7/addiction cure <ник> [alco|weed]" to sender
+            send "{@prefix}&7/addiction set <ник> <alco|weed> <n>" to sender
+            send "{@prefix}&7/addiction clean <ник> <alco|weed> <мин>" to sender
+            stop
+        set {_u} to "%uuid of arg-2%"
+        set {_n} to "%arg-2%"
+
+        if arg-1 is "info":
+            addict_show(sender, {_u}, "Состояние %{_n}%")
+            stop
+
+        if arg-1 is "cure":
+            set {_kind} to arg-3
+            if {_kind} is "alco" or "weed":
+                delete {addict::level::%{_kind}%::%{_u}%}
+                delete {addict::clean::%{_kind}%::%{_u}%}
+                set {_what} to addict_label({_kind})
+                send "{@prefix}&aВылечено (&f%{_what}%&a) у &f%{_n}%&a." to sender
+            else:
+                delete {addict::level::alco::%{_u}%}
+                delete {addict::level::weed::%{_u}%}
+                delete {addict::clean::alco::%{_u}%}
+                delete {addict::clean::weed::%{_u}%}
+                send "{@prefix}&aВылечены обе зависимости у &f%{_n}%&a." to sender
+            if arg-2 is online:
+                set {_p} to {_n} parsed as player
+                send "{@prefix}&aКурс лечения окончен. Тяги больше нет." to {_p}
+            stop
+
+        if arg-1 is "set":
+            set {_kind} to arg-3
+            if {_kind} is not "alco":
+                if {_kind} is not "weed":
+                    send "{@prefix}&cУкажи alco или weed." to sender
+                    stop
+            if arg-4 is not set:
+                send "{@prefix}&cУкажи число доз." to sender
+                stop
+            set {addict::level::%{_kind}%::%{_u}%} to arg-4
+            set {addict::clean::%{_kind}%::%{_u}%} to 0
+            set {addict::name::%{_u}%} to {_n}
+            set {_what} to addict_label({_kind})
+            send "{@prefix}&7%{_n}%: &f%{_what}% = %arg-4%&7 доз." to sender
+            stop
+
+        # сколько времени игрок уже без дозы — для отыгрыша врачом и для проверки
+        if arg-1 is "clean":
+            set {_kind} to arg-3
+            if {_kind} is not "alco":
+                if {_kind} is not "weed":
+                    send "{@prefix}&cУкажи alco или weed." to sender
+                    stop
+            if arg-4 is not set:
+                send "{@prefix}&cУкажи минуты без дозы." to sender
+                stop
+            set {addict::clean::%{_kind}%::%{_u}%} to arg-4 * 60
+            set {_what} to addict_label({_kind})
+            send "{@prefix}&7%{_n}%: &f%{_what}%&7 — %arg-4% мин без дозы." to sender
+            stop
+
+        send "{@prefix}&cНеизвестное действие. Смотри &b/addiction" to sender
+
+function addict_show(to: commandsender, u: text, title: text):
+    send "{@prefix}&e%{_title}%" to {_to}
+    addict_line({_to}, {_u}, "alco")
+    addict_line({_to}, {_u}, "weed")
+
+function addict_line(to: commandsender, u: text, kind: text):
+    set {_lvl} to {addict::level::%{_kind}%::%{_u}%}
+    if {_lvl} is not set:
+        set {_lvl} to 0
+    set {_bar} to addict_bar({_lvl}, {@threshold})
+    set {_what} to addict_label({_kind})
+    if {_lvl} >= {@threshold}:
+        set {_clean} to {addict::clean::%{_kind}%::%{_u}%}
+        if {_clean} is not set:
+            set {_clean} to 0
+        set {_m} to round({_clean} / 60)
+        if {_clean} >= {@stage2}:
+            send "&7 %{_what}%: %{_bar}% &4зависимость, тяжёлая ломка &8(%{_m}% мин без дозы)" to {_to}
+        else if {_clean} >= {@stage1}:
+            send "&7 %{_what}%: %{_bar}% &cзависимость, ломка &8(%{_m}% мин без дозы)" to {_to}
+        else:
+            send "&7 %{_what}%: %{_bar}% &6зависимость &8(%{_m}% мин без дозы)" to {_to}
+    else:
+        send "&7 %{_what}%: %{_bar}% &f%{_lvl}%&7/&f{@threshold}" to {_to}

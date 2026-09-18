@@ -1,0 +1,204 @@
+menu_title: '&8Сервис сервера'
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.admin
+      deny_commands:
+        - '[message] &cЭто меню Администрации.'
+
+items:
+  'tps':
+    material: CLOCK
+    slot: 10
+    display_name: '&a&lTPS и здоровье сервера'
+    lore:
+      - '&7Нагрузка, тики, память.'
+      - '&8Профилировщик spark сам грузит сервер,'
+      - '&8поэтому помощнику админа он закрыт.'
+      - ''
+      - '&aЛКМ &8— /spark tps'
+    left_click_commands:
+      - '[close]'
+      - '[player] spark tps'
+
+  'save':
+    material: ENDER_CHEST
+    slot: 11
+    display_name: '&b&lСохранить мир'
+    lore:
+      - '&7Сбрасывает изменения на диск.'
+      - '&7Делай перед бэкапом и перезапуском.'
+      - ''
+      - '&aЛКМ &8— /save-all'
+    left_click_commands:
+      - '[close]'
+      - '[console] save-all'
+
+  'luckperms':
+    material: NAME_TAG
+    slot: 12
+    display_name: '&d&lПрава (LuckPerms)'
+    lore:
+      - '&8/lp editor &7— веб-редактор прав'
+      - '&8/lp user <ник> parent add <группа>'
+      - ''
+      - '&4Минус в группе default отбирает право'
+      - '&4и у главного админа: явная нода бьёт'
+      - '&4wildcard. Добавил минус в default —'
+      - '&4добавь зеркальный плюс в admin.'
+    left_click_commands:
+      - '[close]'
+      - '[player] lp editor'
+
+  'skript':
+    material: PAPER
+    slot: 13
+    display_name: '&6&lСкрипты (Skript)'
+    lore:
+      - '&8/sk reload all &7— перечитать все'
+      - '&8/sk reload <имя> &7— один скрипт'
+      - ''
+      - '&7Сейчас работают: тюрьма, тетрадь, конопля,'
+      - '&7зависимость, почта, голограммы, /ahelp.'
+    left_click_commands:
+      - '[close]'
+      - '[message] &6&lSkript: &7/sk reload all'
+
+  'menus':
+    material: ITEM_FRAME
+    slot: 14
+    display_name: '&e&lМеню (DeluxeMenus)'
+    lore:
+      - '&7Перечитать конфиги меню после правок.'
+      - ''
+      - '&aЛКМ &8— /dm reload'
+    left_click_commands:
+      - '[close]'
+      - '[player] dm reload'
+
+  'host':
+    material: COMMAND_BLOCK
+    slot: 15
+    display_name: '&c&lС консоли хоста'
+    lore:
+      - '&7Это не игровые команды — они запускаются'
+      - '&7в PowerShell на машине сервера:'
+      - ''
+      - '&8.\check_server.ps1 &7— диагностика'
+      - '&8.\backup.ps1 &7— бэкап миров с ротацией'
+      - '&8.\expand_border.ps1 <1..5> &7— стадия границы'
+      - '&8start.bat &7— запуск, &8stop &7— остановка'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_admin'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_4':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 4
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

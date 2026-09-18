@@ -1,0 +1,301 @@
+# EKB SHIELD — menu_players.sk
+# Выбор игрока головами и действие над ним прямо из меню.
+#
+# Зачем отдельный скрипт, а не DeluxeMenus: DeluxeMenus умеет только
+# статические слоты — списка онлайна у него нет. Головы игроков приходится
+# собирать на лету, поэтому выбор цели живёт здесь, а DeluxeMenus вызывает
+# это меню кнопкой: [player] ekbmenu <действие>.
+#
+# ⚠ Принадлежность клика определяется по CustomModelData предмета, а НЕ по
+# переменной-флагу. Флаг здесь не работает: открытие нового инвентаря
+# закрывает предыдущий, событие закрытия приходит уже поверх открытого меню
+# и флаг гасит — клики переставали отменяться, и предметы можно было таскать
+# мышью. CMD же лежит в самом предмете и ничего не ловит.
+#
+#   7100 — рамка и портрет (клик просто гасится)
+#   7101 — голова игрока (выбор цели)
+#   7102 — подтверждение действия
+#   7103 — отмена / закрыть
+#   7104 — срок заключения
+#   7105 — назад
+#   7106 / 7107 — страница вперёд / назад
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &6&l[МЕНЮ] &r
+    per_page: 28        # голов на страницу: слоты 10-16, 19-25, 28-34, 37-43
+
+# Хранилище (ключ — UUID; в имени переменной %player% даёт UUID):
+#   {ekbmenu::action::%uuid%}  — выбранное действие
+#   {ekbmenu::target::%uuid%}  — ник цели
+#   {ekbmenu::page::%uuid%}    — страница списка
+
+# ---------------------------------------------------------------------------
+# Описание действий
+# ---------------------------------------------------------------------------
+
+function ekb_title(action: text) :: text:
+    if {_action} is "info":
+        return "Состояние игрока"
+    if {_action} is "heal":
+        return "Лечение зависимости"
+    if {_action} is "sober":
+        return "Вытрезвитель"
+    if {_action} is "inv":
+        return "Осмотр инвентаря"
+    if {_action} is "ender":
+        return "Эндер-сундук"
+    if {_action} is "jail":
+        return "Заключение под стражу"
+    if {_action} is "free":
+        return "Освобождение"
+    if {_action} is "items":
+        return "Возврат имущества"
+    if {_action} is "deathnote":
+        return "Выдача Тетради Смерти"
+    if {_action} is "reclaim":
+        return "Изъятие Тетради Смерти"
+    return "Действие"
+
+function ekb_icon(action: text) :: item:
+    if {_action} is "heal":
+        return 1 of honey bottle
+    if {_action} is "sober":
+        return 1 of milk bucket
+    if {_action} is "inv":
+        return 1 of chest
+    if {_action} is "ender":
+        return 1 of ender chest
+    if {_action} is "jail":
+        return 1 of iron bars
+    if {_action} is "free":
+        return 1 of lime dye
+    if {_action} is "items":
+        return 1 of barrel
+    if {_action} is "deathnote":
+        return 1 of writable book
+    if {_action} is "reclaim":
+        return 1 of hopper
+    return 1 of paper
+
+# Право на действие. Судейские действия висят на coreprotect.rollback —
+# том же гейте, что и откаты; лечение отдано врачу.
+function ekb_allowed(p: player, action: text) :: boolean:
+    if {_action} is "info":
+        return true
+    if {_action} is "heal" or "sober":
+        if {_p} has permission "ekb.menu.doctor":
+            return true
+        if {_p} has permission "coreprotect.rollback":
+            return true
+        # Бармен трезвит, но не лечит зависимость: рассол за стойкой — его
+        # работа, а курс от зависимости стоит 64-160💎 и остаётся за Клиникой.
+        if {_action} is "sober":
+            if {_p} has permission "ekb.duty.barman":
+                return true
+        return false
+    if {_action} is "inv" or "ender":
+        if {_p} has permission "OpenInv.openinv":
+            return true
+        return false
+    if {_action} is "deathnote" or "reclaim":
+        if {_p} has permission "ekb.deathnote.admin":
+            return true
+        return false
+    if {_p} has permission "coreprotect.rollback":
+        return true
+    return false
+
+# Служебная кнопка с пометкой CMD
+function ekb_button(i: item, cmd: number, title: text, note: text) :: item:
+    set custom model data of {_i} to {_cmd}
+    set name of {_i} to {_title}
+    set lore of {_i} to {_note}
+    return {_i}
+
+function ekb_cmd(i: item) :: number:
+    # У воздуха нет меты: `custom model data of air` кидает исключение,
+    # а проверять пустые слоты приходится постоянно.
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+# ---------------------------------------------------------------------------
+# Шаг 1 — выбор игрока
+# ---------------------------------------------------------------------------
+
+command /ekbmenu <text> [<number>]:
+    description: Выбор игрока головами для действия из меню
+    usage: /ekbmenu <info|heal|sober|inv|ender|jail|free|items> [страница]
+    trigger:
+        if ekb_allowed(player, arg-1) is false:
+            send "{@prefix}&cНет прав на это действие." to player
+            stop
+        set {_page} to arg-2
+        if {_page} is not set:
+            set {_page} to 1
+        ekb_pick(player, arg-1, {_page})
+
+function ekb_pick(p: player, action: text, page: number):
+    set {_u} to "%uuid of {_p}%"
+    set {_title} to ekb_title({_action})
+    set {ekbmenu::action::%{_u}%} to {_action}
+    set {ekbmenu::page::%{_u}%} to {_page}
+    delete {ekbmenu::target::%{_u}%}
+
+    set {_inv} to a chest inventory with 6 rows named "&8%{_title}%"
+    ekb_frame({_inv})
+
+    # слоты под головы
+    set {_slots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+
+    set {_first} to (({_page} - 1) * {@per_page}) + 1
+    set {_n} to 0            # сколько всего игроков просмотрено
+    set {_shown} to 0        # сколько попало на эту страницу
+    loop all players:
+        add 1 to {_n}
+        if {_n} >= {_first}:
+            if {_shown} < {@per_page}:
+                add 1 to {_shown}
+                set {_h} to 1 of player head
+                set skull owner of {_h} to loop-player
+                set custom model data of {_h} to 7101
+                set name of {_h} to "&f%loop-player%"
+                set lore of {_h} to "&7%{_title}%" and "&8Клик — подтверждение"
+                set slot ({_slots::%{_shown}%}) of {_inv} to {_h}
+
+    if {_shown} is 0:
+        set slot 22 of {_inv} to ekb_button(1 of barrier, 7103, "&7Никого нет", "&8На этой странице пусто.")
+
+    # навигация
+    set slot 45 of {_inv} to ekb_button(1 of arrow, 7105, "&7Назад", "&8В главное меню")
+    if {_page} > 1:
+        set {_prev} to {_page} - 1
+        set slot 48 of {_inv} to ekb_button(1 of spectral arrow, 7107, "&e< Предыдущая", "&8Страница %{_prev}%")
+    set slot 49 of {_inv} to ekb_button(1 of barrier, 7103, "&cЗакрыть", "&8Ничего не делать")
+    set {_last} to {_first} + {@per_page} - 1
+    if {_n} > {_last}:
+        set {_next} to {_page} + 1
+        set slot 50 of {_inv} to ekb_button(1 of spectral arrow, 7106, "&eСледующая >", "&8Страница %{_next}%")
+
+    open {_inv} to {_p}
+
+# рамка из серого стекла — как в меню DeluxeMenus
+function ekb_frame(inv: inventory):
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7100
+    set name of {_f} to " "
+    loop 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 46, 47, 51, 52 and 53:
+        set slot loop-value of {_inv} to {_f}
+
+# ---------------------------------------------------------------------------
+# Шаг 2 — подтверждение
+# ---------------------------------------------------------------------------
+
+function ekb_confirm(p: player, action: text, target: text):
+    set {_u} to "%uuid of {_p}%"
+    set {_title} to ekb_title({_action})
+    set {ekbmenu::target::%{_u}%} to {_target}
+
+    set {_inv} to a chest inventory with 3 rows named "&8%{_title}%"
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7100
+    set name of {_f} to " "
+    loop 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25 and 26:
+        set slot loop-value of {_inv} to {_f}
+
+    set {_h} to 1 of player head
+    set skull owner of {_h} to {_target} parsed as offline player
+    set custom model data of {_h} to 7100
+    set name of {_h} to "&f%{_target}%"
+    set lore of {_h} to "&7Действие: &f%{_title}%"
+    set slot 13 of {_inv} to {_h}
+
+    # У тюрьмы подтверждение сразу выбирает срок — минуты ОНЛАЙН-времени
+    if {_action} is "jail":
+        set slot 10 of {_inv} to ekb_time_icon(15)
+        set slot 11 of {_inv} to ekb_time_icon(30)
+        set slot 15 of {_inv} to ekb_time_icon(60)
+        set slot 16 of {_inv} to ekb_time_icon(120)
+    else:
+        set {_ok} to ekb_icon({_action})
+        set slot 11 of {_inv} to ekb_button({_ok}, 7102, "&a&lПодтвердить", "&7%{_title}% — &f%{_target}%")
+        set slot 15 of {_inv} to ekb_button(1 of arrow, 7105, "&7К списку", "&8Выбрать другого игрока")
+
+    set slot 22 of {_inv} to ekb_button(1 of barrier, 7103, "&c&lОтмена", "&8Ничего не делать")
+    open {_inv} to {_p}
+
+function ekb_time_icon(min: number) :: item:
+    set {_i} to 1 of clock
+    set custom model data of {_i} to 7104
+    set name of {_i} to "&c&lПосадить на %{_min}% мин"
+    set lore of {_i} to "&7Срок идёт только пока игрок в сети."
+    return {_i}
+
+# ---------------------------------------------------------------------------
+# Клики: всё определяется по CMD предмета, флагов нет
+# ---------------------------------------------------------------------------
+
+on inventory click:
+    event-item is not air
+    set {_c} to ekb_cmd(event-item)
+    if {_c} is between 7100 and 7107:
+        cancel event
+        set {_u} to "%uuid of player%"
+        set {_action} to {ekbmenu::action::%{_u}%}
+        set {_page} to {ekbmenu::page::%{_u}%}
+        if {_page} is not set:
+            set {_page} to 1
+        set {_target} to {ekbmenu::target::%{_u}%}
+
+        if {_c} is 7103:                                  # отмена / закрыть
+            close player's inventory
+        else if {_c} is 7105:                             # назад
+            if {_target} is set:
+                ekb_pick(player, {_action}, {_page})
+            else:
+                close player's inventory
+                make player say "/menu"   # команда меню живёт в перехвате чата, не в карте команд
+        else if {_c} is 7106:                             # следующая страница
+            ekb_pick(player, {_action}, {_page} + 1)
+        else if {_c} is 7107:                             # предыдущая
+            ekb_pick(player, {_action}, {_page} - 1)
+        else if {_c} is 7101:                             # выбрана голова
+            ekb_confirm(player, {_action}, uncoloured (name of event-item))
+        else if {_c} is 7104:                             # срок заключения
+            set {_min} to 15
+            set {_n} to uncoloured (name of event-item)
+            if {_n} contains "30":
+                set {_min} to 30
+            else if {_n} contains "120":
+                set {_min} to 120
+            else if {_n} contains "60":
+                set {_min} to 60
+            close player's inventory
+            make player execute command "sentence %{_target}% %{_min}%"
+            delete {ekbmenu::target::%{_u}%}
+        else if {_c} is 7102:                             # подтверждение
+            close player's inventory
+            ekb_run(player, {_action}, {_target})
+            delete {ekbmenu::target::%{_u}%}
+
+function ekb_run(p: player, action: text, target: text):
+    if {_action} is "info":
+        make {_p} execute command "addiction info %{_target}%"
+    else if {_action} is "heal":
+        make {_p} execute command "addiction cure %{_target}%"
+    else if {_action} is "sober":
+        make {_p} execute command "brew set %{_target}% 0"
+    else if {_action} is "inv":
+        make {_p} execute command "oi %{_target}%"
+    else if {_action} is "ender":
+        make {_p} execute command "oe %{_target}%"
+    else if {_action} is "free":
+        make {_p} execute command "freeearly %{_target}%"
+    else if {_action} is "items":
+        make {_p} execute command "jailitems give %{_target}%"
+    else if {_action} is "deathnote":
+        make {_p} execute command "deathnote give %{_target}%"
+    else if {_action} is "reclaim":
+        make {_p} execute command "deathnote reclaim %{_target}%"

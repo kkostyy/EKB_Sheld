@@ -1,0 +1,19 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/tnt_minecart"
+    },
+    "entries": [
+      {
+        "threshold": 2016.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/thc_minecart"
+        }
+      }
+    ]
+  }
+}

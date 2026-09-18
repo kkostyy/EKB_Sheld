@@ -1,0 +1,413 @@
+# EKB SHIELD — spawn_market.sk
+# Торговая Коллегия Спавна: скупщик, аренда торговой палатки, доска лотов.
+# Требует docs/treasury.sk — все деньги ходят через Казну (tr_pay/tr_payout).
+#
+# Что переделано против присланной спецификации и почему.
+#
+# 1. СКУПЩИК платил `[console] give %player_name% diamond 1` — печать валюты.
+#    Теперь алмазы выдаются ИЗ Казны Спавна, и когда она пуста, скупка просто
+#    не работает: у города кончились деньги. Это не баг, это рычаг Мэрии.
+#
+# 2. ЦЕНЫ в спецификации были выдуманы: «стак булыжника -> 1 алмаз». По
+#    docs/price_list.md шалкер булыжника (27 стаков) стоит 16 алмазов, то есть
+#    стак — около 0.6 алмаза, а половина прайса — 0.3. Спецификация
+#    переплачивала втрое. Таблица ниже пересчитана по прайс-листу честно.
+#
+# 3. АУКЦИОН звал /ah, а плагина аукциона в проекте нет и не планировалось:
+#    сделка здесь — физическая передача вещи. Осталась доска объявлений: лот
+#    виден всем, а рассчитываются стороны лично, через лавку Shopkeepers или
+#    через Суд, если кто-то не отдал обещанное.
+#
+# 4. Сданный ресурс НЕ ложится в Казну предметами. 256 булыжника — четыре
+#    слота, и первая же сдача забила бы сундук. По лору он «ушёл на застройку
+#    Спавна и Незер-метро»: ресурс исчезает из мира, алмазы уходят из Казны.
+#    Печати валюты при этом нет — Казна конечна.
+#
+# Хранилище:
+#   {sm::kinds::*}       — что принимает скупщик (список предметов)
+#   {rent::%uuid%}       — unix-время, до которого оплачена палатка
+#   {rent_name::%uuid%}  — ник, чтобы показывать список арендаторов
+#   {lot::id}            — счётчик лотов
+#   {lot::item::<id>}, {lot::price::<id>}, {lot::owner::<id>}, {lot::made::<id>}
+#
+# Команды:
+#   /skupka              — оценить, что в рюкзаке примут
+#   /skupka сдать        — сдать и получить алмазы
+#   /arenda              — статус своей палатки
+#   /arenda оплатить     — +7 дней за 10 алмазов
+#   /arenda список       — кто арендует (Мэрия)
+#   /lot <цена>          — выставить предмет из руки на доску
+#   /lots                — доска лотов
+#   /lotdrop <номер>     — убрать свой лот
+
+options:
+    prefix: &e&l[РЫНОК] &r
+    admin: coreprotect.rollback
+    clerk: ekb.duty.clerk
+    rent_price: 10
+    rent_days: 7
+    lot_hours: 48
+    egg_price: 16        # яйцо торговца Shopkeepers, алмазов в Казну
+
+# ---------------------------------------------------------------------------
+# Яйцо торговца: единственный способ завести лавку
+# ---------------------------------------------------------------------------
+#
+# Меню Торговли с самого начала говорило «кликни яйцом торговца по сундуку»,
+# а взять это яйцо было негде: `shop-creation-item` у Shopkeepers — это
+# `minecraft:villager_spawn_egg`, в выживании такие не добываются вообще,
+# а `/shopkeeper give` закрыт правом `shopkeeper.give` у Администрации.
+# То есть лавку не мог открыть никто, кроме админа.
+#
+# ⚠️ Яйцо НЕ выдаётся даром и НЕ собирается скриптом. Во-первых, у него
+# есть NBT-метка `shopkeepers:shop_creation_item` (`add-shop-creation-item-tag:
+# true`), и собранное вручную яйцо плагин за свой предмет не признает —
+# наливает его только сам плагин. Во-вторых, бесплатная лавка ломала бы
+# ровно то, на чём стоит экономика: алмазы уходят в конечную Казну, как
+# письмо на почте и ставка в казино.
+command /shopegg:
+    description: Купить яйцо торговца и открыть свою лавку
+    aliases: /яйцо, /ларёк
+    executable by: players
+    trigger:
+        set {_r} to tr_pay(player, {@egg_price})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%"
+            send "{@prefix}&7Яйцо торговца стоит &b{@egg_price}&7 алмазов россыпью."
+            stop
+        # Выдаёт САМ плагин: только его яйцо несёт нужную NBT-метку.
+        execute console command "shopkeeper give %player% 1"
+        send "{@prefix}&aЯйцо торговца твоё. &b{@egg_price}&a алмазов ушло в Казну."
+        send "&7 1. Поставь сундук и положи в него товар."
+        send "&7 2. Кликни яйцом по сундуку."
+        send "&7 3. Продавец встанет рядом — ПКМ по нему задаёт цены."
+        send "&8 Лавок на игрока: до трёх. Сундук — не дальше 15 блоков."
+        play sound "entity.villager.trade" with volume 0.8 to player
+        send "[РЫНОК] %player% купил яйцо торговца за {@egg_price}" to console
+
+# ---------------------------------------------------------------------------
+# Скупщик в Казну
+# ---------------------------------------------------------------------------
+
+# ⚠️ Список лежит в глобальной переменной, а не возвращается функцией.
+# Функция со списочным типом возврата (`:: strings`) и разбор строки через
+# `parsed as item type` — два места, где легко получить неразобранный скрипт;
+# список предметов прямо в переменной не требует ни того, ни другого.
+on script load:
+    set {sm::kinds::*} to cobblestone, stone, cobbled deepslate, deepslate, sand, glass, iron ingot, gold ingot, gunpowder and redstone
+
+# Партия -> алмазы, пересчитано из docs/price_list.md как 50% прайса.
+#
+# Прайс даёт цену за ПОЛНЫЙ ШАЛКЕР (27 стаков = 1728 штук), отсюда крупные
+# партии: булыжник стоит 16 алмазов за 1728 штук, половина — 8, то есть
+# 1 алмаз за 216 штук. Округлено до 256 в пользу Казны.
+#
+# ⚠️ Дерево, глина и терракота в скупку НЕ входят: у них выходит партия
+# в 512-576 штук ради одного алмаза. Это не скупка, а издевательство —
+# такие объёмы разумнее продавать игрокам напрямую через лавку.
+#
+# ⚠️ Реформа 7-го дня (конец price_list.md) роняет цены на автоматизируемые
+# ресурсы в 4-5 раз. Когда она наступит, железо, золото, порох и редстоун
+# отсюда надо убрать или учетверить партии — иначе скупщик станет выгоднее
+# рынка и высосет Казну.
+function sm_batch(i: item) :: number:
+    if {_i} is cobblestone:
+        return 256
+    if {_i} is stone:
+        return 256
+    if {_i} is cobbled deepslate:
+        return 256
+    if {_i} is deepslate:
+        return 256
+    if {_i} is sand:
+        return 128
+    if {_i} is glass:
+        return 128
+    if {_i} is iron ingot:
+        return 16
+    if {_i} is gold ingot:
+        return 32
+    if {_i} is gunpowder:
+        return 16
+    if {_i} is redstone:
+        return 32
+    return 0
+
+function sm_pay(i: item) :: number:
+    if {_i} is gold ingot:
+        return 3
+    return 1
+
+function sm_title(i: item) :: text:
+    if {_i} is cobblestone:
+        return "Булыжник"
+    if {_i} is stone:
+        return "Камень"
+    if {_i} is cobbled deepslate:
+        return "Булыжный глубинный сланец"
+    if {_i} is deepslate:
+        return "Глубинный сланец"
+    if {_i} is sand:
+        return "Песок"
+    if {_i} is glass:
+        return "Стекло"
+    if {_i} is iron ingot:
+        return "Железный слиток"
+    if {_i} is gold ingot:
+        return "Золотой слиток"
+    if {_i} is gunpowder:
+        return "Порох"
+    if {_i} is redstone:
+        return "Редстоун"
+    return "%{_i}%"
+
+command /skupka [<text>]:
+    description: Скупщик Спавна — сдать стройматериалы в Казну за половину прайса
+    aliases: /скупщик
+    executable by: players
+    trigger:
+        # Аргумент кладём в переменную: два обращения к arg-1 в одном условии
+        # Skript 2.16.2 принимает за слово `argument` и требует «use 'argument 1'».
+        set {_mode} to "оценка"
+        if arg-1 is set:
+            set {_mode} to arg-1
+
+        if tr_ready() is false:
+            send "{@prefix}&cКазна Спавна не назначена — скупщик не работает. Позови Администрацию."
+            stop
+
+        set {_total} to 0
+        delete {_lines::*}
+        loop {sm::kinds::*}:
+            set {_batch} to sm_batch(loop-value)
+            set {_n} to floor((number of loop-value in player's inventory) / {_batch})
+            if {_n} > 0:
+                set {_pay} to {_n} * sm_pay(loop-value)
+                add {_pay} to {_total}
+                add "&8• &f%sm_title(loop-value)%&7: %{_n} * {_batch}% шт. -> &b%{_pay}%💎" to {_lines::*}
+
+        if {_total} <= 0:
+            send "{@prefix}&7Скупщик ничего не берёт из того, что у тебя есть."
+            send "{@prefix}&7Партии (половина прайса, docs/price_list.md):"
+            loop {sm::kinds::*}:
+                send "&8  • &7%sm_title(loop-value)%&8: &f%sm_batch(loop-value)%&8 шт. -> &b%sm_pay(loop-value)%💎"
+            stop
+
+        if {_mode} is not "сдать":
+            send "{@prefix}Скупщик даёт за твой груз &b%{_total}%💎&r:"
+            loop {_lines::*}:
+                send "%loop-value%"
+            send "{@prefix}&7В Казне сейчас &b%tr_loose()%💎&7 россыпью."
+            send "{@prefix}&7Сдать: &b/skupka сдать&7 — или ПКМ по кнопке скупщика в &f/market"
+            stop
+
+        # --- сдача ---
+        if tr_loose() < {_total}:
+            send "{@prefix}&cВ Казне только &b%tr_loose()%💎&c, а за груз надо &b%{_total}%💎&c."
+            send "{@prefix}&7Сдай часть или подожди, пока Мэрия пополнит Казну."
+            stop
+
+        # Ресурс списывается ПЕРЕД выплатой: иначе при неудачной выдаче
+        # (полный рюкзак) игрок остался бы и с грузом, и с алмазами.
+        loop {sm::kinds::*}:
+            set {_batch} to sm_batch(loop-value)
+            set {_n} to floor((number of loop-value in player's inventory) / {_batch})
+            if {_n} > 0:
+                remove ({_n} * {_batch}) of loop-value from player's inventory
+
+        set {_r} to tr_payout(player, {_total})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%"
+            send "{@prefix}&cГруз уже принят. Обратись к Мэрии за выплатой &b%{_total}%💎&c."
+            send "[РЫНОК] ДОЛГ КАЗНЫ: %player% сдал груз на %{_total}% алмазов, выдача не прошла" to console
+            stop
+
+        send "{@prefix}&aСделка. &fПолучено &b%{_total}%💎&f из Казны Спавна."
+        send "{@prefix}&7Ресурсы ушли на застройку Спавна и Незер-метро."
+        play sound "block.note_block.pling" with volume 0.7 to player
+        send "[РЫНОК] %player% сдал ресурсы скупщику на %{_total}% алмазов" to console
+
+# ---------------------------------------------------------------------------
+# Аренда торговой палатки
+# ---------------------------------------------------------------------------
+# Цена из прайс-листа: «Аренда точки на Спавне (5x5) — 10♢/неделю».
+# Деньги идут в Казну по-настоящему, это её основной доход.
+#
+# ⚠️ Скрипт НЕ сносит палатку у неплательщика и не трогает его сундуки.
+# Просрочка — повод для Мэрии и Суда (Ст. 7.2 УК: закрытие точки до уплаты
+# долга); снос имущества автоматом противоречит тому же УК, где вещи
+# возвращают по решению Суда, а не по таймеру.
+
+function sm_rent_left(p: offlineplayer) :: number:
+    set {_k} to "%uuid of {_p}%"
+    if {rent::%{_k}%} is not set:
+        return 0
+    set {_left} to {rent::%{_k}%} - (unix timestamp of now)
+    if {_left} < 0:
+        return 0
+    return {_left}
+
+command /arenda [<text>]:
+    description: Аренда торговой палатки на Рыночной площади Спавна
+    aliases: /аренда
+    executable by: players
+    trigger:
+        set {_mode} to "статус"
+        if arg-1 is set:
+            set {_mode} to arg-1
+        set {_k} to "%uuid of player%"
+
+        if {_mode} is "список":
+            set {_ok} to false
+            if player has permission "{@admin}":
+                set {_ok} to true
+            if player has permission "{@clerk}":
+                set {_ok} to true
+            if {_ok} is false:
+                send "{@prefix}&cСписок арендаторов ведёт приказчик Мэрии."
+                stop
+            if {rent_name::*} is not set:
+                send "{@prefix}&7Палатки никто не арендует."
+                stop
+            send "{@prefix}&7Арендаторы:"
+            # Перебор по реестру ников, а не по {rent::*}: у ветки с UUID
+            # собственного значения нет, и `loop {rent::*}` вернул бы пусто —
+            # той же граблёй /jailitems list рапортовал о пустом ящике.
+            loop {rent_name::*}:
+                set {_u} to loop-index
+                set {_l} to {rent::%{_u}%} - (unix timestamp of now)
+                if {_l} > 0:
+                    send "&8• &f%loop-value%&7: ещё &f%floor({_l} / 86400)%&7 д. &f%floor(mod({_l}, 86400) / 3600)%&7 ч."
+                else:
+                    send "&8• &f%loop-value%&7: &cпросрочено"
+            stop
+
+        if {_mode} is "оплатить":
+            set {_r} to tr_pay(player, {@rent_price})
+            if {_r} is not "ok":
+                send "{@prefix}%{_r}%"
+                stop
+            set {_now} to unix timestamp of now
+            set {_from} to {_now}
+            # Продление, а не обнуление: заплатил заранее — срок складывается.
+            if {rent::%{_k}%} is set:
+                if {rent::%{_k}%} > {_now}:
+                    set {_from} to {rent::%{_k}%}
+            set {rent::%{_k}%} to {_from} + ({@rent_days} * 86400)
+            set {rent_name::%{_k}%} to "%player%"
+            send "{@prefix}&aАренда оплачена. &f{@rent_price}💎&a внесены в Казну Спавна."
+            send "{@prefix}&7Палатка твоя ещё &f%floor(sm_rent_left(player) / 86400)%&7 дней."
+            broadcast "{@prefix}&f%player%&7 продлил аренду торговой палатки на Спавне."
+            send "[РЫНОК] %player% оплатил аренду палатки ({@rent_price} алмазов)" to console
+            stop
+
+        # --- статус ---
+        set {_l} to sm_rent_left(player)
+        if {_l} <= 0:
+            send "{@prefix}&7Палатка за тобой не числится."
+            send "{@prefix}&7Аренда точки 5x5 на Рыночной площади: &b{@rent_price}💎&7 за {@rent_days} дней."
+            send "{@prefix}&7Оплатить: &b/arenda оплатить"
+            stop
+        send "{@prefix}Палатка оплачена ещё на &f%floor({_l} / 86400)%&r д. &f%floor(mod({_l}, 86400) / 3600)%&r ч."
+        send "{@prefix}&7Продлить: &b/arenda оплатить&7 (&b{@rent_price}💎&7 за {@rent_days} дней)"
+
+# Напоминание — при входе, а не в фоне: считать таймеры оффлайн-игрокам
+# незачем, а увидеть предупреждение он всё равно может только зайдя.
+on join:
+    wait 3 seconds
+    set {_l} to sm_rent_left(player)
+    if {_l} > 0:
+        if {_l} < 86400:
+            send "{@prefix}&cАренда палатки кончается меньше чем через сутки.&7 Продлить: &b/arenda оплатить" to player
+    else:
+        if {rent::%uuid of player%} is set:
+            send "{@prefix}&cАренда палатки просрочена.&7 Точка закрывается до уплаты долга, Ст. 7.2 УК. &b/arenda оплатить" to player
+
+# ---------------------------------------------------------------------------
+# Доска лотов (вместо аукциона)
+# ---------------------------------------------------------------------------
+# Плагина аукциона в проекте нет: сделка здесь — физическая передача вещи.
+# Доска только объявляет, что лот существует и сколько за него просят.
+#
+# ⚠️ /lot и /lotdrop — две команды, а не одна с режимом. Сигнатура вида
+# `/lot [<text>] [<number>]` разбирается неоднозначно: `<text>` у Skript
+# может утащить и следующее слово, и тогда `/lot снять 3` приходит как
+# arg-1 = "снять 3", arg-2 не задан.
+
+function sm_lot_alive(id: text) :: boolean:
+    if {lot::owner::%{_id}%} is not set:
+        return false
+    if ((unix timestamp of now) - {lot::made::%{_id}%}) > ({@lot_hours} * 3600):
+        return false
+    return true
+
+command /lot [<number>]:
+    description: Выставить предмет из руки на доску лотов Спавна
+    aliases: /лот
+    executable by: players
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix}&7Доска лотов Спавна. Возьми вещь в руку и назови цену:"
+            send "{@prefix}&b/lot <цена в алмазах>&7 — выставить на {@lot_hours} ч."
+            send "{@prefix}&b/lots&7 — что на доске, &b/lotdrop <номер>&7 — убрать своё"
+            send "{@prefix}&8Доска только объявляет. Вещь и алмазы стороны передают лично;"
+            send "{@prefix}&8не отдал обещанное — это иск в Суд, а не проблема доски."
+            stop
+
+        set {_price} to arg-1
+        if {_price} <= 0:
+            send "{@prefix}&cЦена должна быть больше нуля."
+            stop
+
+        set {_i} to player's tool
+        if {_i} is air:
+            send "{@prefix}&cВозьми в главную руку то, что продаёшь."
+            stop
+
+        add 1 to {lot::id}
+        set {_id} to "%{lot::id}%"
+        set {lot::owner::%{_id}%} to "%player%"
+        set {lot::item::%{_id}%} to "%{_i}%"
+        set {lot::price::%{_id}%} to {_price}
+        set {lot::made::%{_id}%} to unix timestamp of now
+
+        send "{@prefix}&aЛот №&f%{_id}%&a выставлен: &f%{_i}%&a за &b%{_price}%💎&a."
+        send "{@prefix}&7Снять: &b/lotdrop %{_id}%&7. Сам собой уйдёт через {@lot_hours} ч."
+        broadcast "{@prefix}&f%player%&7 выставил лот №&f%{_id}%&7: &f%{_i}%&7 за &b%{_price}%💎"
+        send "[РЫНОК] лот %{_id}%: %player% продаёт %{_i}% за %{_price}% алмазов" to console
+
+command /lotdrop <number>:
+    description: Снять свой лот с доски
+    aliases: /лотснять
+    executable by: players
+    trigger:
+        set {_id} to "%arg-1%"
+        if {lot::owner::%{_id}%} is not set:
+            send "{@prefix}&cЛота №&f%{_id}%&c на доске нет."
+            stop
+        if {lot::owner::%{_id}%} is not "%player%":
+            send "{@prefix}&cЭто не твой лот."
+            stop
+        delete {lot::owner::%{_id}%}
+        delete {lot::item::%{_id}%}
+        delete {lot::price::%{_id}%}
+        delete {lot::made::%{_id}%}
+        send "{@prefix}&7Лот №&f%{_id}%&7 снят с доски."
+
+command /lots:
+    description: Доска лотов Спавна
+    aliases: /лоты
+    executable by: players
+    trigger:
+        set {_n} to 0
+        send "{@prefix}&7Доска лотов (живут {@lot_hours} ч.):"
+        loop {lot::owner::*}:
+            set {_id} to loop-index
+            if sm_lot_alive({_id}) is true:
+                add 1 to {_n}
+                set {_age} to floor(((unix timestamp of now) - {lot::made::%{_id}%}) / 3600)
+                send "&8 №&f%{_id}%&8 · &f%{lot::item::%{_id}%}%&8 · &b%{lot::price::%{_id}%}%💎&8 · &7%loop-value%&8 · %{_age}% ч. назад"
+        if {_n} <= 0:
+            send "&7На доске пусто. Выставить своё: &b/lot <цена>"
+        else:
+            send "&8Сделка идёт лично. Продажа ниже минимума Прайс-листа — демпинг, Ст. 7.3 УК: изъятие товара и штраф 64💎."

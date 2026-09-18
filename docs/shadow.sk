@@ -1,0 +1,141 @@
+# EKB SHIELD — shadow.sk
+# Личина (маскировка) и Теневой Рынок.
+# Требует docs/contracts.sk — псевдоним берётся оттуда же, ct_alias().
+#
+# Что переделано против присланной спецификации.
+#
+# 1. ⚠️ НИК НАД ГОЛОВОЙ НЕ СКРЫВАЕТСЯ, и это не недоделка.
+#    Спецификация звала `tab player %player_name% nametag-visibility false`.
+#    Такого свойства у TAB 6.1.3 нет: per-player он принимает только
+#    tabprefix, tabsuffix, tagprefix, tagsuffix и customtabname (сверено по
+#    jar'у). Ключ invisible-nametags в config.yml — глобальный, на одного
+#    игрока его не навести. Вариант с ванильной командой /team тоже не
+#    работает: у TAB включён модуль scoreboard-teams, он переписывает команды
+#    игроков под свою сортировку по группам LuckPerms и затрёт чужую.
+#
+#    Но так даже правильнее. Весь сервер держится на том, что у Суда есть
+#    ниточка: contracts.sk специально пишет настоящие ники в консоль (а
+#    оттуда в Discord Администрации), при каждом убийстве свидетели в радиусе
+#    48 блоков получают готовую команду /report. Полностью анонимный убийца
+#    ломает Главу 2 УК целиком — дела просто нельзя будет вести.
+#    Поэтому Личина прячет тебя от СПИСКА и от УЗНАВАНИЯ В ЛИЦО, но не от
+#    того, кто стоит рядом и читает ник. Анонимность здесь отыгрышная.
+#
+# 2. Псевдоним не выдумывается заново: берётся ct_alias() из contracts.sk —
+#    тот самый «Ворон-42», под которым игрок ходит на доске контрактов.
+#    Одна теневая личность на всё подполье: так репутация копится у
+#    псевдонима, а личность — нет.
+#
+# 3. Координаты Теневого Рынка не зашиты в текст кнопки (в спецификации
+#    стояло «X: -1420, Z: 890»). Их задаёт Администрация командой
+#    /setshadowpoint, и меняются они без правки меню.
+#
+# Хранилище:
+#   {shadow-location}        — место сбора, /setshadowpoint
+#   {shadow::on::%uuid%}     — личина надета
+#   {shadow::skin}           — ник, чей скин используется как «личина»
+#
+# Команды:
+#   /disguise          — надеть или снять Личину
+#   /setshadowpoint    — назначить место сбора Теневого Рынка (Администрация)
+#   /setshadowskin <ник> — чей скин выдавать за личину (Администрация)
+#   /shadowmarket      — где и когда рынок (только участникам)
+
+options:
+    prefix: &8&l[ЛИЧИНА] &r
+    market: &4&l[ТЕНЕВОЙ РЫНОК] &r
+    admin: coreprotect.rollback
+    member: ekb.shadow.member
+
+# ---------------------------------------------------------------------------
+# Личина
+# ---------------------------------------------------------------------------
+
+function sh_skin() :: text:
+    if {shadow::skin} is not set:
+        return "Steve"
+    return {shadow::skin}
+
+command /disguise:
+    description: Надеть или снять Личину: чужой скин и псевдоним вместо ника в списке
+    aliases: /личина
+    executable by: players
+    trigger:
+        set {_k} to "%uuid of player%"
+        set {_alias} to ct_alias("%player%")
+
+        if {shadow::on::%{_k}%} is true:
+            delete {shadow::on::%{_k}%}
+            # Команды игрок выполняет САМ: у SkinsRestorer 15.12.5 право на
+            # смену чужого скина отдельное и Администрации, а на свой — есть
+            # у всех. Заодно не надо угадывать синтаксис «...set <скин> <ник>».
+            make player execute command "skin clear"
+            execute console command "tab player %player% customtabname"
+            execute console command "tab player %player% tagprefix"
+            send "{@prefix}&7Личина снята. Ты снова &f%player%&7."
+            stop
+
+        set {shadow::on::%{_k}%} to true
+        make player execute command "skin set %sh_skin()%"
+        execute console command "tab player %player% customtabname &8%{_alias}%"
+        execute console command "tab player %player% tagprefix &8[%{_alias}%] "
+        send "{@prefix}Личина надета. В списке игроков ты — &8%{_alias}%&r."
+        send "{@prefix}&7Скин подменён, в таб-листе только псевдоним."
+        send "{@prefix}&cНик над головой скрыть нельзя: TAB такого не умеет, а Суду"
+        send "{@prefix}&cнужна хоть одна ниточка. Кто стоит рядом — тебя узнает."
+        send "{@prefix}&8Снять: &7/disguise"
+
+# Личина не переживает перезаход намеренно: скин SkinsRestorer помнит сам,
+# а свойства TAB после перезахода сбрасываются — и игрок, считающий себя
+# замаскированным, ходил бы под своим ником. Лучше снять честно.
+on quit:
+    delete {shadow::on::%uuid of player%}
+
+on join:
+    wait 2 seconds
+    if {shadow::on::%uuid of player%} is true:
+        delete {shadow::on::%uuid of player%}
+        send "{@prefix}&7Личина слетела при перезаходе. Надеть снова: &7/disguise" to player
+
+command /setshadowskin <text>:
+    permission: {@admin}
+    description: Чей скин выдавать за Личину
+    trigger:
+        set {shadow::skin} to arg-1
+        send "{@prefix}Скин Личины: &f%arg-1%" to sender
+
+# ---------------------------------------------------------------------------
+# Теневой Рынок
+# ---------------------------------------------------------------------------
+
+command /setshadowpoint:
+    permission: {@admin}
+    description: Назначить место сбора Теневого Рынка в своих координатах
+    executable by: players
+    trigger:
+        set {shadow-location} to location of player
+        send "{@market}&7Место сбора назначено. Видят его только те, у кого право &f{@member}&7."
+
+command /shadowmarket:
+    description: Где собирается Теневой Рынок (только для участников Сообщества)
+    aliases: /теневойрынок
+    executable by: players
+    trigger:
+        if player does not have permission "{@member}":
+            send "{@market}&cТы не состоишь в Теневом Сообществе."
+            send "&8Туда не записываются. Туда приводят."
+            stop
+        if {shadow-location} is not set:
+            send "{@market}&7Место сбора ещё не назначено. Жди объявления."
+            stop
+        set {_l} to {shadow-location}
+        send "{@market}&7Место сбора: &cX %floor(x coordinate of {_l})%&7, &cY %floor(y coordinate of {_l})%&7, &cZ %floor(z coordinate of {_l})%"
+        send "{@market}&7Надень Личину до подхода: &f/disguise"
+        send "{@market}&8Торг идёт из рук в руки. Доска лотов (/lots) — для белого рынка,"
+        send "{@market}&8здесь ничего не записывается и никто ни за что не отвечает."
+        send "{@market}&4Краденое здесь же и всплывает: скупка — Ст. 7.4 УК."
+        # В консоль (а оттуда в Discord Администрации) уходит настоящий ник.
+        # Игроки друг друга не видят, Суд видит всех — та же схема, что в
+        # contracts.sk. Без этого Теневой Рынок стал бы зоной вне закона,
+        # а по Конституции таких на сервере нет.
+        send "[ТЕНЬ] %player% запросил координаты Теневого Рынка" to console

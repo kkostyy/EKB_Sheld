@@ -1,0 +1,310 @@
+# -*- coding: utf-8 -*-
+"""EKB SHIELD — генератор WorldGuard-региона привата Спавна.
+
+Зачем генератор, а не «зайди и введи /rg define».
+
+    /rg define требует выделения WorldEdit, а выделение есть только у игрока
+    в мире. Из консоли и по RCON регион не создать вообще: у консоли нет
+    ни позиции, ни мира. Поэтому регион пишется прямо в хранилище WorldGuard —
+    plugins/WorldGuard/worlds/<мир>/regions.yml — а сервер подхватывает его
+    командой /rg load.
+
+Формат файла сверен по самому jar'у (worldguard-bukkit-7.0.18,
+com/sk89q/worldguard/protection/managers/storage/file/YamlRegionFile):
+ключи regions / type / min / max / priority / flags / owners / members,
+вектор — вложенные x, y, z; StateFlag.unmarshal принимает 'allow' и 'deny'
+без учёта регистра.
+
+Запуск:
+    py -3 build_spawn_region.py                    # собрать с параметрами по умолчанию
+    py -3 build_spawn_region.py --radius 256       # другой радиус
+    py -3 build_spawn_region.py --install          # и скопировать на сервер
+    py -3 build_spawn_region.py --install --reload # и сказать серверу /rg load
+
+После установки на работающем сервере:  /rg load  (или перезапуск).
+Проверить:  /rg info spawn -w world
+
+⚠️ Одновременно с этим в server.properties надо поставить spawn-protection=0.
+Ванильная защита спавна закрывает 33x33 блока вокруг точки появления ВСЕМ,
+кроме операторов, и она сильнее WorldGuard: Строительная бригада, добавленная
+в members региона, всё равно не смогла бы там строить, а причину пришлось бы
+искать в WorldGuard, где её нет.
+"""
+import argparse
+import gzip
+import io
+import os
+import shutil
+import struct
+import subprocess
+import sys
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+WORLD = 'world'
+
+# Центр мира EKB SHIELD — точка появления -1750 75 4000. Те же числа
+# стоят в expand_border.ps1/.sh и в датапаке (там ещё и центр Ада = /8).
+# Служат запасным вариантом: в свежем мире level.dat ещё держит 0,0, пока
+# на сервере не выполнили /setworldspawn -1750 75 4000, и регион привата
+# уехал бы в чистое поле за четыре с половиной тысячи блоков от Спавна.
+CENTER = (-1750, 4000)
+OUT = os.path.join(ROOT, 'plugins', 'WorldGuard', 'worlds', WORLD, 'regions.yml')
+SERVER = os.path.join(ROOT, 'server', 'plugins', 'WorldGuard', 'worlds', WORLD, 'regions.yml')
+LEVEL_DAT = os.path.join(ROOT, 'server', WORLD, 'level.dat')
+
+# Высота региона. Приват Спавна идёт на всю высоту мира намеренно: иначе
+# подкоп под базой САП и «крыша» над ней остаются вне защиты, а вся идея
+# нейтральной зоны (Конституция 6.2) в том, что тронуть её нельзя ниоткуда.
+MIN_Y, MAX_Y = -64, 319
+
+# Флаги региона. Значение None означает «не трогать», такой флаг в файл
+# не пишется и остаётся на усмотрение WorldGuard.
+FLAGS = [
+    # --- Конституция 6.2: полностью нейтральная безопасная зона ---
+    ('pvp', 'deny', 'бой на Спавне запрещён Конституцией 6.2'),
+    ('mob-damage', 'deny', 'мобы не бьют — зона безопасная и для беженцев (5.6)'),
+    ('mob-spawning', 'deny', 'и не спавнятся: иначе «безопасная» держится на факелах'),
+
+    # --- Застройка ---
+    ('build', 'deny', 'строят только owners/members (Администрация и бригада)'),
+    ('block-break', 'deny', None),
+    ('block-place', 'deny', None),
+
+    # --- Взрывы и огонь. Гриф Спавна — отдельная статья УК, но чинить
+    #     кратер после каждого криперa никто не должен.
+    ('creeper-explosion', 'deny', None),
+    ('other-explosion', 'deny', 'в т.ч. динамит и кристаллы Края'),
+    ('tnt', 'deny', None),
+    ('wither-damage', 'deny', None),
+    ('fire-spread', 'deny', None),
+    ('lava-fire', 'deny', None),
+    ('lighter', 'deny', 'огниво'),
+
+    # --- Декор Спавна. Вывески ImageFrame, карты городов и стойки брони
+    #     висят именно здесь, а ломаются они не событием block-break,
+    #     а своими собственными — build их не закрывает.
+    # ⚠️ Флага armor-stand-destroy у WorldGuard нет — имя сверено с реестром
+    #    Flags.class в worldguard-bukkit-7.0.18. Стойки брони закрыты общим
+    #    build: WorldGuard проводит урон по ним через ту же проверку.
+    #    Неизвестное имя флага плагин проглатывает молча, с одной строкой
+    #    в лог, — то есть выглядело бы как работающая защита.
+    ('entity-painting-destroy', 'deny', None),
+    ('entity-item-frame-destroy', 'deny', 'картины ImageFrame на стенах Мэрии'),
+    ('item-frame-rotation', 'deny', None),
+    ('vehicle-destroy', 'deny', None),
+    ('damage-animals', 'deny', 'скот и жители Мэрии — тоже имущество САП'),
+    ('enderman-grief', 'deny', 'эндермены не растаскивают застройку Спавна'),
+
+    # --- Что остаётся разрешённым ---
+    ('use', 'allow', 'двери, кнопки, верстаки, лавки Shopkeepers'),
+    ('ride', 'allow', 'вагонетки Незер-метро приходят на Спавн'),
+    ('entry', 'allow', 'Спавн не запирается ни от кого'),
+    ('exit', 'allow', None),
+
+    # --- Сообщения на входе и выходе ---
+    ('greeting', '&6&l[СПАВН] &rТерритория базы САП. Нейтральная зона, Конституция 6.2.', None),
+    ('farewell', '&6&l[СПАВН] &rТы покинул нейтральную зону. Дальше — по общим законам.', None),
+]
+
+# ⚠️ chest-access НАМЕРЕННО не выставлен.
+#
+# Запретить доступ к чужим сундукам на Спавне выглядит как очевидный «приват»,
+# но на этом сервере кража — не то, что предотвращают, а то, что судят:
+# Глава 1 УК, логи CoreProtect и возврат вещей по решению Суда. Закрыв сундуки
+# флагом, мы отберём у Суда половину дел и заодно сломаем лавки Shopkeepers,
+# которые торгуют из сундука владельца.
+
+OWNER_GROUPS = ['admin']
+MEMBER_GROUPS = ['restricted_admin']
+
+
+def spawn_from_level_dat(path):
+    """Достаёт точку появления из level.dat. В 26.1 это compound 'spawn'
+    с полем 'pos' (список из трёх int), а не старые SpawnX/SpawnY/SpawnZ."""
+    f = io.BytesIO(gzip.open(path, 'rb').read())
+
+    def rd(n):
+        b = f.read(n)
+        if len(b) != n:
+            raise EOFError('level.dat обрывается на offset %d' % f.tell())
+        return b
+
+    def nm():
+        return rd(struct.unpack('>H', rd(2))[0]).decode('utf-8', 'replace')
+
+    def payload(t):
+        if t == 1:  return struct.unpack('>b', rd(1))[0]
+        if t == 2:  return struct.unpack('>h', rd(2))[0]
+        if t == 3:  return struct.unpack('>i', rd(4))[0]
+        if t == 4:  return struct.unpack('>q', rd(8))[0]
+        if t == 5:  return struct.unpack('>f', rd(4))[0]
+        if t == 6:  return struct.unpack('>d', rd(8))[0]
+        if t == 7:  return list(rd(struct.unpack('>i', rd(4))[0]))
+        if t == 8:  return nm()
+        if t == 9:
+            et = rd(1)[0]
+            return [payload(et) for _ in range(struct.unpack('>i', rd(4))[0])]
+        if t == 10:
+            d = {}
+            while True:
+                tt = rd(1)[0]
+                if tt == 0:
+                    return d
+                k = nm()
+                d[k] = payload(tt)
+        if t == 11: return [struct.unpack('>i', rd(4))[0] for _ in range(struct.unpack('>i', rd(4))[0])]
+        if t == 12: return [struct.unpack('>q', rd(8))[0] for _ in range(struct.unpack('>i', rd(4))[0])]
+        raise ValueError('неизвестный NBT-тег %d' % t)
+
+    t = rd(1)[0]
+    nm()
+    root = payload(t)
+    data = root.get('Data', root)
+    pos = (data.get('spawn') or {}).get('pos')
+    if not pos or len(pos) != 3:
+        raise ValueError('в level.dat нет spawn.pos')
+    return int(pos[0]), int(pos[2])
+
+
+def render(cx, cz, radius, source):
+    lines = [
+        '# EKB SHIELD — WorldGuard, регион привата Спавна.',
+        '#',
+        '# ⚠️ ФАЙЛ СОБИРАЕТСЯ ГЕНЕРАТОРОМ. Руками не править:',
+        '#       py -3 build_spawn_region.py --radius %d --install' % radius,
+        '#   Иначе правка потеряется при первой же пересборке, а /rg save',
+        '#   на сервере перезапишет её обратно без комментариев.',
+        '#',
+        '# Центр: %d, %d (%s).' % (cx, cz, source),
+        '# Радиус %d блоков -> квадрат %dx%d, на всю высоту мира (%d..%d).' % (
+            radius, radius * 2, radius * 2, MIN_Y, MAX_Y),
+        '#',
+        '# Кто может строить:',
+        '#   owners  — группы %s' % ', '.join(OWNER_GROUPS),
+        '#   members — группы %s' % ', '.join(MEMBER_GROUPS),
+        '# Группа здесь — это право group.<имя> у LuckPerms, так WorldGuard',
+        '# сопоставляет свои g:-записи с чужими группами.',
+        '#',
+        '# Строительная бригада живёт на праве ekb.duty.builder, а не в группе,',
+        '# поэтому её добавляют поимённо и на сервере, а не здесь:',
+        '#       /rg addmember spawn <ник> -w world',
+        '# Такая запись ложится в members.unique-ids и переживёт пересборку',
+        '# только если после неё сделать /rg save и скопировать файл обратно',
+        '# в репозиторий. Проще — сначала собрать регион, потом добавлять людей.',
+        '',
+        'regions:',
+        '  __global__:',
+        '    type: global',
+        '    priority: 0',
+        '    flags: {}',
+        '    owners: {}',
+        '    members: {}',
+        '',
+        '  spawn:',
+        '    type: cuboid',
+        '    # Приоритет 10: выше будущих регионов-маркеров государств',
+        '    # (docs/state_borders_setup.sh, у них приоритет 1).',
+        '    priority: 10',
+        '    min:',
+        '      x: %d' % (cx - radius),
+        '      y: %d' % MIN_Y,
+        '      z: %d' % (cz - radius),
+        '    max:',
+        '      x: %d' % (cx + radius),
+        '      y: %d' % MAX_Y,
+        '      z: %d' % (cz + radius),
+        '    flags:',
+    ]
+    for name, value, note in FLAGS:
+        if note:
+            lines.append('      # %s' % note)
+        if value in ('allow', 'deny'):
+            lines.append('      %s: %s' % (name, value))
+        else:
+            lines.append("      %s: '%s'" % (name, value.replace("'", "''")))
+    lines += [
+        '    owners:',
+        '      groups:',
+    ]
+    lines += ['      - %s' % g for g in OWNER_GROUPS]
+    lines += [
+        '      players: []',
+        '      unique-ids: []',
+        '    members:',
+        '      groups:',
+    ]
+    lines += ['      - %s' % g for g in MEMBER_GROUPS]
+    lines += [
+        '      players: []',
+        '      unique-ids: []',
+        '',
+    ]
+    return '\n'.join(lines)
+
+
+def main():
+    ap = argparse.ArgumentParser(description='Регион привата Спавна для WorldGuard')
+    ap.add_argument('--radius', type=int, default=192,
+                    help='половина стороны квадрата в блоках (по умолчанию 192 -> 384x384)')
+    ap.add_argument('--center', default=None, metavar='X,Z',
+                    help='центр вручную; по умолчанию берётся из level.dat')
+    ap.add_argument('--install', action='store_true', help='скопировать на сервер')
+    ap.add_argument('--reload', action='store_true',
+                    help='после установки послать серверу /rg load по RCON')
+    args = ap.parse_args()
+
+    if args.center:
+        cx, cz = (int(v) for v in args.center.split(','))
+        source = 'задан вручную ключом --center'
+        print('центр задан вручную: %d, %d' % (cx, cz))
+    else:
+        cx, cz = CENTER
+        source = 'центр проекта, CENTER в build_spawn_region.py'
+        try:
+            lx, lz = spawn_from_level_dat(LEVEL_DAT)
+        except Exception as exc:
+            print('level.dat прочитать не удалось (%s)' % exc)
+            print('беру центр проекта: %d, %d' % (cx, cz))
+        else:
+            if (lx, lz) == (cx, cz):
+                source = 'level.dat, spawn.pos — совпадает с центром проекта'
+                print('центр из level.dat: %d, %d' % (cx, cz))
+            else:
+                # Не молча берём level.dat: если точку появления ещё не двигали,
+                # там лежит 0,0 — и приват встал бы за 4,5 тысячи блоков от Спавна,
+                # причём выглядело бы это как «регион создан, всё хорошо».
+                print('⚠ level.dat говорит %d, %d, а центр проекта %d, %d' % (lx, lz, cx, cz))
+                print('  беру центр проекта. Чтобы сошлось, на сервере:'
+                      ' /setworldspawn -1750 75 4000')
+
+    if args.radius < 16:
+        sys.exit('радиус меньше 16 блоков бессмысленен')
+
+    text = render(cx, cz, args.radius, source)
+    os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    io.open(OUT, 'w', encoding='utf-8', newline='\n').write(text)
+    print('%s — регион spawn, %dx%d блоков, %d флагов'
+          % (os.path.relpath(OUT, ROOT), args.radius * 2, args.radius * 2, len(FLAGS)))
+
+    if args.install:
+        os.makedirs(os.path.dirname(SERVER), exist_ok=True)
+        shutil.copy(OUT, SERVER)
+        print('скопировано: %s' % os.path.relpath(SERVER, ROOT))
+
+    if args.reload:
+        if not args.install:
+            sys.exit('--reload без --install бессмыслен: на сервере лежит старый файл')
+        rc = subprocess.call([sys.executable, os.path.join(ROOT, 'rcon.py'), 'rg load'])
+        if rc != 0:
+            print('RCON не ответил — сервер выключен? Регион подхватится при следующем старте.')
+
+    print('')
+    print('Дальше руками:')
+    print('  1. server.properties: spawn-protection=0 (иначе ванильная защита')
+    print('     33x33 перебьёт WorldGuard для всех, кроме операторов)')
+    print('  2. на сервере: /rg load  и  /rg info spawn -w world')
+    print('  3. строителей — поимённо: /rg addmember spawn <ник> -w world')
+
+
+if __name__ == '__main__':
+    main()

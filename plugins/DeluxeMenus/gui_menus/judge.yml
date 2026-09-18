@@ -1,0 +1,278 @@
+menu_title: '&8Судья'
+open_command:
+  - judge
+  - судья
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.judge
+      deny_commands:
+        - '[message] &cЭто меню Судебной Коллегии.'
+
+items:
+  'cases':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
+    slot: 10
+    display_name: '&6&lДела'
+    lore:
+      - '&7Иски живут в Discord-боте, а не на сервере:'
+      - '&7CoreProtect держит базу локально и по сети'
+      - '&7её не отдаёт.'
+      - ''
+      - '&8/дела &7— открытые дела (Discord)'
+      - '&8/закрыть_дело <номер> &7— закрыть'
+      - ''
+      - '&7Номер дела — единственная связка между'
+      - '&7Discord и игрой. Запиши его перед выгрузкой.'
+
+  'evidence':
+    material: WOODEN_AXE
+    slot: 11
+    display_name: '&e&lСбор доказательств'
+    lore:
+      - '&8/co i &7— инспектор по блокам'
+      - '&8/co lookup u:<ник> t:3h r:20 &7— поиск'
+      - ''
+      - '&7Конституция 1.2: единственный арбитр'
+      - '&7подлинности — CoreProtect. Слова сторон'
+      - '&7доказательством не являются.'
+      - ''
+      - '&aЛКМ &8— включить инспектор'
+    left_click_commands:
+      - '[close]'
+      - '[player] co i'
+
+  'courtlog':
+    material: WRITABLE_BOOK
+    slot: 12
+    display_name: '&b&lПриобщить логи к делу'
+    lore:
+      - '&8/courtlog <игрок> <минут> <радиус> <дело>'
+      - ''
+      - '&7CourtBridge выгрузит историю из CoreProtect'
+      - '&7и отправит её в канал &f#суд &7как embed'
+      - '&7с номером дела.'
+    left_click_commands:
+      - '[close]'
+      - '[message] &b&lВыгрузка: &7/courtlog <игрок> <минут> <радиус> <номер_дела>'
+
+  'verdict':
+    material: IRON_BARS
+    slot: 13
+    display_name: '&c&lПриговор'
+    lore:
+      - '&8/sentence <ник> <минут> &7— срок'
+      - '&8/freeearly <ник> &7— освободить'
+      - '&8/jailinfo &7— кто сидит'
+      - ''
+      - '&7Срок идёт в ОНЛАЙН-времени: отсидеться'
+      - '&7в оффлайне нельзя. Инвентарь осуждённого'
+      - '&7уходит в судейский ящик.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока и срок'
+      - '&8ПКМ &8— кто сейчас сидит'
+    left_click_commands:
+      - '[player] ekbmenu jail'
+    right_click_commands:
+      - '[close]'
+      - '[player] jailinfo'
+
+  'property':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
+    slot: 14
+    display_name: '&6&lИмущество осуждённых'
+    lore:
+      - '&8/jailitems list [ник] &7— что изъято'
+      - '&8/jailitems give <ник> &7— вернуть'
+      - '&8/jailitems clear <ник> &7— в Казну'
+      - ''
+      - '&7Что вернуть, а что конфисковать —'
+      - '&7решение Суда, а не автоматика.'
+      - ''
+      - ''
+      - '&aЛКМ &8— разобрать ящик по предметам'
+      - '&aПКМ &8— вернуть всё сразу'
+      - '&8Shift+ЛКМ &8— список ящиков'
+    left_click_commands:
+      - '[player] jailprop'
+    right_click_commands:
+      - '[player] ekbmenu items'
+    shift_left_click_commands:
+      - '[close]'
+      - '[player] jailitems list'
+
+  'free':
+    material: LIME_DYE
+    slot: 15
+    display_name: '&a&lОсвободить'
+    lore:
+      - '&7Досрочное освобождение решением Судьи.'
+      - ''
+      - '&7Освобождённый сам выберет, куда выйти:'
+      - '&7кровать, спавн или крыльцо Суда.'
+      - '&7Имущество при этом остаётся у Суда —'
+      - '&7его возвращают отдельно.'
+      - ''
+      - '&aЛКМ &8— выбрать заключённого'
+      - '&8ПКМ &8— кто сейчас сидит'
+    left_click_commands:
+      - '[player] ekbmenu free'
+    right_click_commands:
+      - '[close]'
+      - '[player] jailinfo'
+
+  'rollback':
+    material: TNT
+    slot: 16
+    display_name: '&c&lОткат по решению Суда'
+    lore:
+      - '&8/co rollback u:<ник> t:<время> r:<радиус>'
+      - '&8/co restore ... &7— вернуть как было'
+      - ''
+      - '&4Откат — крайняя мера и всегда следствие'
+      - '&4приговора, а не способ разрешить спор.'
+    left_click_commands:
+      - '[close]'
+      - '[message] &c&lОткат: &7/co rollback u:<ник> t:<время> r:<радиус>'
+
+  'reports':
+    material: BOOK
+    slot: 21
+    display_name: '&e&lЖалобы игроков'
+    lore:
+      - '&8/reports &7— очередь жалоб'
+      - '&8/report <ник> <причина> &7— подать'
+      - ''
+      - '&7Жалоба — это ещё не иск: разберись,'
+      - '&7и если состав есть, передай в Суд.'
+      - ''
+      - '&aЛКМ &8— открыть очередь'
+    left_click_commands:
+      - '[close]'
+      - '[player] reports'
+
+  'code':
+    material: WRITTEN_BOOK
+    slot: 22
+    display_name: '&f&lСтатьи УК'
+    lore:
+      - '&7Наказание назначается по статье,'
+      - '&7а не по настроению.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_laws'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_duty'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_4':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 4
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

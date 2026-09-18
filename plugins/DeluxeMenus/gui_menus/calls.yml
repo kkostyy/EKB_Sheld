@@ -1,0 +1,195 @@
+menu_title: '&8Вызвать службу'
+open_command:
+  - call
+  - вызов
+size: 54
+
+items:
+
+  'medic':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmU3YTgxMGQyMTEyMjc1Y2MxODIxZGNjNmUyOWRhM2QyYjhmYzY1OWFmNzI5MGEzY2I3MGJlNTM2YWUyMDQwYSJ9fX0=
+    slot: 13
+    display_name: '&a&lВызвать медика'
+    lore:
+      - '&7Ломка, лечение зависимости, осмотр.'
+      - '&8Осмотр бесплатно, курс 64–160💎, выезд +32💎'
+      - ''
+      - '&aЛКМ &8— вызвать Клинику'
+    left_click_commands:
+      - '[player] call medic'
+
+  'court':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
+    slot: 20
+    display_name: '&6&lВызвать Суд'
+    lore:
+      - '&7Спор на месте, осмотр места происшествия.'
+      - '&8Иск всё равно подаётся в Discord: /иск'
+      - ''
+      - '&aЛКМ &8— вызвать судью'
+    left_click_commands:
+      - '[player] call court'
+
+  'sheriff':
+    material: IRON_SWORD
+    slot: 22
+    display_name: '&c&lВызвать шерифа'
+    lore:
+      - '&7Грабят, ломают, мешают жить.'
+      - '&8Бесплатно: охрана порядка — обязанность.'
+      - ''
+      - '&aЛКМ &8— вызвать патруль'
+    left_click_commands:
+      - '[player] call sheriff'
+
+  'builder':
+    material: DIAMOND_PICKAXE
+    slot: 24
+    display_name: '&e&lСтроительная бригада'
+    lore:
+      - '&7Терраформинг, плато, раскопка, метро.'
+      - '&8По Строительной бирже: от 32💎 за чанк.'
+      - ''
+      - '&aЛКМ &8— вызвать бригаду'
+    left_click_commands:
+      - '[player] call builder'
+
+  'post':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
+    slot: 30
+    display_name: '&f&lПочтальон'
+    lore:
+      - '&7Доставить посылку или письмо адресату.'
+      - '&8Цена — по договорённости.'
+      - ''
+      - '&aЛКМ &8— вызвать почту'
+    left_click_commands:
+      - '[player] call post'
+
+  'mycalls':
+    material: CLOCK
+    slot: 31
+    display_name: '&7&lОткрытые заявки'
+    lore:
+      - '&7Заявки твоей службы, которые'
+      - '&7ещё никто не принял.'
+      - ''
+      - '&aЛКМ &8— показать список'
+    left_click_commands:
+      - '[player] calls'
+
+  'header':
+    material: BELL
+    slot: 4
+    display_name: '&b&lВызов службы'
+    lore:
+      - '&7Заявка уходит с твоими координатами.'
+      - '&7Сотрудник идёт ногами — телепортов нет.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_main'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

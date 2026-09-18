@@ -1,0 +1,232 @@
+menu_title: '&8Тёмная Тетрадь Смерти'
+open_command:
+  - deathnotemenu
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.deathnote.admin
+      deny_commands:
+        - '[message] &cТетрадь — забота главного админа.'
+
+items:
+
+  'self':
+    material: WRITABLE_BOOK
+    slot: 13
+    display_name: '&a&lВыдать себе'
+    lore:
+      - '&7Тетрадь ляжет тебе в руки.'
+      - ''
+      - '&aЛКМ &8— выдать себе'
+    model_data: 6666
+    left_click_commands:
+      - '[player] givenote'
+
+  'pick':
+    material: PLAYER_HEAD
+    slot: 20
+    display_name: '&e&lВыдать игроку'
+    lore:
+      - '&7Выбор головой из тех, кто в сети.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока'
+    left_click_commands:
+      - '[player] ekbmenu deathnote'
+
+  'random':
+    material: ENDER_PEARL
+    slot: 22
+    display_name: '&5&lВыдать случайному'
+    lore:
+      - '&7Тетрадь сама найдёт хозяина.'
+      - ''
+      - '&aЛКМ &8— случайный игрок'
+    left_click_commands:
+      - '[player] deathnote give random'
+
+  'find':
+    material: COMPASS
+    slot: 24
+    display_name: '&b&lГде она сейчас'
+    lore:
+      - '&7Ищет в инвентарях и эндер-сундуках онлайна.'
+      - ''
+      - '&aЛКМ &8— найти тетрадь'
+    left_click_commands:
+      - '[player] deathnote find'
+
+  'scan':
+    material: SPYGLASS
+    slot: 29
+    display_name: '&6&lПолный обыск'
+    lore:
+      - '&7Сундуки, эндер-сундуки, выброшенное,'
+      - '&7запомненные схроны — всё разом.'
+      - '&8Пропала на 10 минут — можно выдавать заново.'
+      - ''
+      - '&aЛКМ &8— искать везде'
+    left_click_commands:
+      - '[player] dnscan'
+
+  'info':
+    material: BOOK
+    slot: 30
+    display_name: '&f&lСостояние'
+    lore:
+      - '&7Сколько выдано, кулдаун, последний владелец.'
+      - ''
+      - '&aЛКМ &8— показать сводку'
+    left_click_commands:
+      - '[player] deathnote info'
+
+  'reclaim':
+    material: HOPPER
+    slot: 31
+    display_name: '&c&lИзъять'
+    lore:
+      - '&7У онлайн-игрока забирает сама,'
+      - '&7у оффлайн — открывает /oi и /oe.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока'
+    left_click_commands:
+      - '[player] ekbmenu reclaim'
+
+  'cooldown':
+    material: CLOCK
+    slot: 32
+    display_name: '&6&lКулдаун'
+    lore:
+      - '&7Сколько тетрадь «сыта» после приговора.'
+      - ''
+      - '&aЛКМ &8— как изменить'
+    left_click_commands:
+      - '[message] &8&lКулдаун: &7/deathnote cooldown <часы>'
+
+  'count':
+    material: PAPER
+    slot: 33
+    display_name: '&7&lСчётчик выданных'
+    lore:
+      - '&7Если разошёлся с реальностью.'
+      - ''
+      - '&aЛКМ &8— как поправить'
+    left_click_commands:
+      - '[message] &8&lСчётчик: &7/deathnote setcount <число>'
+
+  'header':
+    material: WRITABLE_BOOK
+    slot: 4
+    display_name: '&8&lТёмная Тетрадь Смерти'
+    lore:
+      - '&7На сервере не больше двух тетрадей.'
+      - '&7Счётчик расходится — поправь вручную.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_admin_items'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

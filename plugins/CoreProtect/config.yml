@@ -1,0 +1,8 @@
+verbose: true
+use-mysql: false
+block-changes: true
+liquid-tracking: true
+item-transactions: true
+player-interactions: true
+entity-kills: true
+explosions: true

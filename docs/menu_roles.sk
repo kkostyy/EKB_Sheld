@@ -1,0 +1,408 @@
+# EKB SHIELD — menu_roles.sk
+# Выдача и снятие ролей головами, без ручного ввода нод LuckPerms.
+#
+# Раздача прав — самая частая админская операция и самая опасная для опечаток:
+# `/lp user Вася permission set ekb.menu.judge true` набирается долго и легко
+# пишется с ошибкой, после которой «право выдано», а меню не открывается.
+# Здесь судья или главный админ выбирает голову игрока и щёлкает по ролям:
+# статус читается прямо с игрока, переключение уходит в LuckPerms командой.
+#
+# ⚠ Опознание кликов — по CustomModelData предмета (7300-7399), а не по
+# переменной-флагу: флаг гасит событие закрытия предыдущего инвентаря.
+#
+# ⚠ Группа `admin` через это меню не выдаётся вообще. Меню раздаёт только
+# перечисленные ниже роли — иначе любой, кто дорвался до него, мог бы
+# сделать себя главным администратором.
+#
+# Требует: LuckPerms. Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &d&l[РОЛИ] &r
+    per_page: 28
+
+# Хранилище (ключ — UUID того, кто раздаёт):
+#   {roles::target::%uuid%}  — ник выбранного игрока
+#   {roles::page::%uuid%}    — страница списка
+
+# ---------------------------------------------------------------------------
+# Каталог ролей
+# ---------------------------------------------------------------------------
+
+# id -> человеческое название
+function rl_title(id: text) :: text:
+    if {_id} is "helper":
+        return "Помощник администратора"
+    if {_id} is "judge":
+        return "Судья"
+    if {_id} is "doctor":
+        return "Врач Клиники"
+    if {_id} is "citizen":
+        return "Гражданин государства"
+    if {_id} is "capital":
+        return "Житель Спавна"
+    if {_id} is "mayor":
+        return "Глава города"
+    if {_id} is "council":
+        return "Советник"
+    if {_id} is "treasurer":
+        return "Казначей"
+    if {_id} is "guard":
+        return "Страж города"
+    if {_id} is "sheriff":
+        return "Шериф Спавна"
+    if {_id} is "builder":
+        return "Бригадир строителей"
+    if {_id} is "postman":
+        return "Почтальон"
+    if {_id} is "clerk":
+        return "Приказчик Мэрии"
+    if {_id} is "barman":
+        return "Бармен"
+    if {_id} is "dealer":
+        return "Крупье"
+    if {_id} is "detective":
+        return "Следователь"
+    if {_id} is "journalist":
+        return "Журналист"
+    if {_id} is "streamer":
+        return "Стример"
+    if {_id} is "youtuber":
+        return "Ютубер"
+    if {_id} is "shadow":
+        return "Теневое Сообщество"
+    return {_id}
+
+# id -> нода прав (для групп — специальная пометка group:)
+function rl_node(id: text) :: text:
+    if {_id} is "helper":
+        return "group:restricted_admin"
+    if {_id} is "judge":
+        return "ekb.menu.judge"
+    if {_id} is "doctor":
+        return "ekb.menu.doctor"
+    if {_id} is "citizen":
+        return "ekb.menu.citizen"
+    if {_id} is "capital":
+        return "ekb.menu.capital"
+    if {_id} is "mayor":
+        return "ekb.town.mayor"
+    if {_id} is "council":
+        return "ekb.town.council"
+    if {_id} is "treasurer":
+        return "ekb.town.treasurer"
+    if {_id} is "guard":
+        return "ekb.town.guard"
+    if {_id} is "sheriff":
+        return "ekb.duty.sheriff"
+    if {_id} is "builder":
+        return "ekb.duty.builder"
+    if {_id} is "postman":
+        return "ekb.duty.postman"
+    if {_id} is "clerk":
+        return "ekb.duty.clerk"
+    if {_id} is "barman":
+        return "ekb.duty.barman"
+    if {_id} is "dealer":
+        return "ekb.duty.dealer"
+    if {_id} is "detective":
+        return "ekb.duty.detective"
+    if {_id} is "journalist":
+        return "ekb.duty.journalist"
+    if {_id} is "streamer":
+        return "ekb.media.streamer"
+    if {_id} is "youtuber":
+        return "ekb.media.youtuber"
+    if {_id} is "shadow":
+        return "ekb.shadow.member"
+    return ""
+
+function rl_icon(id: text) :: item:
+    if {_id} is "helper":
+        return 1 of iron sword
+    if {_id} is "judge":
+        return 1 of lectern
+    if {_id} is "doctor":
+        return 1 of honey bottle
+    if {_id} is "citizen":
+        return 1 of shield
+    if {_id} is "capital":
+        return 1 of bell
+    if {_id} is "mayor":
+        return 1 of golden helmet
+    if {_id} is "council":
+        return 1 of iron helmet
+    if {_id} is "treasurer":
+        return 1 of gold ingot
+    if {_id} is "guard":
+        return 1 of chainmail chestplate
+    if {_id} is "sheriff":
+        return 1 of iron sword
+    if {_id} is "builder":
+        return 1 of diamond pickaxe
+    if {_id} is "postman":
+        return 1 of paper
+    if {_id} is "clerk":
+        return 1 of lectern
+    if {_id} is "barman":
+        return 1 of brewing stand
+    if {_id} is "dealer":
+        return 1 of oak pressure plate
+    if {_id} is "detective":
+        return 1 of spyglass
+    if {_id} is "journalist":
+        return 1 of writable book
+    if {_id} is "streamer":
+        return 1 of redstone torch
+    if {_id} is "youtuber":
+        return 1 of jukebox
+    if {_id} is "shadow":
+        return 1 of coal
+    return 1 of paper
+
+function rl_desc(id: text) :: text:
+    if {_id} is "helper":
+        return "Логи, чужие инвентари, ваниш. Без откатов и приговоров."
+    if {_id} is "judge":
+        return "Дела, приговоры, разбор имущества."
+    if {_id} is "doctor":
+        return "Осмотр и лечение зависимости, вытрезвитель."
+    if {_id} is "citizen":
+        return "Меню гражданина: устав, границы, войны."
+    if {_id} is "capital":
+        return "Меню жителя Спавна: Мэрия, Клиника, Рынок."
+    if {_id} is "mayor":
+        return "Глава города, отвечает перед Судом за горожан."
+    if {_id} is "council":
+        return "Заместитель главы, держит город без него."
+    if {_id} is "treasurer":
+        return "Казна города — сундук с алмазами."
+    if {_id} is "sheriff":
+        return "Порядок на Спавне и Рынке, приём вызовов."
+    if {_id} is "builder":
+        return "Заказы Строительной биржи, выезд к клиенту."
+    if {_id} is "postman":
+        return "Доставка писем и посылок между городами."
+    if {_id} is "clerk":
+        return "Казна, аренда палаток, скупщик. /market"
+    if {_id} is "barman":
+        return "Стойка бара и вытрезвитель. /barshop"
+    if {_id} is "dealer":
+        return "Настольные игры и кости. /casino"
+    if {_id} is "detective":
+        return "Осмотр мест убийств для Суда. /forensics"
+    if {_id} is "journalist":
+        return "Выпуски газеты и экстренные новости. /newsissue"
+    if {_id} is "streamer":
+        return "Анонс эфира на весь сервер, раз в 4 часа. /onair"
+    if {_id} is "youtuber":
+        return "Анонс ролика на весь сервер, раз в 4 часа. /onair"
+    if {_id} is "shadow":
+        return "Доступ к Теневому Рынку: координаты сбора."
+    return "Ополчение: охрана границ и караванов."
+
+# Есть ли роль у игрока. Для группы LuckPerms отдаёт ноду group.<имя>.
+function rl_has(p: player, id: text) :: boolean:
+    set {_node} to rl_node({_id})
+    if {_node} contains "group:":
+        set {_g} to {_node}
+        replace all "group:" with "group." in {_g}
+        if {_p} has permission {_g}:
+            return true
+        return false
+    if {_p} has permission {_node}:
+        return true
+    return false
+
+function rl_cmd(i: item) :: number:
+    # У воздуха нет меты: `custom model data of air` кидает исключение,
+    # а проверять пустые слоты приходится постоянно.
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function rl_button(i: item, cmd: number, title: text) :: item:
+    set custom model data of {_i} to {_cmd}
+    set name of {_i} to {_title}
+    return {_i}
+
+function rl_frame(inv: inventory, slots: numbers):
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7300
+    set name of {_f} to " "
+    loop {_slots::*}:
+        set slot loop-value of {_inv} to {_f}
+
+# ---------------------------------------------------------------------------
+# Шаг 1 — выбор игрока
+# ---------------------------------------------------------------------------
+
+command /ekbroles [<text>] [<number>]:
+    permission: ekb.roles.manage
+    permission message: &cРаздача ролей — дело главного администратора.
+    description: Выдача и снятие ролей головами
+    usage: /ekbroles [ник] [страница]
+    trigger:
+        if arg-1 is set:
+            set {_t} to arg-1 parsed as player
+            if {_t} is not set:
+                send "{@prefix}&cИгрок не в сети: права читаются только у тех, кто онлайн." to player
+                stop
+            rl_roles(player, arg-1)
+            stop
+        set {_page} to arg-2
+        if {_page} is not set:
+            set {_page} to 1
+        rl_pick(player, {_page})
+
+function rl_pick(p: player, page: number):
+    set {_u} to "%uuid of {_p}%"
+    set {roles::page::%{_u}%} to {_page}
+    delete {roles::target::%{_u}%}
+
+    set {_inv} to a chest inventory with 6 rows named "&8Кому выдать роль"
+    set {_frame::*} to 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 46, 47, 51, 52 and 53
+    rl_frame({_inv}, {_frame::*})
+    set {_slots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+
+    set {_first} to (({_page} - 1) * {@per_page}) + 1
+    set {_n} to 0
+    set {_shown} to 0
+    loop all players:
+        add 1 to {_n}
+        if {_n} >= {_first}:
+            if {_shown} < {@per_page}:
+                add 1 to {_shown}
+                set {_h} to 1 of player head
+                set skull owner of {_h} to loop-player
+                set custom model data of {_h} to 7301
+                set name of {_h} to "&f%loop-player%"
+                set lore of {_h} to "&7Клик — роли этого игрока"
+                set slot ({_slots::%{_shown}%}) of {_inv} to {_h}
+
+    if {_shown} is 0:
+        set slot 22 of {_inv} to rl_button(1 of barrier, 7303, "&7Никого нет")
+
+    set slot 45 of {_inv} to rl_button(1 of arrow, 7305, "&7Назад")
+    if {_page} > 1:
+        set slot 48 of {_inv} to rl_button(1 of spectral arrow, 7307, "&e< Предыдущая")
+    set slot 49 of {_inv} to rl_button(1 of barrier, 7303, "&cЗакрыть")
+    set {_last} to {_first} + {@per_page} - 1
+    if {_n} > {_last}:
+        set slot 50 of {_inv} to rl_button(1 of spectral arrow, 7306, "&eСледующая >")
+    open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Шаг 2 — роли выбранного игрока
+# ---------------------------------------------------------------------------
+
+function rl_roles(p: player, target: text):
+    set {_u} to "%uuid of {_p}%"
+    set {_t} to {_target} parsed as player
+    if {_t} is not set:
+        send "{@prefix}&cИгрок вышел из сети." to {_p}
+    else:
+        set {roles::target::%{_u}%} to {_target}
+        set {_inv} to a chest inventory with 6 rows named "&8Роли: %{_target}%"
+        set {_frame::*} to 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 46, 47, 48, 50, 51 and 52
+        rl_frame({_inv}, {_frame::*})
+
+        # Ряд 1 — служба, ряд 2 — город и гражданство, ряд 3 — медиа и подполье.
+        # Слоты рамки (0-9, 17, 18, 26, 27, 35...) в список не попадают:
+        # их занимает rl_frame выше.
+        # Ряд 1 — Администрация и Суд, ряд 2 — город и гражданство,
+        # ряд 3 — службы Спавна, ряд 4 — медиа и подполье.
+        set {_ids::*} to "helper", "judge", "doctor", "sheriff", "builder", "postman", "citizen", "capital", "mayor", "council", "treasurer", "guard", "clerk", "barman", "dealer", "detective", "journalist", "streamer", "youtuber" and "shadow"
+        set {_slots::*} to 10, 11, 12, 14, 15, 16, 20, 21, 22, 23, 24, 25, 28, 29, 30, 32, 33, 34, 38 and 42
+
+        loop {_ids::*}:
+            set {_id} to loop-value
+            set {_i} to rl_icon({_id})
+            set custom model data of {_i} to 7310
+            set {_name} to rl_title({_id})
+            if rl_has({_t}, {_id}) is true:
+                set name of {_i} to "&a✔ %{_name}%"
+                set lore of {_i} to "&7%rl_desc({_id})%" and "" and "&cКлик — снять роль" and "&8%{_id}%"
+            else:
+                set name of {_i} to "&7✘ %{_name}%"
+                set lore of {_i} to "&7%rl_desc({_id})%" and "" and "&aКлик — выдать роль" and "&8%{_id}%"
+            set slot ({_slots::%loop-index%}) of {_inv} to {_i}
+
+        set {_h} to 1 of player head
+        set skull owner of {_h} to {_t}
+        set custom model data of {_h} to 7300
+        set name of {_h} to "&f%{_target}%"
+        set lore of {_h} to "&7Роли применяются сразу," and "&7подтверждение не требуется."
+        set slot 4 of {_inv} to {_h}
+
+        set slot 45 of {_inv} to rl_button(1 of arrow, 7305, "&7К списку игроков")
+        set slot 49 of {_inv} to rl_button(1 of barrier, 7303, "&cЗакрыть")
+        open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Клики
+# ---------------------------------------------------------------------------
+
+on inventory click:
+    event-item is not air
+    set {_c} to rl_cmd(event-item)
+    if {_c} is between 7300 and 7310:
+        cancel event
+        set {_u} to "%uuid of player%"
+        set {_page} to {roles::page::%{_u}%}
+        if {_page} is not set:
+            set {_page} to 1
+        set {_target} to {roles::target::%{_u}%}
+
+        if {_c} is 7303:
+            close player's inventory
+        else if {_c} is 7305:
+            if {_target} is set:
+                rl_pick(player, {_page})
+            else:
+                close player's inventory
+                make player say "/menu"   # команда меню живёт в перехвате чата, не в карте команд
+        else if {_c} is 7306:
+            rl_pick(player, {_page} + 1)
+        else if {_c} is 7307:
+            rl_pick(player, {_page} - 1)
+        else if {_c} is 7301:
+            rl_roles(player, uncoloured (name of event-item))
+        else if {_c} is 7310:
+            # id роли спрятан последней строкой лора, чтобы не разбирать перевод
+            set {_lore::*} to lore of event-item
+            set {_id} to uncoloured ({_lore::4})
+            rl_toggle(player, {_target}, {_id})
+
+function rl_toggle(p: player, target: text, id: text):
+    set {_t} to {_target} parsed as player
+    if {_t} is not set:
+        send "{@prefix}&cИгрок вышел из сети — роль не изменена." to {_p}
+    else:
+        set {_node} to rl_node({_id})
+        set {_name} to rl_title({_id})
+        if {_node} is "":
+            send "{@prefix}&cНеизвестная роль." to {_p}
+        else:
+            if {_node} contains "group:":
+                set {_g} to {_node}
+                replace all "group:" with "" in {_g}
+                if rl_has({_t}, {_id}) is true:
+                    make console execute command "lp user %{_target}% parent remove %{_g}%"
+                    send "{@prefix}&cСнято: &f%{_name}%&c у &f%{_target}%&c." to {_p}
+                    send "{@prefix}&cТы больше не «%{_name}%»." to {_t}
+                else:
+                    make console execute command "lp user %{_target}% parent add %{_g}%"
+                    send "{@prefix}&aВыдано: &f%{_name}%&a игроку &f%{_target}%&a." to {_p}
+                    send "{@prefix}&aТебе выдана роль «%{_name}%»." to {_t}
+            else:
+                if rl_has({_t}, {_id}) is true:
+                    make console execute command "lp user %{_target}% permission unset %{_node}%"
+                    send "{@prefix}&cСнято: &f%{_name}%&c у &f%{_target}%&c." to {_p}
+                    send "{@prefix}&cТы больше не «%{_name}%»." to {_t}
+                else:
+                    make console execute command "lp user %{_target}% permission set %{_node}% true"
+                    send "{@prefix}&aВыдано: &f%{_name}%&a игроку &f%{_target}%&a." to {_p}
+                    send "{@prefix}&aТебе выдана роль «%{_name}%»." to {_t}
+            # LuckPerms применяет изменение не мгновенно — перерисовываем позже
+            wait 20 ticks
+            rl_roles({_p}, {_target})

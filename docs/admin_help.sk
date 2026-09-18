@@ -1,0 +1,191 @@
+# EKB SHIELD — admin_help.sk
+# Справочник админских команд: /ahelp [раздел]
+# Право: ekb.admin.help (выдаётся группам admin и restricted_admin).
+
+options:
+    prefix: &6&l[EKB SHIELD] &r
+    line: &8&m----------------------------------------
+
+command /ahelp [<text>]:
+    permission: ekb.admin.help
+    permission message: &cСправочник доступен только администрации.
+    aliases: /adminhelp, /ah
+    description: Справочник админских команд EKB SHIELD
+    usage: /ahelp [логи|суд|тюрьма|зависимость|мир|ваниш|предметы|права|сервис|discord]
+    trigger:
+        if arg-1 is not set:
+            send "{@line}"
+            send "{@prefix}&eСправочник администрации"
+            send "&7Введи &f/ahelp <раздел>&7:"
+            send "&8 - &bлоги &8: &7CoreProtect - инспектор, поиск, откаты"
+            send "&8 - &bсуд &8: &7дела, выгрузка логов, Discord-бот"
+            send "&8 - &bтюрьма &8: &7приговоры по онлайн-часам"
+            send "&8 - &bзависимость &8: &7ломка от алкоголя и травы, лечение"
+            send "&8 - &bмир &8: &7границы по достижениям, прогенерация"
+            send "&8 - &bваниш &8: &7невидимость и чужие инвентари"
+            send "&8 - &bпредметы &8: &7Тетрадь Смерти, алкоголь, конопля, голограммы"
+            send "&8 - &bправа &8: &7LuckPerms, операторы, авторизация"
+            send "&8 - &bсервис &8: &7диагностика, бэкапы, перезапуск"
+            send "&8 - &bdiscord &8: &7мост чата и алерты"
+            send "{@line}"
+            stop
+
+        if arg-1 is "логи" or "logs":
+            send "{@line}"
+            send "{@prefix}&eCoreProtect - единственный арбитр (Конституция 1.2)"
+            send "&b/co i &8- &7инспектор: ЛКМ/ПКМ по блоку показывает историю"
+            send "&b/co lookup u:<ник> t:<время> r:<радиус> &8- &7просмотр без отката"
+            send "&7  пример: &f/co lookup u:Igor t:2h r:20"
+            send "&b/co rollback u:<ник> t:<время> r:<радиус> &8- &7откат действий игрока"
+            send "&b/co rollback t:30m r:50 #see-through &8- &7откат грифа без ника"
+            send "&b/co restore &8- &7отменить последний откат, если ошибся"
+            send "&7Откаты - только у главного админа (coreprotect.rollback)."
+            send "{@line}"
+            stop
+
+        if arg-1 is "суд" or "court":
+            send "{@line}"
+            send "{@prefix}&eСудебный контур"
+            send "&b/courtlog <ник> <минут> <радиус> <номер дела> &8- &7логи в Discord"
+            send "&7  пример: &f/courtlog Igor 120 50 7 &8- &7за 2 часа, радиус 50"
+            send "&7В Discord работает бот суда:"
+            send "&8 - &b/иск &8: &7подать иск, создаётся номерное дело и тред"
+            send "&8 - &b/дела &8: &7список открытых дел"
+            send "&8 - &b/закрыть_дело &8: &7вердикт, только роль Leader"
+            send "&7Заседания - воскресенье 19:00 (УК, глава 4)."
+            send "{@line}"
+            stop
+
+        if arg-1 is "тюрьма" or "jail":
+            send "{@line}"
+            send "{@prefix}&eТюрьма - срок идёт ТОЛЬКО пока игрок в сети"
+            send "&b/setjailpoint &8- &7назначить точку тюрьмы (встань на месте)"
+            send "&b/jailinfo &8- &7где тюрьма и кто сейчас сидит"
+            send "&b/sentence <ник> <минут> &8- &7посадить на N минут онлайн-времени"
+            send "&b/freeearly <ник> &8- &7освободить досрочно решением судьи"
+            send "&b/jailitems list [ник] &8- &7что изъято у заключённых"
+            send "&b/jailitems give <ник> &8- &7вернуть имущество (игрок в сети)"
+            send "&b/jailitems clear <ник> &8- &7конфисковать в Казну (двойной ввод)"
+            send "&b/jailprop [ник] &8- &7разобрать ящик по предметам: что вернуть,"
+            send "&7  что забрать. Клик по вещи переключает решение."
+            send "&b/setcourtpoint &8- &7точка у выхода из Суда (встань на месте)"
+            send "&7При посадке инвентарь целиком уходит в судейский ящик;"
+            send "&7в камере нельзя ломать и ставить, но есть, пить и курить - можно."
+            send "&7Эндер-жемчуг и хорус в камере не телепортируют."
+            send "&7После срока игрок сам выбирает в меню: кровать, спавн или Суд."
+            send "&7Плагин Jail не используется: он считал бы реальное время."
+            send "{@line}"
+            stop
+
+        if arg-1 is "зависимость" or "addiction":
+            send "{@line}"
+            send "{@prefix}&eЗависимость - две раздельные шкалы: алкоголь и трава"
+            send "&b/addiction &8- &7игрок смотрит своё состояние"
+            send "&b/addiction info <ник> &8- &7состояние игрока"
+            send "&b/addiction cure <ник> [alco|weed] &8- &7вылечить (услуга врача)"
+            send "&b/addiction set <ник> <alco|weed> <n> &8- &7выставить дозы"
+            send "&b/addiction clean <ник> <alco|weed> <мин> &8- &7минут без дозы"
+            send "&7Зависимость с 10 доз. Без дозы 20 мин - тошнота и голод,"
+            send "&745 мин - плюс слабость и замедление. Урона нет."
+            send "&7Рассол и молоко глушат симптомы на 5 мин, но не лечат."
+            send "&7Сама шкала НЕ спадает: только врач или смерть."
+            send "{@line}"
+            stop
+
+        if arg-1 is "мир" or "border":
+            send "{@line}"
+            send "{@prefix}&eГраницы мира - расширяются по достижениям игроков"
+            send "&b/function ekb:status &8- &7текущая стадия и режим"
+            send "&b/function ekb:auto_on &8- &7расширять автоматически при ачивке"
+            send "&b/function ekb:auto_off &8- &7только объявлять, двигать вручную"
+            send "&7Стадии: &f1&7=4000, &f2&7=8000 (вход в Ад), &f3&7=12000 (крепость),"
+            send "&7        &f4&7=16000 (Край), &f5&7=20000 (дракон). Ад всегда 1/8."
+            send "&b/chunky world world &8| &b/chunky center 0 0 &8| &b/chunky radius <N> &8| &b/chunky start"
+            send "&7  прогенерируй ДО расширения, иначе чанки создаются на ходу"
+            send "&b/worldborder get &8- &7текущий размер"
+            send "{@line}"
+            stop
+
+        if arg-1 is "ваниш" or "vanish":
+            send "{@line}"
+            send "{@prefix}&eНаблюдение за подозреваемым"
+            send "&b/v &8- &7стать невидимым: нет в табе, мобы не агрятся"
+            send "&b/openinv <ник> &8- &7инвентарь игрока, в том числе оффлайн"
+            send "&b/openender <ник> &8- &7эндер-сундук игрока"
+            send "&b/searchinv <предмет> &8- &7найти, у кого предмет в инвентаре"
+            send "&7В ванише сундуки открываются молча - следа в /co i не будет."
+            send "&7Операторы не видят главного админа в ванише и не могут менять"
+            send "&7чужие инвентари: изъятие краденого - по решению Суда."
+            send "{@line}"
+            stop
+
+        if arg-1 is "предметы" or "items":
+            send "{@line}"
+            send "{@prefix}&eКастомные предметы и механики"
+            send "&b/deathnote give <ник|random> &8- &7выдать Тетрадь Смерти (CMD 6666)"
+            send "&7  1 страница - правила, со 2-й владелец пишет имена по одному на страницу;"
+            send "&7  приговор вступает в силу по кнопке ПОДПИСАТЬ. Тетрадей на сервере не больше 2."
+            send "&b/deathnote find &8- &7у кого тетрадь сейчас (инвентарь и эндер)"
+            send "&b/deathnote reclaim <ник> &8- &7изъять; оффлайн - после суток простоя"
+            send "&b/deathnote cooldown <часы> &8- &7сменить кулдаун (по умолчанию 5 ч)"
+            send "&b/deathnote setcount <n> &8- &7поправить счётчик выданных (лимит 2)"
+            send "&b/deathnote info &8- &7кулдаун и список жертв"
+            send "&b/ei reload &8- &7перечитать конфиги предметов"
+            send "&b/brew &8- &7меню BreweryX, рецепты 1001-1013:"
+            send "&7  1001 Егермейстер, 1002 Пиво, 1003 Текила, 1004 Ром, 1005 Админский самогон,"
+            send "&7  1006 Шведская водка, 1007 Водка, 1008 Виски, 1009 Егермейстер Orange,"
+            send "&7  1010 Егермейстер Dark, 1011 Маракуйя, 1012 Мохито, 1013 Деревенский самогон"
+            send "&b/nirvana &8- &7МЕНЮ ВЫДАЧИ: 12 предметов конопли + 13 напитков Brewery"
+            send "&7  клик - 1 шт., клик в присяде - 16 шт. В поиске креатива их нет и не будет:"
+            send "&7  поиск читает только ванильный реестр, а это бумага/палка/зелье с CMD."
+            send "&b/nirvana give <ник> <предмет> [кол-во] &8- &7конопля и всё из неё (CMD 2001-2012)"
+            send "&7  seeds, hemp, weed, cloth, joint, pipe, stuffed_pipe,"
+            send "&7  empty_bong, bong, salve, brownie, deerstalker"
+            send "&b/nirvana cleanup &8- &7снять метки с грядок, где конопли уже нет"
+            send "&b/markethologram <название> <цена> <кол-во> &8- &7голограмма лавки"
+            send "&b/markethologramlist &8| &b/markethologramremove <ID>"
+            send "&b/mailsend <ник> <текст> &8- &7письмо с доставкой 20 минут"
+            send "{@line}"
+            stop
+
+        if arg-1 is "права" or "perms":
+            send "{@line}"
+            send "{@prefix}&eПрава и доступ"
+            send "&b/lp user <ник> parent add admin &8- &7полная администрация"
+            send "&b/lp user <ник> parent add restricted_admin &8- &7оператор без откатов"
+            send "&b/lp user <ник> parent remove <группа> &8- &7снять группу"
+            send "&b/lp user <ник> info &8- &7что у игрока есть"
+            send "&7Группы: &fadmin&7 (всё), &frestricted_admin&7 (смотреть, не менять),"
+            send "&7&fdefault&7 (игрок: без телепортов и приватов)"
+            send "&b/tag <ник> add ekb_admin &8- &7подсказки о стадиях границы"
+            send "&7Авторизация: &b/authme register <ник> <пароль>&7, &b/authme unregister <ник>"
+            send "{@line}"
+            stop
+
+        if arg-1 is "сервис" or "service":
+            send "{@line}"
+            send "{@prefix}&eДиагностика и обслуживание"
+            send "&b/spark tps &8- &7TPS и время тика, пики = лаги"
+            send "&b/spark profiler start --timeout 30 &8- &7найти виновника лагов"
+            send "&b/spark health &8- &7память, CPU, диск"
+            send "&b/plugman list &8| &b/plugman reload <плагин>"
+            send "&b/sk reload all &8- &7перечитать Skript-скрипты"
+            send "&7В окне сервера: &fstop&7 - корректная остановка, не крестиком."
+            send "&7Скрипты на компьютере: &fbackup.ps1&7, &fcheck_server.ps1&7, &fexpand_border.ps1"
+            send "{@line}"
+            stop
+
+        if arg-1 is "discord":
+            send "{@line}"
+            send "{@prefix}&eDiscord"
+            send "&7Канал &fmain-chat&7 - двусторонний мост с игровым чатом."
+            send "&7Напиши в нём &fонлайн&7 - придёт список игроков на сервере."
+            send "&7Канал &flogi-minecraft&7 - алерты: алмазы, незерит, спавнеры,"
+            send "&7шалкеры, маяки. По спавнеру идёт пинг роли Leader."
+            send "&7Канал &fkonsol&7 - консоль сервера, оттуда выполняются команды."
+            send "&b/discord reload &8- &7перечитать конфиг DiscordSRV"
+            send "&7Сообщения о входе и выходе отключены намеренно."
+            send "{@line}"
+            stop
+
+        send "{@prefix}&cРаздел &f%arg-1%&c не найден. Выполни &f/ahelp&c без аргументов."

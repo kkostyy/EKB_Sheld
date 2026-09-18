@@ -1,0 +1,12 @@
+{
+  "cpm_server_config": {
+    "version": "1.0",
+    "limits": {
+      "enable_limits": false
+    },
+    "safety": {
+      "eyeHeightFix": false,
+      "hitboxFix": false
+    }
+  }
+}

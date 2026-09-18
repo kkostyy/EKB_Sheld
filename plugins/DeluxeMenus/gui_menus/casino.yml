@@ -1,0 +1,161 @@
+menu_title: '&8Бар и кости'
+open_command:
+  - casino
+  - казино
+size: 54
+
+items:
+
+  'dice':
+    material: DROPPER
+    slot: 13
+    display_name: '&c&lИгра в кости'
+    lore:
+      - '&7Ставка &b2💎&7, выигрыш &b5💎&7.'
+      - '&7Побеждает бросок 5 или 6 — это треть случаев.'
+      - '&8У заведения перевес 17%. Казино тут — сток алмазов.'
+      - ''
+      - '&aЛКМ &8— бросить кости'
+    left_click_commands:
+      - '[player] dice'
+
+  'menu':
+    material: POTION
+    slot: 20
+    display_name: '&e&lЧто наливают'
+    lore:
+      - '&7Цены полные, по прайс-листу.'
+      - '&8Стойка города держит потолок цены,'
+      - '&8зарабатывать должны живые бармены.'
+      - ''
+      - '&aЛКМ &8— меню и цены'
+    left_click_commands:
+      - '[player] barmenu'
+
+  'shop':
+    material: BREWING_STAND
+    slot: 22
+    display_name: '&6&lСтойка бара'
+    lore:
+      - '&7Все 13 напитков с ценами.'
+      - '&7Единственное место, где напиток покупается.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_barshop'
+
+  'header':
+    material: DROPPER
+    slot: 4
+    display_name: '&d&lАзартный уголок Бармена'
+    lore:
+      - '&7Ставки и выручка идут через Казну.'
+      - '&7Пустая Казна — заведение закрыто.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_trade'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

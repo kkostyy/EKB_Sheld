@@ -1,0 +1,5 @@
+resourcePacks:["vanilla","server"]
+incompatibleResourcePacks:[]
+soundCategory_master:1.0
+soundCategory_voice:1.0
+graphicsMode:1

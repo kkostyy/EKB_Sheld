@@ -1,0 +1,314 @@
+menu_title: '&8Напитки'
+open_command:
+  - drinks
+  - напитки
+  - bar
+  - бар
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.admin
+      deny_commands:
+        - '[message] &cЭто меню Администрации.'
+
+items:
+
+  'mojito':
+    material: POTION
+    slot: 13
+    display_name: '&aМохито'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1012
+    left_click_commands:
+      - '[player] givedrink mojito 10'
+    right_click_commands:
+      - '[player] givedrink mojito 2'
+
+  'firm_beer':
+    material: POTION
+    slot: 20
+    display_name: '&6Разливное Фирменное'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1002
+    left_click_commands:
+      - '[player] givedrink firm_beer 10'
+    right_click_commands:
+      - '[player] givedrink firm_beer 2'
+
+  'passionfruit':
+    material: POTION
+    slot: 22
+    display_name: '&dМаракуйевая водка'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1011
+    left_click_commands:
+      - '[player] givedrink passionfruit 10'
+    right_click_commands:
+      - '[player] givedrink passionfruit 2'
+
+  'village_samogon':
+    material: POTION
+    slot: 24
+    display_name: '&eДеревенский самогон'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1013
+    left_click_commands:
+      - '[player] givedrink village_samogon 10'
+    right_click_commands:
+      - '[player] givedrink village_samogon 2'
+
+  'vodka_plain':
+    material: POTION
+    slot: 28
+    display_name: '&fВодка'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1007
+    left_click_commands:
+      - '[player] givedrink vodka_plain 10'
+    right_click_commands:
+      - '[player] givedrink vodka_plain 2'
+
+  'tequila':
+    material: POTION
+    slot: 29
+    display_name: '&eМексиканская Текила'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1003
+    left_click_commands:
+      - '[player] givedrink tequila 10'
+    right_click_commands:
+      - '[player] givedrink tequila 2'
+
+  'vodka_absolut':
+    material: POTION
+    slot: 30
+    display_name: '&bШведская водка'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1006
+    left_click_commands:
+      - '[player] givedrink vodka_absolut 10'
+    right_click_commands:
+      - '[player] givedrink vodka_absolut 2'
+
+  'rum':
+    material: POTION
+    slot: 31
+    display_name: '&6Капитанский Ром'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1004
+    left_click_commands:
+      - '[player] givedrink rum 10'
+    right_click_commands:
+      - '[player] givedrink rum 2'
+
+  'jager_orange':
+    material: POTION
+    slot: 32
+    display_name: '&6Егермейстер Orange'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1009
+    left_click_commands:
+      - '[player] givedrink jager_orange 10'
+    right_click_commands:
+      - '[player] givedrink jager_orange 2'
+
+  'tennessee_whiskey':
+    material: POTION
+    slot: 33
+    display_name: '&6Теннессийский виски'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1008
+    left_click_commands:
+      - '[player] givedrink tennessee_whiskey 10'
+    right_click_commands:
+      - '[player] givedrink tennessee_whiskey 2'
+
+  'jagermeister':
+    material: POTION
+    slot: 34
+    display_name: '&2Ликёр Егермейстер'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1001
+    left_click_commands:
+      - '[player] givedrink jagermeister 10'
+    right_click_commands:
+      - '[player] givedrink jagermeister 2'
+
+  'jager_dark':
+    material: POTION
+    slot: 39
+    display_name: '&2Егермейстер Охотничий'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1010
+    left_click_commands:
+      - '[player] givedrink jager_dark 10'
+    right_click_commands:
+      - '[player] givedrink jager_dark 2'
+
+  'admin_samogon':
+    material: POTION
+    slot: 40
+    display_name: '&cАдминский самогон'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1005
+    left_click_commands:
+      - '[player] givedrink admin_samogon 10'
+    right_click_commands:
+      - '[player] givedrink admin_samogon 2'
+
+  'rassol':
+    material: POTION
+    slot: 41
+    display_name: '&bРассол'
+    lore:
+      - '&aЛКМ &8— 5 звёзд'
+      - '&aПКМ &8— 1 звезда'
+    model_data: 1014
+    left_click_commands:
+      - '[player] givedrink rassol 10'
+    right_click_commands:
+      - '[player] givedrink rassol 2'
+
+  'header':
+    material: POTION
+    slot: 4
+    display_name: '&6&lНапитки BreweryX'
+    lore:
+      - '&aЛКМ &7— качество 5 звёзд, &aПКМ &7— одна.'
+      - '&7Настоящий напиток собирает сам BreweryX.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_allitems'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

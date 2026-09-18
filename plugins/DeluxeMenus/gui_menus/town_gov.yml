@@ -1,0 +1,234 @@
+menu_title: '&8Уровни власти'
+size: 54
+
+items:
+
+  'mayor':
+    material: GOLDEN_HELMET
+    slot: 13
+    display_name: '&6&lГлава города'
+    lore:
+      - '&7Единственная настоящая роль ClansLite.'
+      - '&7Зовёт и выгоняет жителей, меняет префикс,'
+      - '&7объявляет союзы и войны, передаёт власть.'
+      - ''
+      - '&aЛКМ &8— обязанности в чат'
+    left_click_commands:
+      - '[message] &6&lГЛАВА: &7отвечает перед Судом за действия горожан.'
+      - '[message] &7Назначается только передачей города: &f/clan transfer <ник>'
+      - '[message] &8Право для меню: &fekb.town.mayor'
+
+  'council':
+    material: IRON_HELMET
+    slot: 20
+    display_name: '&e&lСоветник'
+    lore:
+      - '&7Заместитель главы: держит город,'
+      - '&7пока главы нет в сети.'
+      - ''
+      - '&aЛКМ &8— обязанности в чат'
+    left_click_commands:
+      - '[message] &e&lСОВЕТНИК: &7зовёт жителей, ведёт переговоры,'
+      - '[message] &7представляет город в Суде.'
+      - '[message] &7Выдать: &f/ekbroles&7 → голова игрока → Советник'
+      - '[message] &8Право: &fekb.town.council'
+
+  'treasurer':
+    material: GOLD_INGOT
+    slot: 22
+    display_name: '&b&lКазначей'
+    lore:
+      - '&7Держит казну города — сундук с алмазами.'
+      - ''
+      - '&aЛКМ &8— обязанности в чат'
+    left_click_commands:
+      - '[message] &b&lКАЗНАЧЕЙ: &7ведёт сундук казны и расчёты с наёмниками.'
+      - '[message] &7Пропажа из казны — его ответственность перед Судом.'
+      - '[message] &7Выдать: &f/ekbroles&7 → голова игрока → Казначей'
+      - '[message] &8Право: &fekb.town.treasurer'
+
+  'guard':
+    material: SHIELD
+    slot: 24
+    display_name: '&c&lСтраж'
+    lore:
+      - '&7Оборона города и охрана караванов.'
+      - ''
+      - '&aЛКМ &8— обязанности в чат'
+    left_click_commands:
+      - '[message] &c&lСТРАЖ: &7держит границы, сопровождает караваны,'
+      - '[message] &7первым идёт в бой на объявленной войне.'
+      - '[message] &4Удар вне войны и вне обороны — самосуд, статья 4 УК.'
+      - '[message] &7Выдать: &f/ekbroles&7 → голова игрока → Страж'
+      - '[message] &8Право: &fekb.town.guard'
+
+  'citizen':
+    material: LEATHER_BOOTS
+    slot: 29
+    display_name: '&a&lЖитель'
+    lore:
+      - '&7Обычный горожанин.'
+      - ''
+      - '&aЛКМ &8— права в чат'
+    left_click_commands:
+      - '[message] &a&lЖИТЕЛЬ: &7дом, участок, чат города, право на защиту'
+      - '[message] &7и на долю в общей добыче, если так решил устав.'
+      - '[message] &7Выход из города — свободный, раз в 7 дней.'
+      - '[message] &8Конституция 3.1'
+
+  'howto':
+    material: WRITABLE_BOOK
+    slot: 30
+    display_name: '&f&lКак назначить'
+    lore:
+      - '&7Должности — это права, а не роли плагина.'
+      - ''
+      - '&aЛКМ &8— порядок в чат'
+    left_click_commands:
+      - '[message] &f&l1. &7Глава выбирает человека.'
+      - '[message] &f&l2. &7Решение фиксируется в Discord, в ветке города.'
+      - '[message] &f&l3. &7Администрация выдаёт право головой: &f/ekbroles'
+      - '[message] &8Руками то же самое: /lp user <ник> permission set ekb.town.council true'
+      - '[message] &7Назначения идут через Администрацию нарочно: Суду нужна'
+      - '[message] &7запись, кто и когда получил должность.'
+
+  'roles':
+    material: NAME_TAG
+    slot: 31
+    display_name: '&d&lВыдать должность'
+    lore:
+      - '&7Меню раздачи ролей головами.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.roles.manage
+    left_click_commands:
+      - '[player] ekbroles'
+
+  'limits':
+    material: BARRIER
+    slot: 32
+    display_name: '&4&lЧего должности НЕ дают'
+    lore:
+      - '&7Ни одна должность не даёт прав на чужие сундуки,'
+      - '&7приваты и телепорты. Это по-прежнему видно'
+      - '&7в CoreProtect и наказуемо по УК.'
+
+  'header':
+    material: GOLDEN_HELMET
+    slot: 4
+    display_name: '&6&lУровни власти в городе'
+    lore:
+      - '&7Клик по должности — её обязанности'
+      - '&7и команда назначения в чат.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_town'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

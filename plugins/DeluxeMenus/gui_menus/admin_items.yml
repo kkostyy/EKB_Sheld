@@ -1,0 +1,204 @@
+menu_title: '&8Предметы и вещества'
+open_command:
+  - items
+  - предметы
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.admin
+      deny_commands:
+        - '[message] &cЭто меню Администрации.'
+
+items:
+
+  'deathnote':
+    material: WRITABLE_BOOK
+    slot: 13
+    display_name: '&8&lТетрадь Смерти'
+    lore:
+      - '&7Выдать, найти, изъять, кулдаун.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_deathnote'
+
+  'addiction':
+    material: HONEY_BOTTLE
+    slot: 20
+    display_name: '&4&lЗависимость'
+    lore:
+      - '&7Осмотр и лечение — по головам.'
+      - ''
+      - '&aЛКМ &8— вылечить игрока'
+      - '&aПКМ &8— осмотреть игрока'
+    left_click_commands:
+      - '[player] ekbmenu heal'
+    right_click_commands:
+      - '[player] ekbmenu info'
+
+  'allitems':
+    material: CHEST
+    slot: 22
+    display_name: '&d&lКаталог вещей'
+    lore:
+      - '&7Шесть разделов по типу вещи: конопля,'
+      - '&7напитки, артефакты, Тетрадь, стволы, настолки.'
+      - '&8Вкладки в креативе быть не может — её собирает клиент.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_allitems'
+
+  'artifacts':
+    material: NETHER_STAR
+    slot: 24
+    display_name: '&5&lОсобые артефакты'
+    lore:
+      - '&7Шесть предметов, по два на весь мир.'
+      - '&8Лимит ведёт реестр скрипта: плагин так не умеет.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_artifacts'
+
+  'holo':
+    material: ITEM_FRAME
+    slot: 30
+    display_name: '&b&lГолограммы рынка'
+    lore:
+      - '&aЛКМ &8— список голограмм'
+      - '&aПКМ &8— как поставить и убрать'
+    left_click_commands:
+      - '[player] markethologramlist'
+    right_click_commands:
+      - '[message] &b&lГолограмма: &7/markethologram <текст> <x> <y>'
+      - '[message] &b&lУбрать: &7/markethologramremove <id> &8— id берётся из списка'
+
+  'heads':
+    material: PLAYER_HEAD
+    slot: 31
+    display_name: '&e&lКаталог голов'
+    lore:
+      - '&7100 000 голов, у админа — с выдачей.'
+      - ''
+      - '&aЛКМ &8— открыть каталог'
+    left_click_commands:
+      - '[player] headdb'
+
+  'header':
+    material: CHEST
+    slot: 4
+    display_name: '&d&lПредметы и вещества'
+    lore:
+      - '&7Всё кастомное опознаётся по CustomModelData,'
+      - '&7поэтому в поиске креатива его нет.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_admin'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

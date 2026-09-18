@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "nirvana:block/lime_woven_burlap_top",
+    "side": "nirvana:block/lime_woven_burlap_side"
+  }
+}

@@ -1,0 +1,131 @@
+# EKB SHIELD — DeluxeMenus
+# Меню разложены по файлам в gui_menus/. Открываются командами (open_command)
+# и кнопками внутри меню ([openguimenu] <id>).
+#
+# Права на ролевые меню (выдаются в LuckPerms, см. plugins/LuckPerms/groups.yml):
+#   ekb.menu.admin    — Администрация (группа admin)
+#   ekb.menu.helper   — Помощник админа (группа restricted_admin)
+#   ekb.menu.citizen  — гражданин государства
+#   ekb.menu.capital  — житель Спавна (город САП)
+#   ekb.menu.nomad    — кочевник; выдаётся группе default по умолчанию
+#   ekb.menu.judge    — судья (Судебная Коллегия)
+#   ekb.menu.doctor   — врач Клиники
+#
+# Обновление 18.09.2026 — восемь новых разделов:
+#   ekb.shadow.member      — Теневой Рынок (меню целиком под правом)
+#   ekb.duty.journalist    — сдача выпуска и экстренные новости в Газете
+#   ekb.media.streamer     — кнопка анонса эфира (её же видит ютубер)
+#   coreprotect.rollback   — «Назначить Сон» и список происшествий
+#   ekb.duty.clerk         — приказчик Мэрии: Казна, аренда, скупщик
+#   ekb.duty.barman        — бармен: стойка и вытрезвитель
+#   ekb.duty.dealer        — крупье: настольные наборы и кости
+#   ekb.duty.detective     — следователь: осмотр мест убийств
+# Роли выдаются головами: /ekbroles (docs/menu_roles.sk).
+#
+# /menu открыто всем: внутри показываются только те разделы, на которые
+# у игрока есть право (view_requirement у каждой кнопки).
+
+debug: LOWEST
+check_updates: true
+
+gui_menus:
+  ekb_main:
+    file: main.yml
+  ekb_laws:
+    file: laws.yml
+  ekb_profile:
+    file: profile.yml
+  ekb_start:
+    file: start.yml
+  ekb_world:
+    file: world.yml
+  ekb_trade:
+    file: trade.yml
+  ekb_duty:
+    file: duty.yml
+  ekb_assassin:
+    file: assassin.yml
+  ekb_postman:
+    file: postman.yml
+  ekb_builder:
+    file: builder.yml
+  ekb_sheriff:
+    file: sheriff.yml
+  ekb_calls:
+    file: calls.yml
+  ekb_contracts:
+    file: contracts.yml
+  ekb_admin:
+    file: admin.yml
+  ekb_admin_court:
+    file: admin_court.yml
+  ekb_admin_jail:
+    file: admin_jail.yml
+  ekb_admin_items:
+    file: admin_items.yml
+  ekb_allitems:
+    file: allitems.yml
+  ekb_deathnote:
+    file: deathnote.yml
+  ekb_artifacts:
+    file: artifacts.yml
+  ekb_admin_world:
+    file: admin_world.yml
+  ekb_admin_service:
+    file: admin_service.yml
+  ekb_helper:
+    file: helper.yml
+  ekb_citizen:
+    file: citizen.yml
+  ekb_nomad:
+    file: nomad.yml
+  ekb_capital:
+    file: capital.yml
+  ekb_town:
+    file: town.yml
+  ekb_town_gov:
+    file: town_gov.yml
+  ekb_judge:
+    file: judge.yml
+  ekb_doctor:
+    file: doctor.yml
+  ekb_mercenaries:
+    file: mercenaries.yml
+
+  # --- обновление 18.09.2026 ---
+  ekb_market:
+    file: market.yml
+  ekb_pochta:
+    file: pochta.yml
+  ekb_casino:
+    file: casino.yml
+  ekb_press:
+    file: press.yml
+  ekb_masks:
+    file: masks.yml
+  ekb_blackmarket:
+    file: blackmarket.yml
+  ekb_forensics:
+    file: forensics.yml
+  ekb_bloodnight:
+    file: bloodnight.yml
+  ekb_town_settings:
+    file: town_settings.yml
+  ekb_barshop:
+    file: barshop.yml
+  ekb_clerk:
+    file: clerk.yml
+  ekb_barman:
+    file: barman.yml
+  ekb_dealer:
+    file: dealer.yml
+  ekb_detective:
+    file: detective.yml
+  ekb_herbs:
+    file: herbs.yml
+  ekb_drinks:
+    file: drinks.yml
+  ekb_guns:
+    file: guns.yml
+  ekb_tables:
+    file: tables.yml

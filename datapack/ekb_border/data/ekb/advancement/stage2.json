@@ -1,0 +1,18 @@
+{
+  "criteria": {
+    "trigger_stage": {
+      "trigger": "minecraft:changed_dimension",
+      "conditions": {
+        "to": "minecraft:the_nether"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "trigger_stage"
+    ]
+  ],
+  "rewards": {
+    "function": "ekb:unlock/stage2"
+  }
+}

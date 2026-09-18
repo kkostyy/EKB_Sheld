@@ -1,0 +1,26 @@
+{
+  "item.use.smoking": {
+    "category": "player",
+    "sounds": [
+      "shield:item/smoking_1",
+      "shield:item/smoking_2"
+    ]
+  },
+  "item.use.bong": {
+    "category": "player",
+    "sounds": [
+      "shield:item/bong_1",
+      "shield:item/bong_2",
+      "shield:item/bong_3"
+    ]
+  },
+  "item.use.herbal_salve": {
+    "category": "player",
+    "sounds": [
+      "shield:item/herbal_salve_1",
+      "shield:item/herbal_salve_2",
+      "shield:item/herbal_salve_3",
+      "shield:item/herbal_salve_4"
+    ]
+  }
+}

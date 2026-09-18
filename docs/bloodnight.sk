@@ -1,0 +1,107 @@
+# EKB SHIELD — bloodnight.sk
+# «Кровавый Сон» (Судная Ночь): анонс, статус и обратный отсчёт в игре.
+#
+# ⚠️ САМ ИВЕНТ ЭТОТ СКРИПТ НЕ ЗАПУСКАЕТ И НЕ МОЖЕТ.
+#    Судная Ночь — это бэкап мира, отключение CoreProtect, три часа хаоса и
+#    ОТКАТ МИРА с перезапуском сервера. Всё это делается снаружи, с хоста:
+#       Windows:  .\purge.ps1 -Hours 3        (план без изменений: -WhatIfOnly)
+#       Linux:    nohup ./purge.sh > purge.log 2>&1 &
+#    Скрипт из плагина не может ни остановить JVM, ни подменить папку мира
+#    под собой — а без бэкапа и отката это не ивент, а просто разрешённый гриф.
+#
+#    Поэтому здесь только то, что относится к игрокам: когда следующий Сон,
+#    что в нём можно и чего не будет после.
+#
+# Что переделано против присланной спецификации.
+#   Там кнопка меню печатала «Следите за анонсами в Discord» — и всё. Дата
+#   нигде не хранилась, отсчёта не было, объявить ивент из игры было нельзя.
+#   Здесь дата живёт в переменной, её видно всем, и админ объявляет Сон одной
+#   командой, а не набирает broadcast руками.
+#
+# Хранилище:
+#   {bn::next}      — unix-время следующего Сна (0 = не назначен)
+#   {bn::hours}     — сколько часов продлится
+#   {bn::warned::*} — какие предупреждения уже разосланы
+#
+# Команды:
+#   /bloodnight                   — когда следующий Сон и что это такое
+#   /bloodnight через <часов>     — назначить (Администрация)
+#   /bloodnight отмена            — снять назначение (Администрация)
+
+options:
+    prefix: &4&l[КРОВАВЫЙ СОН] &r
+    admin: coreprotect.rollback
+    default_hours: 3
+
+function bn_left() :: number:
+    if {bn::next} is not set:
+        return -1
+    set {_l} to {bn::next} - (unix timestamp of now)
+    if {_l} < 0:
+        return -1
+    return {_l}
+
+function bn_hours() :: number:
+    if {bn::hours} is not set:
+        return {@default_hours}
+    return {bn::hours}
+
+command /bloodnight [<text>] [<number>]:
+    description: Когда следующая Судная Ночь
+    aliases: /кровавыйсон, /суднаяночь
+    executable by: players
+    trigger:
+        set {_a} to ""
+        if arg-1 is set:
+            set {_a} to arg-1
+
+        if {_a} is "отмена":
+            if player does not have permission "{@admin}":
+                send "{@prefix}&cНазначает и отменяет Сон только Администрация."
+                stop
+            delete {bn::next}
+            delete {bn::warned::*}
+            broadcast "{@prefix}&7Назначенный Сон отменён. Ночь будет обычной."
+            stop
+
+        if {_a} is "через":
+            if player does not have permission "{@admin}":
+                send "{@prefix}&cНазначает Сон только Администрация."
+                stop
+            if arg-2 is not set:
+                send "{@prefix}&cЧерез сколько часов? &b/bloodnight через 6"
+                stop
+            set {bn::next} to (unix timestamp of now) + (arg-2 * 3600)
+            set {bn::hours} to {@default_hours}
+            delete {bn::warned::*}
+            broadcast "{@prefix}&cСудная Ночь назначена: через &f%arg-2%&c ч."
+            broadcast "&7Перед началом будет сделан бэкап. Всё, что случится, отменит откат мира."
+            broadcast "&7Подробности: &b/bloodnight"
+            send "{@prefix}&7Не забудь запустить сам ивент с хоста: &f.\\purge.ps1 -Hours %bn_hours()%" to player
+            send "[КРОВАВЫЙ СОН] %player% назначил ивент через %arg-2% ч." to console
+            stop
+
+        # --- статус ---
+        send "{@prefix}&7Еженедельный анархический ивент."
+        send "&8• &fНа время Сна: &cполный PvP, гриф, взрывы и рейды"
+        send "&8• &fЛогирование CoreProtect &cотключается&f — исков по Сну не будет"
+        send "&8• &fДлительность: &f%bn_hours()%&f ч."
+        send "&8• &aПеред началом делается бэкап, после — мир откатывается назад"
+        send "&7Постройки, добыча и смерти этой ночи &cне сохранятся&7. Как будто её не было."
+        set {_l} to bn_left()
+        if {_l} < 0:
+            send "{@prefix}&7Следующий Сон пока не назначен. Следи за анонсами."
+        else:
+            send "{@prefix}&cДо начала: &f%floor({_l} / 3600)%&c ч. &f%floor(mod({_l}, 3600) / 60)%&c мин."
+
+# Предупреждения. Отметка о каждом рубеже хранится отдельно, поэтому
+# перезапуск сервера не заставит рассылать их заново.
+every 1 minute:
+    set {_l} to bn_left()
+    if {_l} > 0:
+        loop 3600, 1800, 600 and 60:
+            if {_l} <= loop-value:
+                if {_l} > (loop-value - 60):
+                    if {bn::warned::%loop-value%} is not true:
+                        set {bn::warned::%loop-value%} to true
+                        broadcast "{@prefix}&cДо Судной Ночи: &f%floor(loop-value / 60)%&c мин. Прячь ценное — откат вернёт всё как было."

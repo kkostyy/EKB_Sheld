@@ -1,0 +1,250 @@
+menu_title: '&8Особые артефакты'
+open_command:
+  - artifacts
+  - артефакты
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.admin
+      deny_commands:
+        - '[message] &cЭто меню Администрации.'
+
+items:
+
+  'compass':
+    material: COMPASS
+    slot: 13
+    display_name: '&c&lКомпас Охотника'
+    lore:
+      - '&7Импульс ведёт к ближайшему человеку'
+      - '&7в 500 блоках — минуту, строкой над хотбаром.'
+      - '&8Перезарядка 3 минуты.'
+      - ''
+      - '&aЛКМ &8— выдать себе'
+    model_data: 3001
+    left_click_commands:
+      - '[player] giveartifact compass'
+
+  'dagger':
+    material: NETHERITE_SWORD
+    slot: 20
+    display_name: '&8&lКинжал Теневого Шага'
+    lore:
+      - '&7Удар по человеку переносит за его спину'
+      - '&7и растворяет на 3 секунды.'
+      - '&8Пять шагов — и клинок рассыпается.'
+      - ''
+      - '&aЛКМ &8— выдать себе'
+    model_data: 3002
+    left_click_commands:
+      - '[player] giveartifact dagger'
+
+  'hourglass':
+    material: CLOCK
+    slot: 22
+    display_name: '&e&lПесочные Часы'
+    lore:
+      - '&a30 секунд спешки и скорости,'
+      - '&cпотом 15 секунд расплаты.'
+      - '&8Перезарядка 3 минуты.'
+      - ''
+      - '&aЛКМ &8— выдать себе'
+    model_data: 3003
+    left_click_commands:
+      - '[player] giveartifact hourglass'
+
+  'journal':
+    material: BOOK
+    slot: 24
+    display_name: '&4&lЖурнал Контрабандиста'
+    lore:
+      - '&7Эндер-сундук где угодно, хоть в драке.'
+      - '&8В камере не работает.'
+      - ''
+      - '&aЛКМ &8— выдать себе'
+    model_data: 3004
+    left_click_commands:
+      - '[player] giveartifact journal'
+
+  'mark':
+    material: COAL
+    slot: 29
+    display_name: '&0&lЧёрная Метка'
+    lore:
+      - '&7Свечение и слабость на 15 минут,'
+      - '&7координаты цели — всему серверу раз в 3 минуты.'
+      - '&8Одноразовая: сгорает при наложении.'
+      - ''
+      - '&aЛКМ &8— выдать себе'
+    model_data: 3005
+    left_click_commands:
+      - '[player] giveartifact mark'
+
+  'mask':
+    material: CARVED_PUMPKIN
+    slot: 30
+    display_name: '&f&lМаска Безликого'
+    lore:
+      - '&7Надетая меняет скин и ник в списке.'
+      - '&cВ воде смывается насовсем.'
+      - '&8Ник над головой не прячет — TAB не умеет.'
+      - ''
+      - '&aЛКМ &8— выдать себе'
+    model_data: 3006
+    left_click_commands:
+      - '[player] giveartifact mask'
+
+  'list':
+    material: PAPER
+    slot: 31
+    display_name: '&b&lКто чем владеет'
+    lore:
+      - '&7Оба экземпляра каждого артефакта'
+      - '&7и последний известный владелец.'
+      - ''
+      - '&aЛКМ &8— показать реестр'
+    left_click_commands:
+      - '[player] artifact list'
+
+  'find':
+    material: SPYGLASS
+    slot: 32
+    display_name: '&6&lНайти экземпляры'
+    lore:
+      - '&7Обыск рюкзаков и эндер-сундуков онлайна.'
+      - '&8Сундуки и лава поиском не берутся.'
+      - ''
+      - '&aЛКМ &8— искать'
+    left_click_commands:
+      - '[player] artifact find'
+
+  'release':
+    material: BARRIER
+    slot: 33
+    display_name: '&c&lСписать пропавший'
+    lore:
+      - '&7Номер освобождается, и артефакт'
+      - '&7можно выдать заново.'
+      - ''
+      - '&aЛКМ &8— как списать'
+    left_click_commands:
+      - '[message] &5&lСписать: &7/artifact release <id> <номер>'
+      - '[message] &8id: compass dagger hourglass journal mark mask'
+
+  'header':
+    material: NETHER_STAR
+    slot: 4
+    display_name: '&5&lОсобые артефакты'
+    lore:
+      - '&7Каждого — по два на весь мир.'
+      - '&7Выдача себе: клик. Игроку: /artifact give <ник> <id>'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_admin_items'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

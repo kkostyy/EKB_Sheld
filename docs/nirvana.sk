@@ -1,0 +1,687 @@
+# EKB SHIELD — nirvana.sk
+# Серверный аналог мода Nirvana (Team Galena): конопля, шишки, самокрутки,
+# трубка, бонг, мазь, брауни и эффект «Умиротворение».
+#
+# ПОЧЕМУ НЕ МОД. Оригинальный Nirvana — Fabric-мод с `server_side: required`,
+# и существует он только под 1.20.1 и 1.21.1. Сервер у нас Purpur (Bukkit) на
+# 26.1.2: Fabric-моды он не грузит в принципе, а билда под нашу версию нет.
+# Поэтому содержимое воспроизведено серверными средствами.
+#
+# ПОЧЕМУ НЕТ КРАФТОВ В ВЕРСТАКЕ. У Skript 2.16.2 НЕТ синтаксиса регистрации
+# рецептов (в его исходниках нет ни одного класса Recipe), а ExecutableItems
+# умеет только цепляться к чужим плагинам ExecutableCrafting/CustomCrafting,
+# которых у нас нет. Ванильный датапак тоже не подходит: рецепт сопоставляет
+# ингредиент ТОЛЬКО по типу предмета и игнорирует компоненты, так что «Коноплю»
+# внутри рецепта не отличить от обычного сахарного тростника.
+# Поэтому переработка сделана станциями: костёр сушит, ткацкий станок треплет
+# волокно, а сборка курительного — предмет в главной руке плюс предмет во второй.
+#
+# ОПОЗНАНИЕ ПРЕДМЕТОВ — по CustomModelData (2001-2012), а не по имени: имя
+# игрок переделает в наковальне, CMD — нет. Текстур для этих номеров в паке
+# пока нет, поэтому предметы выглядят как их базовые материалы; когда текстуры
+# появятся, достаточно добавить ветки в resourcepack/assets/minecraft/items/.
+#
+# Требуется: Skript 2.16.2. Аддоны не нужны.
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &2&l[ТРАВА] &r
+    nausea_at: 3        # с какого уровня «Умиротворения» начинается расплата
+    reefer_at: 5        # с какого уровня приходят обкуренные крипера
+    decay: 60           # секунд без затяжки, за которые уровень падает на единицу
+
+# ---------------------------------------------------------------------------
+# Предметы
+# ---------------------------------------------------------------------------
+
+# Базовые материалы выбраны так, чтобы ванильное поведение не мешало.
+# «Семена» намеренно оставлены wheat seeds — грядку должна засаживать сама
+# ваниль, скрипт только помечает координату (см. раздел «Грядка»).
+function nirvana_item(id: text) :: item:
+    if {_id} is "seeds":
+        set {_i} to 1 of wheat seeds
+        set custom model data of {_i} to 2001
+        set name of {_i} to "&aСемена конопли"
+        set lore of {_i} to "&7Сажаются на вскопанную грядку." and "&8Растут как пшеница."
+    else if {_id} is "hemp":
+        set {_i} to 1 of sugar cane
+        set custom model data of {_i} to 2002
+        set name of {_i} to "&2Конопля"
+        set lore of {_i} to "&7Сырое волокно." and "&8Сушится на костре, треплется на станке."
+    else if {_id} is "weed":
+        set {_i} to 1 of dried kelp
+        set custom model data of {_i} to 2003
+        set name of {_i} to "&aШишка"
+        set lore of {_i} to "&7Высушенное соцветие." and "&8Годится в самокрутку, трубку и бонг."
+    else if {_id} is "cloth":
+        set {_i} to 1 of paper
+        set custom model data of {_i} to 2004
+        set name of {_i} to "&6Конопляная ткань"
+        set lore of {_i} to "&7Грубое полотно." and "&8Из неё выходит кожа и шляпа."
+    else if {_id} is "empty_bong":
+        set {_i} to 1 of glass bottle
+        set custom model data of {_i} to 2005
+        set name of {_i} to "&bБонг &8(пустой)"
+        set lore of {_i} to "&7Заправляется тремя шишками." and "&8Шишки во второй руке + ПКМ."
+    else if {_id} is "joint":
+        set {_i} to 1 of paper
+        set custom model data of {_i} to 2006
+        set name of {_i} to "&fСамокрутка"
+        set lore of {_i} to "&7Одна затяжка — и мир добреет." and "&8ПКМ, чтобы закурить. Сгорает целиком."
+    else if {_id} is "pipe":
+        set {_i} to 1 of stick
+        set custom model data of {_i} to 2007
+        set name of {_i} to "&8Старая трубка &8(пустая)"
+        set lore of {_i} to "&7Набивается тремя шишками." and "&8Шишки во второй руке + ПКМ."
+    else if {_id} is "stuffed_pipe":
+        set {_i} to 1 of stick
+        set custom model data of {_i} to 2008
+        set name of {_i} to "&6Набитая трубка"
+        set lore of {_i} to "&7Затяжка вдвое крепче самокрутки." and "&8После неё остаётся пустая трубка."
+    else if {_id} is "bong":
+        set {_i} to 1 of glass bottle
+        set custom model data of {_i} to 2009
+        set name of {_i} to "&bБонг"
+        set lore of {_i} to "&7Бьёт втрое крепче самокрутки." and "&8После затяжки остаётся пустым."
+    else if {_id} is "salve":
+        set {_i} to 1 of slime ball
+        set custom model data of {_i} to 2010
+        set name of {_i} to "&aТравяная мазь"
+        set lore of {_i} to "&7Затягивает раны и вытягивает яд." and "&8ПКМ, чтобы намазать."
+    else if {_id} is "brownie":
+        set {_i} to 1 of cookie
+        set custom model data of {_i} to 2011
+        set name of {_i} to "&6Брауни"
+        set lore of {_i} to "&7Съешь — и полчаса будешь думать," and "&7почему потолок такой интересный."
+    else if {_id} is "burlap":
+        set {_i} to 1 of paper
+        set custom model data of {_i} to 2013
+        set name of {_i} to "&6Мешковина"
+        set lore of {_i} to "&7Плотное полотно из трёх кусков ткани." and "&8Из неё выделывают кожу."
+    else if {_id} is "pipe_suspicious":
+        set {_i} to 1 of stick
+        set custom model data of {_i} to 2014
+        set name of {_i} to "&5Подозрительная трубка"
+        set lore of {_i} to "&7Набита непонятно чем." and "&8Эффект от затяжки — какой выпадет."
+    else if {_id} is "pipe_smouldering":
+        set {_i} to 1 of stick
+        set custom model data of {_i} to 2015
+        set name of {_i} to "&cТлеющая трубка"
+        set lore of {_i} to "&7Ещё дымится." and "&8Через полминуты остынет до пустой."
+    else if {_id} is "thc":
+        # алиас именно такой: «minecart with tnt», а не «tnt minecart»
+        set {_i} to 1 of minecart with tnt
+        set custom model data of {_i} to 2016
+        set name of {_i} to "&2Динамит THC"
+        set lore of {_i} to "&7Обычная вагонетка с динамитом," and "&8просто пахнет иначе."
+    else if {_id} is "deerstalker":
+        # база — кольчуга, а не кожа: у кожаного шлема в items/leather_helmet.json
+        # есть тинт от красителя, и перезапись этого файла обесцветила бы все
+        # кожаные шлемы на сервере
+        set {_i} to 1 of chainmail helmet
+        set custom model data of {_i} to 2012
+        set name of {_i} to "&6Двухкозырка"
+        set lore of {_i} to "&7Шляпа охотника за истиной." and "&8Из пяти кусков конопляной ткани."
+    else:
+        return air
+    return {_i}
+
+# CMD предмета: у пустой руки и у ванильных предметов — 0
+function nirvana_cmd(i: item) :: number:
+    # У воздуха нет меты: `custom model data of air` кидает исключение,
+    # а проверять пустые слоты приходится постоянно.
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function take_main(p: player, n: number):
+    if item amount of {_p}'s tool > {_n}:
+        remove {_n} from item amount of {_p}'s tool
+    else:
+        set {_p}'s tool to air
+
+function take_off(p: player, n: number):
+    if item amount of {_p}'s off hand tool > {_n}:
+        remove {_n} from item amount of {_p}'s off hand tool
+    else:
+        set {_p}'s off hand tool to air
+
+# ---------------------------------------------------------------------------
+# Добыча: семена в джунглях
+# ---------------------------------------------------------------------------
+
+# В моде дикая конопля генерируется в Редких Джунглях. Генерацию мира мы не
+# трогаем — это ничего не дало бы в уже прогенерированных Chunky чанках, —
+# поэтому семена выбиваются из травы и папоротника в тех же биомах.
+on break of short grass, tall grass, fern or large fern:
+    biome of location of event-block is jungle, sparse jungle or bamboo jungle
+    chance of 8%
+    drop nirvana_item("seeds") at location of event-block
+
+# ---------------------------------------------------------------------------
+# Грядка: посадка и сбор
+# ---------------------------------------------------------------------------
+
+# Семена конопли — это wheat seeds, поэтому сажает их ваниль, а скрипт только
+# запоминает координату: отличить «нашу» пшеницу от обычной больше нечем.
+# Значением переменной кладём саму локацию, чтобы /nirvana cleanup мог её
+# прочитать без разбора строки.
+on right click on farmland:
+    nirvana_cmd(player's tool) is 2001
+    block above event-block is air
+    set {_where} to location of block above event-block
+    set {nirvana::hemp::%{_where}%} to {_where}
+
+on break of wheat:
+    {nirvana::hemp::%location of event-block%} is set
+    delete {nirvana::hemp::%location of event-block%}
+    clear drops
+    if event-block is wheat[age=7]:
+        drop 2 of nirvana_item("hemp") at location of event-block
+        drop (random integer between 1 and 3) of nirvana_item("seeds") at location of event-block
+    else:
+        drop nirvana_item("seeds") at location of event-block
+
+# ---------------------------------------------------------------------------
+# Костёр: сушка конопли до шишки
+# ---------------------------------------------------------------------------
+
+on right click on campfire or soul campfire:
+    nirvana_cmd(player's tool) is 2002
+    event-block is campfire[lit=true] or soul campfire[lit=true]
+    cancel event
+    take_main(player, 1)
+    set {_where} to location of block above event-block
+    draw 8 smoke particles at {_where}
+    play sound "block.campfire.crackle" at {_where}
+    wait 8 seconds
+    drop nirvana_item("weed") at {_where}
+
+# ---------------------------------------------------------------------------
+# Ткацкий станок: волокно, кожа, поводок, шляпа
+# ---------------------------------------------------------------------------
+
+on right click on loom:
+    set {_cmd} to nirvana_cmd(player's tool)
+    set {_hemp} to nirvana_item("hemp")
+    set {_cloth} to nirvana_item("cloth")
+
+    if {_cmd} is 2002:
+        cancel event
+        # конопля + верёвка во второй руке -> поводок
+        if player's off hand tool is string:
+            if player has 2 of {_hemp}:
+                if player has 2 of string:
+                    remove 2 of {_hemp} from player
+                    remove 2 of string from player
+                    give 1 of lead to player
+                    send "{@prefix}&aСвил поводок из конопли." to player
+                else:
+                    send "{@prefix}&cНужно 2 верёвки." to player
+            else:
+                send "{@prefix}&cНужно 2 конопли." to player
+            stop
+        # просто конопля -> ткань
+        if player has 4 of {_hemp}:
+            remove 4 of {_hemp} from player
+            give {_cloth} to player
+            send "{@prefix}&aВытрепал волокно: вышла конопляная ткань." to player
+        else:
+            send "{@prefix}&cНужно 4 конопли." to player
+        stop
+
+    if {_cmd} is 2004:
+        cancel event
+        # в присяде — шляпа, иначе мешковина
+        if player is sneaking:
+            if player has 5 of {_cloth}:
+                remove 5 of {_cloth} from player
+                give nirvana_item("deerstalker") to player
+                send "{@prefix}&aСшил двухкозырку." to player
+            else:
+                send "{@prefix}&cНужно 5 кусков ткани." to player
+        else:
+            if player has 3 of {_cloth}:
+                remove 3 of {_cloth} from player
+                give nirvana_item("burlap") to player
+                send "{@prefix}&aСоткал мешковину." to player
+            else:
+                send "{@prefix}&cНужно 3 куска ткани. В присяде — шляпа." to player
+        stop
+
+    # мешковина -> кожа
+    if {_cmd} is 2013:
+        cancel event
+        set {_burlap} to nirvana_item("burlap")
+        if player has 2 of {_burlap}:
+            remove 2 of {_burlap} from player
+            give 2 of leather to player
+            send "{@prefix}&aВыделал из мешковины кожу." to player
+        else:
+            send "{@prefix}&cНужно 2 мешковины." to player
+
+# ---------------------------------------------------------------------------
+# Сборка курительного: главная рука + вторая рука
+# ---------------------------------------------------------------------------
+
+on right click:
+    set {_cmd} to nirvana_cmd(player's tool)
+    set {_off} to nirvana_cmd(player's off hand tool)
+    set {_weed} to nirvana_item("weed")
+
+    # ⚠ Голые условия здесь были ошибкой: ложное голое условие обрывает ВЕСЬ
+    # триггер, а не ветку, и порядок проверок начинал значить больше, чем сам
+    # рецепт. Теперь каждая станция — явный вложенный if.
+
+    # шишка + чистая бумага -> самокрутка
+    if {_cmd} is 2003:
+        if {_off} is 0:
+            if player's off hand tool is paper:
+                cancel event
+                take_main(player, 1)
+                take_off(player, 1)
+                give nirvana_item("joint") to player
+                send "{@prefix}&aСкрутил самокрутку." to player
+                stop
+
+    # пустая трубка + 3 шишки -> набитая трубка
+    if {_cmd} is 2007:
+        if {_off} is 2003:
+            cancel event
+            if player has 3 of {_weed}:
+                remove 3 of {_weed} from player
+                take_main(player, 1)
+                if player is sneaking:
+                    give nirvana_item("pipe_suspicious") to player
+                    send "{@prefix}&5Намешал в трубку что попало." to player
+                else:
+                    give nirvana_item("stuffed_pipe") to player
+                    send "{@prefix}&aНабил трубку." to player
+            else:
+                send "{@prefix}&cНужно 3 шишки." to player
+            stop
+
+    # стеклянная бутылка или пустой бонг + 3 шишки -> заряженный бонг.
+    # Пустой бонг САМ является стеклянной бутылкой (CMD 2005), поэтому
+    # главная рука проверяется отдельно и явно: пустая рука, факел или любой
+    # другой предмет с CMD 0 сюда попасть не должны.
+    if {_off} is 2003:
+        set {_vessel} to false
+        if {_cmd} is 2005:
+            set {_vessel} to true
+        else if {_cmd} is 0:
+            if player's tool is glass bottle:
+                set {_vessel} to true
+        send "[NIRVANA-DEBUG] main='%player's tool%' cmd=%{_cmd}% off='%player's off hand tool%' offcmd=%{_off}% vessel=%{_vessel}%" to console
+        if {_vessel} is true:
+            cancel event
+            if player has 3 of {_weed}:
+                remove 3 of {_weed} from player
+                take_main(player, 1)
+                give nirvana_item("bong") to player
+                send "{@prefix}&aЗарядил бонг." to player
+            else:
+                send "{@prefix}&cНужно 3 шишки." to player
+
+# ---------------------------------------------------------------------------
+# Курение и «Умиротворение»
+# ---------------------------------------------------------------------------
+
+# В моде Peace — стакающийся эффект: каждая затяжка поднимает уровень, мобы
+# теряют цель, а после N затяжек начинается расплата. Ванильного эффекта с
+# таким поведением нет, поэтому уровень хранится в {nirvana::peace::*}.
+on right click:
+    set {_cmd} to nirvana_cmd(player's tool)
+    {_cmd} is 2006, 2008, 2009 or 2014
+    cancel event
+    set {_uuid} to uuid of player
+    set {_wild} to false
+
+    if {_cmd} is 2006:
+        set {_power} to 1
+        take_main(player, 1)
+    else if {_cmd} is 2008:
+        set {_power} to 2
+        take_main(player, 1)
+        give nirvana_item("pipe_smouldering") to player
+    else if {_cmd} is 2014:
+        set {_power} to 2
+        set {_wild} to true
+        take_main(player, 1)
+        give nirvana_item("pipe_smouldering") to player
+    else:
+        set {_power} to 3
+        take_main(player, 1)
+        send "[NIRVANA-DEBUG] затяжка из бонга, возвращаю пустой бонг игроку %player%" to console
+        give nirvana_item("empty_bong") to player
+
+    add {_power} to {nirvana::peace::%{_uuid}%}
+    set {nirvana::peace::last::%{_uuid}%} to now
+    set {_lvl} to {nirvana::peace::%{_uuid}%}
+    # доза идёт в шкалу зависимости (addiction.sk); мазь дозой не считается —
+    # она наружная и лечебная
+    addict_dose(player, "weed")
+
+    draw 12 smoke particles at location of player
+    # звуки лежат в паке (assets/shield/sounds.json). Если игрок пак не принял,
+    # клиент просто промолчит — ошибки не будет
+    if {_cmd} is 2009:
+        play sound "shield:item.use.bong" at player
+    else:
+        play sound "shield:item.use.smoking" at player
+    send action bar "&a☘ Умиротворение %{_lvl}%" to player
+
+    apply regeneration 1 to player for 20 seconds
+    apply saturation 1 to player for 5 seconds
+    pacify_mobs(player)
+
+    if {_lvl} >= {@nausea_at}:
+        apply nausea 1 to player for 20 seconds
+        apply hunger 3 to player for 20 seconds
+    if {_lvl} >= {@reefer_at}:
+        spawn_reefers(player)
+
+    # подозрительная трубка: что намешали, то и выпало
+    if {_wild} is true:
+        set {_roll} to random integer between 1 and 6
+        if {_roll} is 1:
+            apply strength 2 to player for 60 seconds
+        else if {_roll} is 2:
+            apply invisibility 1 to player for 45 seconds
+        else if {_roll} is 3:
+            apply blindness 1 to player for 20 seconds
+        else if {_roll} is 4:
+            apply slow falling 1 to player for 60 seconds
+        else if {_roll} is 5:
+            apply glowing 1 to player for 90 seconds
+        else:
+            apply poison 1 to player for 15 seconds
+        send "{@prefix}&5Накрыло чем-то незнакомым." to player
+
+# Мобы вокруг забывают, кого преследовали. Дальше их держит событие ниже:
+# пока у игрока есть уровень, они просто не могут выбрать его целью заново.
+function pacify_mobs(p: player):
+    loop mobs in radius 16 around location of {_p}:
+        if target of loop-entity is {_p}:
+            delete target of loop-entity
+
+on target:
+    target is a player
+    {nirvana::peace::%uuid of target%} is set
+    cancel event
+
+# уровень тает, если игрок давно не курил
+# Условия внутри цикла обязаны быть в блоках if: голое условие в Skript
+# обрывает ВЕСЬ триггер, а не переходит к следующему игроку.
+every 20 seconds:
+    loop all players:
+        set {_uuid} to uuid of loop-player
+        if {nirvana::peace::%{_uuid}%} is set:
+            if {nirvana::peace::last::%{_uuid}%} is set:
+                if difference between {nirvana::peace::last::%{_uuid}%} and now is greater than {@decay} seconds:
+                    remove 1 from {nirvana::peace::%{_uuid}%}
+                    set {nirvana::peace::last::%{_uuid}%} to now
+            if {nirvana::peace::%{_uuid}%} <= 0:
+                delete {nirvana::peace::%{_uuid}%}
+                delete {nirvana::peace::last::%{_uuid}%}
+
+# Тлеющая трубка сама остывает до пустой. Ищем её в инвентарях, а не вешаем
+# таймер на игрока: трубку могут передать, выбросить или убрать в сундук.
+every 30 seconds:
+    loop all players:
+        loop integers from 0 to 35:
+            if nirvana_cmd(slot loop-number-2 of loop-player-1's inventory) is 2015:
+                set slot loop-number-2 of loop-player-1's inventory to nirvana_item("pipe")
+
+# ---------------------------------------------------------------------------
+# Обкуренные крипера (Reefer)
+# ---------------------------------------------------------------------------
+
+# Оригинал при передозе спавнит Reefer'ов и превращает в них соседних крипров.
+# Своего типа мобов на Bukkit не завести, поэтому это обычный крипер с меткой.
+function spawn_reefers(p: player):
+    set {_center} to location of {_p}
+    loop creepers in radius 20 around {_center}:
+        if {nirvana::reefer::%uuid of loop-entity%} is not set:
+            set {nirvana::reefer::%uuid of loop-entity%} to true
+            set name of loop-entity to "&aОбкуренный крипер"
+    chance of 50%
+    set {_spawn} to location 12 meters north of {_center}
+    spawn a creeper at {_spawn}:
+        set name of event-entity to "&aОбкуренный крипер"
+        set {nirvana::reefer::%uuid of event-entity%} to true
+    send "{@prefix}&7Кажется, кто-то шуршит в кустах..." to {_p}
+
+on death of creeper:
+    {nirvana::reefer::%uuid of victim%} is set
+    delete {nirvana::reefer::%uuid of victim%}
+    drop 2 of nirvana_item("weed") at victim
+
+# Взорвавшийся крипер не вызывает события смерти — он просто удаляется,
+# поэтому дроп шишек висит и здесь тоже.
+on explode:
+    {nirvana::reefer::%uuid of event-entity%} is set
+    delete {nirvana::reefer::%uuid of event-entity%}
+    drop 2 of nirvana_item("weed") at event-entity
+    loop players in radius 8 around event-entity:
+        add 1 to {nirvana::peace::%uuid of loop-player%}
+        set {nirvana::peace::last::%uuid of loop-player%} to now
+        apply nausea 1 to loop-player for 15 seconds
+        send "{@prefix}&aВзрыв пахнет травой." to loop-player
+
+# ---------------------------------------------------------------------------
+# Мазь и брауни
+# ---------------------------------------------------------------------------
+
+on right click:
+    nirvana_cmd(player's tool) is 2010
+    cancel event
+    take_main(player, 1)
+    heal player by 4
+    remove (a potion effect of poison) and (a potion effect of wither) from the potion effects of player
+    apply regeneration 1 to player for 10 seconds
+    play sound "shield:item.use.herbal_salve" at player
+    send "{@prefix}&aРаны затянулись." to player
+
+on consume of cookie:
+    nirvana_cmd(the consumed item) is 2011
+    apply regeneration 1 to player for 30 seconds
+    apply saturation 2 to player for 10 seconds
+    apply nausea 1 to player for 25 seconds
+    add 1 to {nirvana::peace::%uuid of player%}
+    set {nirvana::peace::last::%uuid of player%} to now
+    addict_dose(player, "weed")
+    pacify_mobs(player)
+
+# ---------------------------------------------------------------------------
+# Запреты: ванильное поведение базовых материалов
+# ---------------------------------------------------------------------------
+
+# Конопля — это sugar cane, шишка — dried kelp. Без запретов коноплю можно было
+# бы поставить на землю как тростник, а шишку съесть как водоросли — и предмет
+# в обоих случаях потерял бы CMD, превратившись в ванильный.
+on place of sugar cane:
+    nirvana_cmd(player's tool) is 2002
+    cancel event
+
+on consume of dried kelp:
+    nirvana_cmd(the consumed item) is 2003
+    cancel event
+
+# ---------------------------------------------------------------------------
+# Меню выдачи
+# ---------------------------------------------------------------------------
+
+# Кастомных предметов НЕТ и не может быть в поиске творческого режима: поиск
+# читает только ванильный реестр предметов, а у нас обычные бумага/палка/
+# тростник/зелье с CustomModelData. Поэтому браузер предметов делаем сами.
+# Напитки Brewery собрать руками нельзя (у них внутри закодированные данные о
+# рецепте), поэтому клик по ним дёргает штатное /brew create — тот же приём
+# «обёртка над чужой командой», что и в market_holograms.sk.
+
+# CMD напитка -> id рецепта в plugins/BreweryX/recipes.yml
+function brew_recipe(cmd: number) :: text:
+    if {_cmd} is 1001:
+        return "jagermeister"
+    else if {_cmd} is 1002:
+        return "firm_beer"
+    else if {_cmd} is 1003:
+        return "tequila"
+    else if {_cmd} is 1004:
+        return "rum"
+    else if {_cmd} is 1005:
+        return "admin_samogon"
+    else if {_cmd} is 1006:
+        return "vodka_absolut"
+    else if {_cmd} is 1007:
+        return "vodka_plain"
+    else if {_cmd} is 1008:
+        return "tennessee_whiskey"
+    else if {_cmd} is 1009:
+        return "jager_orange"
+    else if {_cmd} is 1010:
+        return "jager_dark"
+    else if {_cmd} is 1011:
+        return "passionfruit"
+    else if {_cmd} is 1012:
+        return "mojito"
+    else if {_cmd} is 1013:
+        return "village_samogon"
+    else if {_cmd} is 1014:
+        return "rassol"
+    return ""
+
+# витринная бутылка: настоящий напиток выдаст BreweryX по клику
+function brew_icon(cmd: number, title: text) :: item:
+    set {_i} to 1 of potion
+    set custom model data of {_i} to {_cmd}
+    set name of {_i} to "&b%{_title}%"
+    set lore of {_i} to "&8Brewery, CMD %{_cmd}%" and "&7Клик — выдать бутылку качества 5 звёзд."
+    return {_i}
+
+function nirvana_menu(p: player):
+    set {_inv} to a chest inventory with 4 rows named "&2Травы и напитки EKB SHIELD"
+
+    set slot 0 of {_inv} to nirvana_item("seeds")
+    set slot 1 of {_inv} to nirvana_item("hemp")
+    set slot 2 of {_inv} to nirvana_item("weed")
+    set slot 3 of {_inv} to nirvana_item("cloth")
+    set slot 4 of {_inv} to nirvana_item("joint")
+    set slot 5 of {_inv} to nirvana_item("pipe")
+    set slot 6 of {_inv} to nirvana_item("stuffed_pipe")
+    set slot 7 of {_inv} to nirvana_item("empty_bong")
+    set slot 8 of {_inv} to nirvana_item("bong")
+    set slot 9 of {_inv} to nirvana_item("salve")
+    set slot 10 of {_inv} to nirvana_item("brownie")
+    set slot 11 of {_inv} to nirvana_item("deerstalker")
+    set slot 12 of {_inv} to nirvana_item("burlap")
+    set slot 13 of {_inv} to nirvana_item("pipe_suspicious")
+    set slot 14 of {_inv} to nirvana_item("pipe_smouldering")
+    set slot 15 of {_inv} to nirvana_item("thc")
+
+    set slot 18 of {_inv} to brew_icon(1001, "Ликёр Егермейстер")
+    set slot 19 of {_inv} to brew_icon(1002, "Разливное Фирменное")
+    set slot 20 of {_inv} to brew_icon(1003, "Мексиканская Текила")
+    set slot 21 of {_inv} to brew_icon(1004, "Капитанский Ром")
+    set slot 22 of {_inv} to brew_icon(1005, "Админский самогон")
+    set slot 23 of {_inv} to brew_icon(1006, "Шведская водка")
+    set slot 24 of {_inv} to brew_icon(1007, "Водка")
+    set slot 25 of {_inv} to brew_icon(1008, "Теннессийский виски")
+    set slot 26 of {_inv} to brew_icon(1009, "Егермейстер Orange")
+    set slot 27 of {_inv} to brew_icon(1010, "Егермейстер Охотничий")
+    set slot 28 of {_inv} to brew_icon(1011, "Маракуйевая водка")
+    set slot 29 of {_inv} to brew_icon(1012, "Мохито")
+    set slot 30 of {_inv} to brew_icon(1013, "Деревенский самогон")
+    set slot 31 of {_inv} to brew_icon(1014, "Рассол &8(снимает опьянение)")
+
+    # Тетрадь выдаётся своей командой: ей нужна страница правил и учёт владельца
+    set {_dn} to 1 of writable book
+    set custom model data of {_dn} to 6666
+    set name of {_dn} to "&8&lТЁМНАЯ ТЕТРАДЬ СМЕРТИ"
+    set lore of {_dn} to "&7Одна на весь сервер." and "&8Клик — выдать себе (/deathnote give)."
+    set slot 35 of {_inv} to {_dn}
+
+    set {nirvana::menu::%uuid of {_p}%} to true
+    open {_inv} to {_p}
+    send "{@prefix}&7Предметы: клик — 1 шт., в присяде — 16 шт." to {_p}
+    send "{@prefix}&7Напитки: клик — 5 звёзд, в присяде — 1 звезда (как у неумелого варщика)." to {_p}
+
+on inventory click:
+    {nirvana::menu::%uuid of player%} is set
+    cancel event
+    event-item is not air
+    set {_cmd} to nirvana_cmd(event-item)
+
+    # напитки — через BreweryX, свою бутылку он должен собрать сам
+    # Тетрадь Смерти — своей командой, чтобы записались правила и владелец
+    if {_cmd} is 6666:
+        make player execute command "deathnote give %player%"
+        stop
+
+    # /brew create всегда делает напиток ровно заданного качества — отсюда и
+    # «всё пятизвёздочное». Настоящая варка в котле качество разбрасывает сама.
+    set {_recipe} to brew_recipe({_cmd})
+    if {_recipe} is not "":
+        if player is sneaking:
+            make player execute command "brew create %{_recipe}% 2"
+        else:
+            make player execute command "brew create %{_recipe}% 10"
+        stop
+
+    {_cmd} is between 2001 and 2016
+    if player is sneaking:
+        give 16 of event-item to player
+    else:
+        give 1 of event-item to player
+
+# Флаг снимается при закрытии и на выходе с сервера: иначе он залипнет и
+# у игрока перестанет работать собственный инвентарь — клики-то отменяются.
+on inventory close:
+    delete {nirvana::menu::%uuid of player%}
+
+on quit:
+    delete {nirvana::menu::%uuid of player%}
+
+# ---------------------------------------------------------------------------
+# Админская команда
+# ---------------------------------------------------------------------------
+
+command /nirvana [<text>] [<player>] [<text>] [<integer>]:
+    permission: ekb.nirvana.admin
+    permission message: &cВыдача предметов — только для администрации.
+    description: Выдать предметы Nirvana или прибраться в метках грядок
+    usage: /nirvana (меню) | /nirvana give <ник> <предмет> [кол-во] | /nirvana cleanup
+    trigger:
+        if arg-1 is not set:
+            if sender is a player:
+                nirvana_menu(player)
+                stop
+
+        if arg-1 is "give":
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи ник."
+                stop
+            if arg-3 is not set:
+                send "{@prefix}&cПредметы: seeds, hemp, weed, cloth, burlap, joint, pipe, stuffed_pipe, pipe_suspicious, pipe_smouldering, empty_bong, bong, salve, brownie, deerstalker, thc"
+                stop
+            set {_item} to nirvana_item(arg-3)
+            if {_item} is air:
+                send "{@prefix}&cНет такого предмета: &f%arg-3%"
+                stop
+            set {_n} to arg-4 ? 1
+            give {_n} of {_item} to arg-2
+            send "{@prefix}&aВыдал &f%{_n}%x %name of {_item}%&a игроку &f%arg-2%&a."
+            stop
+
+        if arg-1 is "cleanup":
+            set {_removed} to 0
+            loop {nirvana::hemp::*}:
+                if block at loop-value is not wheat:
+                    delete {nirvana::hemp::%loop-index%}
+                    add 1 to {_removed}
+            send "{@prefix}&aСнято меток грядок: &f%{_removed}%"
+            stop
+
+        send "{@prefix}&7/nirvana &8— меню выдачи (только в игре)"
+        send "{@prefix}&7/nirvana give <ник> <предмет> [кол-во]"
+        send "{@prefix}&7/nirvana cleanup &8— снять метки с грядок, где конопли уже нет"

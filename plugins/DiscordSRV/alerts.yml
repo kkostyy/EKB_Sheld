@@ -1,0 +1,57 @@
+# EKB SHIELD — оповещения в #admin-logs.
+# Формат DiscordSRV: корневой ключ Alerts — СПИСОК, Trigger — полное имя
+# Bukkit-события, Conditions — выражения SpEL по свойствам события.
+# Прошлая версия файла была написана в выдуманном формате (Alert 1 - ... / If / Then)
+# и роняла плагин при запуске: "premature end of path root->*Alerts*".
+
+Alerts:
+- Trigger: org.bukkit.event.block.BlockBreakEvent
+  Channel: admin-logs
+  Conditions:
+  - "block.type.name() == 'DIAMOND_ORE' || block.type.name() == 'DEEPSLATE_DIAMOND_ORE'"
+  Embed:
+    Color: "#00ffff"
+    Author:
+      ImageUrl: "{embedavatarurl}"
+      Name: "{name} добыл алмазную руду - {world} ${block.x} ${block.y} ${block.z}"
+
+- Trigger: org.bukkit.event.block.BlockBreakEvent
+  Channel: admin-logs
+  Conditions:
+  - "block.type.name() == 'ANCIENT_DEBRIS'"
+  Embed:
+    Color: "#8b0000"
+    Author:
+      ImageUrl: "{embedavatarurl}"
+      Name: "{name} добыл древний мусор - {world} ${block.x} ${block.y} ${block.z}"
+
+- Trigger: org.bukkit.event.block.BlockBreakEvent
+  Channel: admin-logs
+  Conditions:
+  - "block.type.name() == 'SPAWNER'"
+  Content: "<@&1488998868048806006>"
+  Embed:
+    Color: "#ff0000"
+    Author:
+      ImageUrl: "{embedavatarurl}"
+      Name: "ВНИМАНИЕ: {name} сломал спавнер - {world} ${block.x} ${block.y} ${block.z} - проверить /co i"
+
+- Trigger: org.bukkit.event.block.BlockBreakEvent
+  Channel: admin-logs
+  Conditions:
+  - "block.type.name().contains('SHULKER_BOX')"
+  Embed:
+    Color: "#800080"
+    Author:
+      ImageUrl: "{embedavatarurl}"
+      Name: "{name} сломал шалкеровый ящик - {world} ${block.x} ${block.y} ${block.z}"
+
+- Trigger: org.bukkit.event.block.BlockBreakEvent
+  Channel: admin-logs
+  Conditions:
+  - "block.type.name() == 'BEACON'"
+  Embed:
+    Color: "#ffd700"
+    Author:
+      ImageUrl: "{embedavatarurl}"
+      Name: "{name} сломал маяк - {world} ${block.x} ${block.y} ${block.z}"

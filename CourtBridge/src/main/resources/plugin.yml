@@ -1,0 +1,13 @@
+name: CourtBridge
+version: 1.0.0
+main: com.ekbshield.courtbridge.CourtBridgePlugin
+api-version: "26.1.2"
+depend: [CoreProtect]
+commands:
+  courtlog:
+    description: Выгрузить логи CoreProtect по игроку в Discord (#суд)
+    usage: /courtlog <игрок> <минуты> <радиус> <номер_дела>
+    permission: courtbridge.use
+permissions:
+  courtbridge.use:
+    default: op

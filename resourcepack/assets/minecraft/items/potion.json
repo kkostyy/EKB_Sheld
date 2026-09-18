@@ -1,0 +1,116 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/potion",
+      "tints": [
+        {
+          "type": "minecraft:potion",
+          "default": -13083194
+        }
+      ]
+    },
+    "entries": [
+      {
+        "threshold": 1001.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/jagermeister"
+        }
+      },
+      {
+        "threshold": 1002.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/beer_bottle"
+        }
+      },
+      {
+        "threshold": 1003.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/tequila"
+        }
+      },
+      {
+        "threshold": 1004.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/rum"
+        }
+      },
+      {
+        "threshold": 1005.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/samogon"
+        }
+      },
+      {
+        "threshold": 1006.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/vodka_absolut"
+        }
+      },
+      {
+        "threshold": 1007.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/vodka_plain"
+        }
+      },
+      {
+        "threshold": 1008.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/whiskey"
+        }
+      },
+      {
+        "threshold": 1009.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/jagermeister_orange"
+        }
+      },
+      {
+        "threshold": 1010.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/jagermeister_dark"
+        }
+      },
+      {
+        "threshold": 1011.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/vodka_passionfruit"
+        }
+      },
+      {
+        "threshold": 1012.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/vodka_mojito"
+        }
+      },
+      {
+        "threshold": 1013.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/samogon_green"
+        }
+      },
+      {
+        "threshold": 1014.0,
+        "model": {
+          "type": "minecraft:model",
+          "model": "shield:item/rassol"
+        }
+      }
+    ]
+  }
+}

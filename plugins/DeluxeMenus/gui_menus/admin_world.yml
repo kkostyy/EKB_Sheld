@@ -1,0 +1,198 @@
+menu_title: '&8Мир и границы'
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.admin
+      deny_commands:
+        - '[message] &cЭто меню Администрации.'
+
+items:
+  'status':
+    material: COMPASS
+    slot: 10
+    display_name: '&b&lСтадия границы'
+    lore:
+      - '&7Текущая стадия и режим расширения.'
+      - ''
+      - '&aЛКМ &8— /function ekb:status'
+    left_click_commands:
+      - '[close]'
+      - '[player] function ekb:status'
+
+  'auto_on':
+    material: LIME_DYE
+    slot: 11
+    display_name: '&a&lРасширять автоматически'
+    lore:
+      - '&7Достижение сразу двигает границу.'
+      - ''
+      - '&aЛКМ &8— /function ekb:auto_on'
+    left_click_commands:
+      - '[close]'
+      - '[player] function ekb:auto_on'
+
+  'auto_off':
+    material: GRAY_DYE
+    slot: 12
+    display_name: '&7&lТолько объявлять'
+    lore:
+      - '&7Достижение объявляется, границу двигаешь сам'
+      - '&7скриптом expand_border — когда Chunky'
+      - '&7прогенерирует новую территорию.'
+      - ''
+      - '&aЛКМ &8— /function ekb:auto_off'
+    left_click_commands:
+      - '[close]'
+      - '[player] function ekb:auto_off'
+
+  'chunky':
+    material: DIAMOND_PICKAXE
+    slot: 13
+    display_name: '&e&lПрогенерация (Chunky)'
+    lore:
+      - '&8/chunky world <мир>'
+      - '&8/chunky radius <блоков>'
+      - '&8/chunky start &8· &8/chunky pause'
+      - ''
+      - '&4Перед каждой стадией — обязательно:'
+      - '&7иначе чанки генерируются на ходу и сервер'
+      - '&7встаёт колом при первом же забеге игроков.'
+    left_click_commands:
+      - '[close]'
+      - '[message] &e&lChunky: &7/chunky world world &8· &7/chunky radius 8000 &8· &7/chunky start'
+
+  'border':
+    material: OAK_FENCE_GATE
+    slot: 14
+    display_name: '&6&lРучное расширение'
+    lore:
+      - '&7Стадии 1–5: 4000 → 20000 блоков.'
+      - '&7Скрипт синхронизирует счёт &f#stage ekb&7,'
+      - '&7поэтому с датапаком не конфликтует.'
+      - ''
+      - '&8С консоли хоста: &7.\expand_border.ps1 <1..5>'
+
+  'weather':
+    material: SUNFLOWER
+    slot: 15
+    display_name: '&e&lПогода и время'
+    lore:
+      - '&8/weather clear &8· &8/weather rain'
+      - '&8/time set day &8· &8/time set night'
+    left_click_commands:
+      - '[close]'
+      - '[player] weather clear'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_admin'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_4':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 4
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

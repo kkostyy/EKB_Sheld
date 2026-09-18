@@ -1,0 +1,210 @@
+menu_title: '&8С чего начать'
+open_command:
+  - start
+  - начать
+size: 54
+
+items:
+
+  'step1':
+    material: OAK_LOG
+    slot: 13
+    display_name: '&f1. Пережить первую ночь'
+    lore:
+      - '&7Дерево, инструменты, укрытие.'
+      - '&7Спавн — безопасная зона, но жить там нельзя.'
+
+  'step2':
+    material: RED_BED
+    slot: 20
+    display_name: '&f2. Поставить кровать'
+    lore:
+      - '&7Кровать — единственная точка возврата.'
+      - '&7Телепортов нет, всё остальное — ногами.'
+
+  'step3':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
+    slot: 22
+    display_name: '&f3. Прочитать законы'
+    lore:
+      - '&7Знание УК спасает от тюрьмы.'
+      - ''
+      - '&aЛКМ &8— открыть законы'
+    left_click_commands:
+      - '[openguimenu] ekb_laws'
+
+  'step4':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
+    slot: 24
+    display_name: '&f4. Заработать первые алмазы'
+    lore:
+      - '&7Рынок на Спавне и Строительная биржа:'
+      - '&7терраформинг чанка — 32–48💎.'
+      - ''
+      - '&aЛКМ &8— о торговле'
+    left_click_commands:
+      - '[openguimenu] ekb_trade'
+
+  'step5':
+    material: SHIELD
+    slot: 29
+    display_name: '&f5. Найти город или основать свой'
+    lore:
+      - '&7Город: глава, от 3 жителей, Устав.'
+      - '&7Один — значит кочевник, и это тоже путь.'
+      - ''
+      - '&aЛКМ &8— о городах'
+    left_click_commands:
+      - '[openguimenu] ekb_town'
+
+  'step6':
+    material: VILLAGER_SPAWN_EGG
+    slot: 30
+    display_name: '&f6. Открыть лавку'
+    lore:
+      - '&7Продавец торгует из твоего сундука.'
+      - '&7Только на Рыночной Площади Спавна.'
+      - ''
+      - '&aЛКМ &8— как открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_trade'
+
+  'world':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2E1MTRiY2NhOGEwNDlhYWRlY2QxNDhhZTA0MzU3YWQwZDUzMzVkYjMwMDMzYTdiM2RkYjU3MWZkNjBkMTc1OCJ9fX0=
+    slot: 31
+    display_name: '&3&lГде мы вообще'
+    lore:
+      - '&7Карта, границы мира и государств,'
+      - '&7города и Спавн.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_world'
+
+  'step7':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
+    slot: 32
+    display_name: '&f7. Знать, куда идти за правдой'
+    lore:
+      - '&7Украли — иск в Discord, CoreProtect помнит всё.'
+      - '&7Жалоба на игрока — /report.'
+      - ''
+      - '&aЛКМ &8— порядок'
+    left_click_commands:
+      - '[message] &8&lИск: &7в Discord командой /иск &8· &8Жалоба: &7/report <ник> <причина>'
+
+  'header':
+    material: KNOWLEDGE_BOOK
+    slot: 4
+    display_name: '&f&lПервые шаги'
+    lore:
+      - '&7Телепортов нет, приватов нет.'
+      - '&7Всё держится на законах и CoreProtect.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_main'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

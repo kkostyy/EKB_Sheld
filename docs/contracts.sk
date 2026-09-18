@@ -1,0 +1,247 @@
+# EKB SHIELD — contracts.sk
+# Контракты на устранение: тёмная сторона экономики.
+#
+# Правило, ради которого всё затевалось: самосуд запрещён. Убить можно
+# либо защищаясь, либо исполняя контракт — и то и другое разбирает Суд,
+# если найдётся свидетель. Контракт не делает убийство законным: он даёт
+# мотив, цену и след, по которому Суд выходит на заказчика.
+#
+# Как устроено:
+#   — заказчик платит вперёд: алмазы списываются из инвентаря и лежат
+#     в депозите, пока контракт открыт (иначе «заказы» были бы бесплатными
+#     и доска утонула бы в мусоре);
+#   — исполнитель берёт контракт и получает депозит после гибели цели;
+#   — заказчик может отозвать контракт и забрать алмазы, пока его никто
+#     не выполнил;
+#   — у убийства всегда есть свидетели: все, кто был в радиусе {@witness}
+#     блоков, получают уведомление и могут подать иск.
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &4&l[КОНТРАКТ] &r
+    line: &8&m----------------------------------------
+    witness: 48         # радиус, в котором убийство считается замеченным
+    minprice: 16        # минимальная награда, алмазов
+    expire: 604800      # контракт живёт неделю реального времени
+
+# Хранилище:
+#   {ct::id}                  — счётчик
+#   {ct::target::%id%}        — ник цели
+#   {ct::owner::%id%}         — ник заказчика
+#   {ct::price::%id%}         — алмазов в депозите
+#   {ct::taker::%id%}         — кто взял
+#   {ct::made::%id%}          — когда создан (unix)
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+function ct_open(id: text) :: boolean:
+    if {ct::target::%{_id}%} is not set:
+        return false
+    return true
+
+# Сколько алмазов у игрока в рюкзаке
+function ct_diamonds(p: player) :: number:
+    return number of diamond in {_p}'s inventory
+
+# Псевдоним: и заказчик, и исполнитель видят друг друга только под ним.
+# Настоящий ник остаётся в переменной и в консольном логе — его поднимает
+# Суд, если дело дойдёт до иска. Псевдоним постоянный у игрока, чтобы
+# репутация исполнителя копилась, а личность — нет.
+function ct_alias(name: text) :: text:
+    if {ct::alias::%{_name}%} is not set:
+        set {_words::*} to "Ворон", "Тень", "Уголь", "Пепел", "Крюк", "Сталь", "Туман", "Гвоздь", "Клык", "Север", "Полынь" and "Кремень"
+        set {_w} to random element out of {_words::*}
+        set {_n} to random integer between 10 and 99
+        set {ct::alias::%{_name}%} to "%{_w}%-%{_n}%"
+    return {ct::alias::%{_name}%}
+
+# ---------------------------------------------------------------------------
+# Команды
+# ---------------------------------------------------------------------------
+
+command /contract [<text>] [<text>] [<integer>]:
+    description: Контракты на устранение
+    usage: /contract board | new <ник> <алмазов> | take <id> | drop <id> | mine
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix}&7/contract board &8— доска открытых контрактов" to player
+            send "{@prefix}&7/contract new <ник> <алмазов> &8— заказать" to player
+            send "{@prefix}&7/contract take <id> &8— взять исполнение" to player
+            send "{@prefix}&7/contract drop <id> &8— отозвать свой заказ" to player
+            send "{@prefix}&7/contract mine &8— мои заказы и взятые" to player
+            send "{@prefix}&4Убийство вне контракта — статья УК 1.4." to player
+            stop
+
+        if arg-1 is "board":
+            set {_n} to 0
+            loop {ct::target::*}:
+                set {_id} to loop-index
+                set {_t} to loop-value
+                set {_p} to {ct::price::%{_id}%}
+                if {ct::taker::%{_id}%} is not set:
+                    add 1 to {_n}
+                    send "&7 №&f%{_id}%&7: цель &c%{_t}%&7, награда &b%{_p}%💎 &8— свободен" to player
+                    send "&8   взять: &b/contract take %{_id}%" to player
+                else:
+                    add 1 to {_n}
+                    set {_who} to ct_alias({ct::taker::%{_id}%})
+                    send "&8 №%{_id}%: цель %{_t}%, награда %{_p}%💎 — взят: %{_who}%" to player
+            if {_n} is 0:
+                send "{@prefix}&7Открытых контрактов нет." to player
+            else:
+                send "{@prefix}&8Заказчик в контракте не указан — его знает только Суд." to player
+            stop
+
+        if arg-1 is "new":
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи ник цели." to player
+                stop
+            if arg-3 is not set:
+                send "{@prefix}&cУкажи награду в алмазах (минимум {@minprice})." to player
+                stop
+            if arg-3 < {@minprice}:
+                send "{@prefix}&cМинимальная награда — &f{@minprice}💎&c." to player
+                stop
+            if arg-2 is "%player%":
+                send "{@prefix}&cНа себя контракт не оформляют." to player
+                stop
+            if ct_diamonds(player) < arg-3:
+                send "{@prefix}&cНужно &f%arg-3%💎&c на руках: депозит платится вперёд." to player
+                stop
+            remove arg-3 of diamond from player's inventory
+            add 1 to {ct::id}
+            set {_id} to "%{ct::id}%"
+            set {ct::target::%{_id}%} to arg-2
+            set {ct::owner::%{_id}%} to "%player%"
+            set {ct::price::%{_id}%} to arg-3
+            set {ct::made::%{_id}%} to unix timestamp of now
+            delete {ct::taker::%{_id}%}
+            send "{@prefix}&aКонтракт №&f%{_id}%&a оформлен: цель &c%arg-2%&a, депозит &b%arg-3%💎&a." to player
+            send "{@prefix}&7Отозвать и забрать алмазы: &b/contract drop %{_id}%" to player
+            send "{@prefix}&4Если Суд докажет заказ — отвечать будешь вместе с исполнителем." to player
+            send "[КОНТРАКТ] №%{_id}%: %player% заказал %arg-2% за %arg-3% алмазов" to console
+            stop
+
+        if arg-1 is "take":
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи номер." to player
+                stop
+            if ct_open(arg-2) is false:
+                send "{@prefix}&cТакого контракта нет." to player
+                stop
+            if {ct::taker::%arg-2%} is set:
+                send "{@prefix}&7Его уже взял другой." to player
+                stop
+            if {ct::owner::%arg-2%} is "%player%":
+                send "{@prefix}&cСвой заказ исполнять нельзя." to player
+                stop
+            if {ct::target::%arg-2%} is "%player%":
+                send "{@prefix}&cЭто контракт на тебя. Беги." to player
+                stop
+            set {ct::taker::%arg-2%} to "%player%"
+            set {_alias} to ct_alias("%player%")
+            send "{@prefix}&cКонтракт №&f%arg-2%&c твой. Цель: &f%{ct::target::%arg-2%}%&c." to player
+            send "{@prefix}&7Награда придёт, когда цель погибнет от твоей руки." to player
+            send "{@prefix}&8Ты проходишь как &f%{_alias}%&8 — ника не видит никто, кроме Суда." to player
+            set {_owner} to {ct::owner::%arg-2%} parsed as player
+            if {_owner} is set:
+                send "{@prefix}&7Контракт №&f%arg-2%&7 взят в работу. Исполнитель: &f%{_alias}%&7." to {_owner}
+            send "[КОНТРАКТ] №%arg-2% взял %player% (псевдоним %{_alias}%)" to console
+            stop
+
+        if arg-1 is "drop":
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи номер." to player
+                stop
+            if ct_open(arg-2) is false:
+                send "{@prefix}&cТакого контракта нет." to player
+                stop
+            if {ct::owner::%arg-2%} is not "%player%":
+                send "{@prefix}&cЭто не твой заказ." to player
+                stop
+            if {ct::taker::%arg-2%} is set:
+                send "{@prefix}&cЕго уже взяли в работу — отозвать нельзя." to player
+                stop
+            set {_back} to {ct::price::%arg-2%}
+            give {_back} of diamond to player
+            ct_close(arg-2)
+            send "{@prefix}&aКонтракт отозван, &b%{_back}%💎&a возвращены." to player
+            stop
+
+        if arg-1 is "mine":
+            set {_n} to 0
+            loop {ct::target::*}:
+                set {_id} to loop-index
+                if {ct::owner::%{_id}%} is "%player%":
+                    add 1 to {_n}
+                    send "&7 №&f%{_id}%&7 мой заказ: цель &c%loop-value%&7, депозит &b%{ct::price::%{_id}%}%💎" to player
+                else if {ct::taker::%{_id}%} is "%player%":
+                    add 1 to {_n}
+                    send "&7 №&f%{_id}%&7 взят мной: цель &c%loop-value%&7, награда &b%{ct::price::%{_id}%}%💎" to player
+            if {_n} is 0:
+                send "{@prefix}&7Ни заказов, ни взятых контрактов." to player
+            else:
+                set {_alias} to ct_alias("%player%")
+                send "{@prefix}&8Твой псевдоним в этих делах: &f%{_alias}%" to player
+            stop
+
+        send "{@prefix}&cНеизвестное действие. Смотри &b/contract" to player
+
+function ct_close(id: text):
+    delete {ct::target::%{_id}%}
+    delete {ct::owner::%{_id}%}
+    delete {ct::price::%{_id}%}
+    delete {ct::taker::%{_id}%}
+    delete {ct::made::%{_id}%}
+
+# ---------------------------------------------------------------------------
+# Смерть: расчёт по контракту и свидетели
+# ---------------------------------------------------------------------------
+
+on death of player:
+    set {_dead} to "%victim%"
+    set {_killer} to attacker
+    if {_killer} is a player:
+        set {_kname} to "%{_killer}%"
+        set {_paid} to false
+
+        # закрываем контракт, если он был на погибшего и взят этим игроком
+        loop {ct::target::*}:
+            set {_id} to loop-index
+            if loop-value is {_dead}:
+                if {ct::taker::%{_id}%} is {_kname}:
+                    set {_price} to {ct::price::%{_id}%}
+                    give {_price} of diamond to {_killer}
+                    send "{@prefix}&aКонтракт №&f%{_id}%&a исполнен. Награда: &b%{_price}%💎&a." to {_killer}
+                    set {_owner} to {ct::owner::%{_id}%} parsed as player
+                    if {_owner} is set:
+                        set {_alias} to ct_alias({_kname})
+                        send "{@prefix}&7Контракт №&f%{_id}%&7 исполнен: &c%{_dead}%&7 мёртв." to {_owner}
+                        send "{@prefix}&8Исполнитель: &f%{_alias}%&8. Кто он — знает только Суд." to {_owner}
+                    send "[КОНТРАКТ] №%{_id}% исполнен: %{_kname}% убил %{_dead}%" to console
+                    ct_close({_id})
+                    set {_paid} to true
+
+        # свидетели: все, кто был рядом и это не убийца с жертвой
+        set {_seen} to 0
+        loop players in radius {@witness} around victim:
+            if "%loop-player%" is not {_dead}:
+                if "%loop-player%" is not {_kname}:
+                    add 1 to {_seen}
+                    send "{@line}" to loop-player
+                    send "{@prefix}&cТы видел убийство." to loop-player
+                    send "&7%{_kname}% &7убил &f%{_dead}%&7." to loop-player
+                    send "&7Показания в Суд: &b/report %{_kname}% убийство" to loop-player
+                    send "&8   Молчание — твоё право, но и соучастие бывает разным." to loop-player
+                    send "{@line}" to loop-player
+        if {_paid} is true:
+            if {_seen} > 0:
+                send "{@prefix}&4Тебя видели: свидетелей — &f%{_seen}%&4." to {_killer}
+            else:
+                send "{@prefix}&8Свидетелей не было. Пока." to {_killer}
+        else:
+            if {_seen} > 0:
+                send "{@prefix}&4Убийство вне контракта, свидетелей: &f%{_seen}%&4. Статья УК 1.4." to {_killer}

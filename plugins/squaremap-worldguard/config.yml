@@ -1,0 +1,51 @@
+# EKB SHIELD — squaremap-worldguard (мост между WorldGuard и веб-картой)
+#
+# Рисует регионы WorldGuard на squaremap: cuboid — прямоугольником,
+# poly2d — многоугольником. Границы государств сюда попадают из
+# docs/borders.sk: глава обходит землю ногами, Администрация утверждает.
+#
+# ⚠️ Файл сначала СГЕНЕРИРОВАН плагином, а потом правлен. Писать его
+# с нуля нельзя: у Configurate свой `config-version` и цепочка миграций,
+# и файл с чужой версией плагин начнёт трансформировать по своим правилам.
+# Меняешь что-то — правь серверный и копируй сюда, а не наоборот.
+#
+# Что изменено против дефолта:
+#   control.label   WorldGuard -> Государства (так слой называется игроку)
+#   update-interval 300 -> 60 (новая граница появлялась через пять минут)
+#
+# ⚠️ regions.list-mode: BLACKLIST с пустым списком — значит, на карте
+# рисуются ВСЕ регионы, в том числе приват Спавна. Не надо — внеси
+# `spawn` в regions.list.
+config-version: 3
+world-settings:
+    default:
+        control:
+            label: Государства
+            show: true
+            hide-by-default: false
+        update-interval: 60
+        default-style:
+            stroke:
+                color: '#00ff00'
+                weight: 1
+                opacity: 1.0
+            fill:
+                color: '#00ff00'
+                opacity: 0.2
+            click-tooltip: <span style="font-size:120%;">{regionname}</span><br />Owner
+                <span style="font-weight:bold;">{playerowners}</span><br />Flags<br
+                /><span style="font-weight:bold;">{flags}</span>
+        regions:
+            list-mode: BLACKLIST
+            list: []
+        flags:
+            list-mode: BLACKLIST
+            list:
+            - squaremap-visible
+            - squaremap-stroke-color
+            - squaremap-stroke-weight
+            - squaremap-stroke-opacity
+            - squaremap-fill-color
+            - squaremap-fill-opacity
+            - squaremap-click-tooltip
+        style-overrides: {}

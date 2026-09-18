@@ -1,0 +1,440 @@
+# EKB SHIELD — treasury.sk
+# Казна Спавна: НАСТОЯЩИЙ сундук с настоящими алмазами.
+#
+# Зачем так, а не счётчиком в переменной.
+#
+#   Присланная спецификация меню платила игроку через `[console] give
+#   %player_name% diamond 1`, то есть печатала валюту из воздуха. Весь сервер
+#   стоит на обратном: алмаз — физический предмет (у Shopkeepers
+#   `currency-item: minecraft:diamond`), головы из HeadDB брать запрещено
+#   (`-headdb.head.take`), конопля растёт только из семян. Скупщик, который
+#   печатает алмазы, за неделю обнуляет весь Прайс-лист.
+#
+#   Поэтому Казна — сундук (или бочка) в Мэрии. Платежи игроков ложатся в него
+#   физически, выплаты берутся оттуда же. Казна пуста — скупщик не работает,
+#   и это правильное поведение: у города кончились деньги.
+#
+#   Заодно это делает Казну предметом игры. Её можно ограбить, и это уже дело
+#   Суда (Глава 1 УК, логи CoreProtect), а не дыра в механике.
+#
+# ⚠️ Казну НЕ путать с судейским ящиком ({jail_seized::*} в
+#    jail_online_time.sk). Тот хранит изъятое у заключённого до приговора.
+#    «Конфисковано в Казну» там до сих пор просто удаляет предметы — старое
+#    упрощение; когда дойдут руки, /jailitems clear должен класть вещи сюда
+#    через tr_put().
+#
+# Хранилище:
+#   {treasury-location}      — блок Казны, задаётся /settreasury
+#   {treasury-log::<n>}      — журнал движений, ключ — сквозной номер
+#   {treasury-log-n}         — последний выданный номер записи
+#
+# Команды:
+#   /settreasury   — назначить сундук Казной (смотри на него)
+#   /treasury      — сколько в Казне (видят все: баланс города публичен)
+#   /treasurylog   — последние движения (Администрация и Суд)
+
+options:
+    prefix: &6&l[КАЗНА] &r
+    admin: coreprotect.rollback
+    clerk: ekb.duty.clerk
+    log_limit: 50
+    line: &8&m----------------------------------------
+
+# ---------------------------------------------------------------------------
+# Доступ к сундуку
+# ---------------------------------------------------------------------------
+
+# Слот -> предмет. Класть `slot N of inv` прямо в переменную нельзя: туда
+# ляжет ссылка на слот, а не содержимое. Типизированный параметр заставляет
+# Skript привести слот к предмету — тот же приём, что jail_item и dn_cmd.
+function tr_item(i: item) :: item:
+    return {_i}
+
+# Казна — НЕСКОЛЬКО контейнеров, а не один.
+#
+# Одного сундука на 27 слотов хватало ровно до первой крупной сдачи: через
+# Казну ходят все деньги обновления — скупщик, аренда, марки почты, ставки
+# казино, стойка бара, газета, экспертиза. Когда свободных слотов нет,
+# `tr_pay` отказывает, и вместе с ней встают все семь механик разом.
+#
+# Список лежит в `{treasury::chests::*}` (локации), `{treasury-location}`
+# остаётся первым сундуком: на него смотрят старые записи журнала и
+# `/settreasury`. Порядок в списке значит: платёж ложится в первый, где есть
+# место, выдача берётся из первого, где есть россыпь. Мэрия сама решает,
+# какой сундук «кассовый», а какой «хранилище» — просто ставит его первым.
+#
+# ⚠️ Двойной сундук считается ОДНИМ контейнером на 54 слота: Bukkit отдаёт
+# у него общий инвентарь обеих половин. Поэтому добавлять обе половины не
+# надо — вторая просто окажется тем же самым инвентарём, и баланс удвоится
+# на бумаге.
+#
+# ⚠️ Составное условие `A is chest or B is barrel` Skript 2.16.2 не разбирает
+# (та же грабля, что `A is set or B is set` в addiction.sk), поэтому три
+# отдельных if, а не одно условие.
+function tr_box(l: location) :: boolean:
+    set {_b} to block at {_l}
+    if {_b} is chest:
+        return true
+    if {_b} is trapped chest:
+        return true
+    if {_b} is barrel:
+        return true
+    return false
+
+# Сундук стоит внутри привата Спавна?
+#
+# ⚠️ Проверяется по СПИСКУ регионов в точке, а не литералом `region "spawn"`.
+# Синтаксис региона в Skript 2.16.2 объявлен устаревшим и требует точного
+# указания мира; список же отдаётся всегда и сравнивается как текст.
+#
+# До 18.09.2026 проверки не было вообще: команда печатала совет «сундуки
+# должны стоять внутри региона Спавна» НЕЗАВИСИМО от того, где стоит сундук,
+# и это читалось как отказ — Казна при этом назначалась. Совет, неотличимый
+# от ошибки, хуже отсутствия совета.
+function tr_at_spawn(l: location) :: boolean:
+    set {_regs::*} to regions at {_l}
+    loop {_regs::*}:
+        if "%loop-value%" contains "spawn":
+            return true
+    return false
+
+# Казна доступна? Хотя бы один контейнер на месте.
+#
+# ⚠️ В выгруженном чанке сундук считается недоступным, а не пустым. Это
+# намеренно: списать платёж в никуда хуже, чем отказать в операции.
+function tr_ready() :: boolean:
+    loop {treasury::chests::*}:
+        if tr_box(loop-value) is true:
+            return true
+    return false
+
+# Сколько контейнеров реально на месте
+function tr_count() :: number:
+    set {_n} to 0
+    loop {treasury::chests::*}:
+        if tr_box(loop-value) is true:
+            add 1 to {_n}
+    return {_n}
+
+# Добавить контейнер в реестр, если его там ещё нет. Возвращает false, когда
+# этот же сундук уже в Казне: дважды посчитанный сундук удваивает баланс.
+function tr_add(l: location) :: boolean:
+    loop {treasury::chests::*}:
+        if loop-value is {_l}:
+            return false
+    add {_l} to {treasury::chests::*}
+    if {treasury-location} is not set:
+        set {treasury-location} to {_l}
+    return true
+
+# Сколько алмазов в Казне. Блок алмазов считается за 9 — ровно курс
+# Прайс-листа и настроек Shopkeepers (high-currency-value: 9).
+function tr_balance() :: number:
+    if tr_ready() is false:
+        return -1
+    set {_sum} to 0
+    loop {treasury::chests::*}:
+        if tr_box(loop-value) is true:
+            set {_inv} to inventory of block at loop-value
+            set {_sum} to {_sum} + (number of diamond in {_inv})
+            set {_sum} to {_sum} + ((number of diamond block in {_inv}) * 9)
+    return {_sum}
+
+# Только россыпь: ею платят, блоки не разменивает никто.
+function tr_loose() :: number:
+    if tr_ready() is false:
+        return -1
+    set {_sum} to 0
+    loop {treasury::chests::*}:
+        if tr_box(loop-value) is true:
+            set {_sum} to {_sum} + (number of diamond in (inventory of block at loop-value))
+    return {_sum}
+
+# Свободные слоты Казны. Нужны перед приёмом платежа: `add ... to inventory`
+# молча теряет излишки, если места нет.
+#
+# У сундука 27 слотов, у бочки 27 — здесь `amount of slots` безопасно.
+# У инвентаря ИГРОКА их 41, и на 36-40 Skript падает с
+# NullPointerException: bukkitSlot cannot be null (см. tr_wallet_free ниже).
+function tr_free() :: number:
+    if tr_ready() is false:
+        return -1
+    set {_c} to 0
+    loop {treasury::chests::*}:
+        if tr_box(loop-value) is true:
+            set {_c} to {_c} + tr_free_in(loop-value)
+    return {_c}
+
+# Свободные слоты одного контейнера.
+#
+# У сундука 27 слотов, у двойного 54, у бочки 27 — здесь `amount of slots`
+# безопасно. У инвентаря ИГРОКА их 41, и на 36-40 Skript падает с
+# NullPointerException: bukkitSlot cannot be null (см. tr_wallet_free ниже).
+function tr_free_in(l: location) :: number:
+    set {_inv} to inventory of block at {_l}
+    set {_c} to 0
+    loop integers from 0 to ((amount of slots of {_inv}) - 1):
+        if tr_item(slot loop-number of {_inv}) is air:
+            add 1 to {_c}
+    return {_c}
+
+# ---------------------------------------------------------------------------
+# Журнал
+# ---------------------------------------------------------------------------
+
+# ⚠️ Обрезка идёт по СКВОЗНОМУ номеру, а не удалением первого элемента.
+# `add ... to {list::*}` нумерует записи 1,2,3..., и после `delete {list::1}`
+# индекса 1 больше нет: цикл «пока размер больше лимита — удаляй первый»
+# после первой же обрезки висит вечно, ничего не удаляя. Здесь каждая запись
+# получает свой номер, и из окна выпадает ровно та, что должна.
+function tr_log(who: text, what: text):
+    if {treasury-log-n} is not set:
+        set {treasury-log-n} to 0
+    add 1 to {treasury-log-n}
+    set {treasury-log::%{treasury-log-n}%} to "&8[%now%] &7%{_who}%&8: &f%{_what}%"
+    set {_old} to {treasury-log-n} - {@log_limit}
+    if {_old} > 0:
+        delete {treasury-log::%{_old}%}
+
+# ---------------------------------------------------------------------------
+# Движение средств
+# ---------------------------------------------------------------------------
+
+# Положить предмет в Казну. true — принято, false — не влезло или Казны нет.
+function tr_put(who: text, i: item) :: boolean:
+    if tr_ready() is false:
+        return false
+    # Кладём в первый контейнер, где есть свободный слот. Без выбора
+    # `add ... to inventory` молча теряет излишки, когда места нет.
+    loop {treasury::chests::*}:
+        if tr_box(loop-value) is true:
+            if tr_free_in(loop-value) > 0:
+                add {_i} to inventory of block at loop-value
+                tr_log({_who}, "внесено %{_i}%")
+                return true
+    return false
+
+# Изъять n алмазов россыпью из Казны. Баланс проверяется ДО изъятия: иначе
+# при нехватке Skript спишет сколько сможет и вернёт true, а игрок получит
+# меньше обещанного.
+#
+# Блоки алмазов не разменивает намеренно: размен блока ради одного алмаза
+# даёт 8 алмазов сдачи, которые некуда положить, если Казна забита.
+# Сколько держать россыпью — решает Мэрия.
+function tr_take(who: text, n: number) :: boolean:
+    if tr_ready() is false:
+        return false
+    if tr_loose() < {_n}:
+        return false
+    # Набираем по сундукам, пока не наберём всю сумму: россыпь может лежать
+    # в нескольких, и брать целиком из первого нельзя.
+    set {_left} to {_n}
+    loop {treasury::chests::*}:
+        if {_left} > 0:
+            if tr_box(loop-value) is true:
+                set {_have} to number of diamond in (inventory of block at loop-value)
+                if {_have} > 0:
+                    set {_take} to {_have}
+                    if {_take} > {_left}:
+                        set {_take} to {_left}
+                    remove {_take} of diamond from (inventory of block at loop-value)
+                    set {_left} to {_left} - {_take}
+    tr_log({_who}, "выдано %{_n}% алмазов")
+    return true
+
+# ---------------------------------------------------------------------------
+# Кошелёк игрока
+# ---------------------------------------------------------------------------
+
+# Только россыпь — блоки алмазов игрок разменивает сам на верстаке.
+function tr_wallet(p: player) :: number:
+    return number of diamond in {_p}'s inventory
+
+# Свободные слоты рюкзака. Цикл идёт до 35, а не до `amount of slots`:
+# на 36-40 (броня и вторая рука) Skript 2.16.2 строит EquipmentSlot по
+# индексу и падает с NullPointerException. Та же грабля уже ломала
+# jail_seize и /deathnote reclaim.
+function tr_wallet_free(p: player) :: number:
+    set {_c} to 0
+    loop integers from 0 to 35:
+        if tr_item(slot loop-number of {_p}'s inventory) is air:
+            add 1 to {_c}
+    return {_c}
+
+# Списать n алмазов у игрока и положить их в Казну одной операцией.
+# Возвращает "ok" либо готовый текст ошибки — вызывающая команда его печатает.
+#
+# ⚠️ Порядок важен: сначала убеждаемся, что Казна примет, и только потом
+# списываем. Наоборот — и при полной Казне игрок платит в пустоту.
+function tr_pay(p: player, n: number) :: text:
+    if tr_ready() is false:
+        return "&cКазна Спавна не назначена или сундук на месте не найден. Позови Администрацию."
+    if tr_wallet({_p}) < {_n}:
+        return "&cНужно &b%{_n}%&c алмазов россыпью, а у тебя &b%tr_wallet({_p})%&c."
+    if tr_free() <= 0:
+        return "&cКазна забита — платёж некуда положить. Позови Мэрию."
+    remove {_n} of diamond from {_p}'s inventory
+    loop {treasury::chests::*}:
+        if tr_box(loop-value) is true:
+            if tr_free_in(loop-value) > 0:
+                add {_n} of diamond to inventory of block at loop-value
+                tr_log("%{_p}%", "внесено %{_n}% алмазов")
+                return "ok"
+    # Сюда не попасть: tr_free() проверен выше. Но если всё-таки —
+    # алмазы игроку возвращаются, а не исчезают.
+    give {_n} of diamond to {_p}
+    return "&cКазна забита — платёж некуда положить. Позови Мэрию."
+
+# Выдать игроку n алмазов ИЗ Казны. Тот же формат ответа.
+#
+# ⚠️ Место в рюкзаке проверяется ПОСЛЕ изъятия из Казны, поэтому при отказе
+# алмазы кладутся обратно: `give` работает через addItem, а излишки он теряет
+# молча — деньги бы просто исчезли.
+function tr_payout(p: player, n: number) :: text:
+    if tr_ready() is false:
+        return "&cКазна Спавна не назначена. Позови Администрацию."
+    if tr_take("%{_p}%", {_n}) is false:
+        return "&cВ Казне нет &b%{_n}%&c алмазов россыпью. Загляни позже."
+    if tr_wallet_free({_p}) <= 0:
+        tr_put("%{_p}% (возврат)", {_n} of diamond)
+        return "&cВ рюкзаке нет свободного слота под алмазы. Освободи место и повтори."
+    give {_n} of diamond to {_p}
+    return "ok"
+
+# ---------------------------------------------------------------------------
+# Команды
+# ---------------------------------------------------------------------------
+
+# ⚠️ Переход со старой односундучной Казны. До 18.09.2026 место хранилось
+# только в {treasury-location}, а реестра не было вовсе. Без этой переноски
+# после обновления уже назначенная Казна считалась бы неназначенной,
+# и семь механик встали бы с «Казна не назначена» при полном сундуке.
+on load:
+    if {treasury-location} is set:
+        if size of {treasury::chests::*} is 0:
+            add {treasury-location} to {treasury::chests::*}
+            send "[КАЗНА] старый сундук перенесён в реестр контейнеров" to console
+
+command /settreasury:
+    permission: {@admin}
+    description: Назначить сундук, на который смотришь, Казной Спавна
+    executable by: players
+    trigger:
+        set {_b} to targeted block
+        set {_ok} to false
+        if {_b} is chest:
+            set {_ok} to true
+        if {_b} is trapped chest:
+            set {_ok} to true
+        if {_b} is barrel:
+            set {_ok} to true
+        if {_ok} is false:
+            send "{@prefix}&cСмотри на сундук или бочку: Казна — физический контейнер, а не точка в воздухе."
+            stop
+        # /settreasury НАЧИНАЕТ Казну заново: старый список забывается.
+        # Иначе после переезда Мэрии в реестре остались бы сундуки, которых
+        # уже нет, и баланс считался бы по призракам.
+        delete {treasury::chests::*}
+        set {treasury-location} to location of {_b}
+        tr_add(location of {_b})
+        tr_log("%player%", "сундук назначен Казной")
+        send "{@line}"
+        send "{@prefix}&aКазна Спавна назначена."
+        send "&7В ней: &b%tr_balance()%&7 алмазов, свободно &f%tr_free()%&7 слотов."
+        if tr_at_spawn(location of {_b}) is true:
+            send "&a Сундук внутри привата Спавна — всё верно."
+        else:
+            send "&c Сундук ВНЕ региона spawn: его может вскрыть кто угодно."
+            send "&8 Регион привата ставится генератором: py -3 build_spawn_region.py"
+        send "&7Мало места — поставь рядом ещё сундук: &b/addtreasury"
+        send "{@line}"
+
+command /addtreasury:
+    permission: {@admin}
+    description: Добавить ещё один сундук в Казну Спавна
+    aliases: /казнадобавить
+    executable by: players
+    trigger:
+        if {treasury-location} is not set:
+            send "{@prefix}&cКазна ещё не назначена. Первый сундук: &b/settreasury"
+            stop
+        set {_b} to targeted block
+        if tr_box(location of {_b}) is false:
+            send "{@prefix}&cСмотри на сундук или бочку."
+            stop
+        if tr_add(location of {_b}) is false:
+            send "{@prefix}&7Этот сундук уже в Казне."
+            send "{@prefix}&8У двойного сундука обе половины — один инвентарь, вторую добавлять не надо."
+            stop
+        tr_log("%player%", "добавлен сундук Казны")
+        send "{@prefix}&aСундук добавлен. Контейнеров в Казне: &f%tr_count()%&a."
+        send "&7Всего свободно слотов: &f%tr_free()%"
+        if tr_at_spawn(location of {_b}) is false:
+            send "&c Этот сундук ВНЕ региона spawn: его может вскрыть кто угодно."
+
+command /deltreasury:
+    permission: {@admin}
+    description: Убрать сундук из Казны Спавна
+    aliases: /казнаубрать
+    executable by: players
+    trigger:
+        set {_l} to location of targeted block
+        set {_was} to size of {treasury::chests::*}
+        loop {treasury::chests::*}:
+            if loop-value is {_l}:
+                delete {treasury::chests::%loop-index%}
+        if size of {treasury::chests::*} is {_was}:
+            send "{@prefix}&cЭтого сундука в Казне нет."
+            stop
+        if {treasury-location} is {_l}:
+            delete {treasury-location}
+            loop {treasury::chests::*}:
+                if {treasury-location} is not set:
+                    set {treasury-location} to loop-value
+        tr_log("%player%", "сундук убран из Казны")
+        send "{@prefix}&7Сундук убран. Осталось контейнеров: &f%tr_count()%"
+        send "{@prefix}&8Содержимое из него никуда не переносится — забери руками."
+
+command /treasury:
+    description: Сколько алмазов в Казне Спавна
+    executable by: players
+    trigger:
+        if tr_ready() is false:
+            send "{@prefix}&cКазна не назначена. Администрация: встань перед сундуком Мэрии и выполни &b/settreasury"
+            stop
+        send "{@prefix}В Казне Спавна: &b%tr_balance()%&r алмазов (&f%tr_loose()%&r россыпью)."
+        send "{@prefix}&7Контейнеров: &f%tr_count()%&7, свободных слотов: &f%tr_free()%&7."
+        send "{@prefix}&8Пополняется арендой палаток, штрафами и конфискатом Суда. Тратится на скупку ресурсов и стройку."
+        # Координаты — только Администрации. Баланс города публичен,
+        # адрес — нет: иначе это карта для грабежа.
+        if player has permission "{@admin}":
+            loop {treasury::chests::*}:
+                set {_l} to loop-value
+                if tr_box({_l}) is true:
+                    set {_inv} to inventory of block at {_l}
+                    set {_d} to number of diamond in {_inv}
+                    set {_bl} to number of diamond block in {_inv}
+                    send "&8 %loop-index%. &7%floor(x coordinate of {_l})%, %floor(y coordinate of {_l})%, %floor(z coordinate of {_l})% &8— &f%{_d}%&8 россыпью, &f%{_bl}%&8 блоков, свободно &f%tr_free_in({_l})%"
+                else:
+                    send "&8 %loop-index%. &c%{_l}% — сундука нет на месте"
+
+command /treasurylog:
+    description: Последние движения по Казне Спавна
+    trigger:
+        # Две роли, а поле permission: принимает одну ноду — отсюда проверка
+        # внутри. Журнал Казны нужен и главному админу, и приказчику Мэрии:
+        # он ведёт аренду и расчёты, и без журнала не поймёт, куда ушли деньги.
+        set {_ok} to false
+        if sender has permission "{@admin}":
+            set {_ok} to true
+        if sender has permission "{@clerk}":
+            set {_ok} to true
+        if {_ok} is false:
+            send "{@prefix}&cЖурнал Казны ведут Администрация и приказчик Мэрии." to sender
+            stop
+        if {treasury-log::*} is not set:
+            send "{@prefix}&7Движений по Казне ещё не было." to sender
+            stop
+        send "{@prefix}&7Последние движения (хранится до {@log_limit}):" to sender
+        loop {treasury-log::*}:
+            send "%loop-value%" to sender

@@ -1,0 +1,131 @@
+# EKB SHIELD — plugins/QualityArmory/config.yml
+# QualityArmory 2.1.4 (Modrinth, теги bukkit/paper/purpur/spigot, 26.1.2).
+#
+# ⚠️ ГЛАВНАЯ ЛОВУШКА: по умолчанию QA САМ рассылает игрокам свой ресурспак
+# (useDefaultResourcepack + sendOnJoin), причём с Dropbox-ссылки на пак версии
+# 2.0.2. У нас пак раздаётся принудительно из server.properties
+# (require-resource-pack=true), а старый пак QA собран под другой pack_format —
+# клиент получил бы ошибку загрузки на каждом входе. Поэтому обе рассылки
+# выключены, а модели стволов надо вмерджить в shield_resourcepack (см.
+# docs/deploy_checklist.md §1d). Пока этого нет, стволы выглядят ванильными
+# предметами — стрелять они при этом умеют.
+#
+# ⚠️ Крафт и магазин выключены намеренно. Весь сервер стоит на том, что вещь
+# добыта руками (см. запрет headdb.head.take, отсутствие /claim, физическая
+# валюта-алмаз). Оружие выдаёт Администрация: /qa give <ник> <ствол>.
+
+language: ru
+
+# --- Ресурспак: не трогаем принудительный пак проекта ---
+useDefaultResourcepack: false
+DefaultResourcepackOverride: false
+sendOnJoin: false
+sendTitleOnJoin: false
+KickPlayerIfDeniedResourcepack: false
+Auto-Detect-Resourcepack: true
+SecondsTillRPIsSent: 0.0
+ManuallyOverrideTo_1_8_systems: false
+ManuallyOverrideTo_1_13_systems: false
+ManuallyOverrideTo_1_14_systems: false
+
+# --- Источники оружия. Из воздуха стволы не появляются ---
+enableCrafting: false
+enableShop: false
+Enable_Creation_Of_Default_Files: true
+
+# Стрелять может только тот, кому выдано право qualityarmory.usegun.
+# Без этого ключа право не проверяется вообще и стреляет кто угодно.
+enable_permssionsToShoot: true
+
+# --- Урон и правила боя ---
+# Хедшот-инстакилл выключен: мгновенная смерть без следов ломает Ст. 4 УК —
+# свидетелям нечего показать Суду, а бой должен быть достаточно долгим,
+# чтобы жертва успела позвать на помощь.
+Enable_Headshot_Instantkill: false
+Enable_Headshot_Notification_Sound: false
+Headshot_Notification_Sound: entity.experience_orb.pickup
+FriendlyFireEnabled: false
+allowGunHitEntities: true
+enableIgnoreArmorProtection: false
+
+# Взрывной урон выключен: гриф Спавна и городов — отдельная статья УК,
+# а гранатомёт обошёл бы и WorldGuard-регион привата.
+enableExplosionDamage: false
+enableExplosionDamageDrop: false
+Break-Block-Texture-If-Shot: true
+DestructableMaterials: []
+
+# --- Износ. Ствол — вещь, а не бесконечный предмет ---
+EnableWeaponDurability: true
+overrideAnvil: false
+Items:
+  enable_Unbreaking: true
+
+# --- Пули ---
+BulletDetection:
+  step: 0.1
+BlockBullets:
+  door: false
+  halfslabs: false
+  leaves: false
+  water: false
+  glass: false
+enableBulletTrails: true
+BulletTrailsSpacing: 0.5
+gravityConstantForDropoffCalculations: 0.05
+impenetrableEntityTypes:
+  - ARROW
+
+# --- Перезарядка и прицел ---
+allowGunReload: true
+automaticallyReloadGunWhenOutOfAmmo: false
+enableReloadingWhenSwapToOffhand: true
+enableReloadOnlyWhenSwapToOffhand: false
+IronSightsOnRightClick: false
+SwapSneakToSingleFile: false
+Swap-Reload-and-Shooting-Controls: false
+generalModifiers:
+  sway:
+    Run: 2.0
+    Walk: 1.5
+    Ironsights: 0.8
+    Sneak: 0.7
+enableRecoil: true
+enablePrimaryWeaponLimiter: false
+weaponlimiter_primaries: 2
+weaponlimiter_secondaries: 2
+
+# --- Кровотечение: выключено. Смерть от кровопотери через N минут после
+#     выстрела не привязывается к атакующему в on death, а весь судебный
+#     контур (contracts.sk, Ст. 4 УК) опознаёт убийцу именно по attacker.
+experimental:
+  BulletWounds:
+    enableBleeding: false
+    InitialBloodLevel: 1500.0
+    BloodIncreasePerSecond: 0.01
+    Medkit_Heal_Bloodloss_Rate: 0.05
+
+# --- Интерфейс ---
+disableHotbarMessages:
+  OutOfAmmo: false
+  Shoot: false
+  Reload: false
+showOutOfAmmoOnTitle: false
+showReloadingTitle: false
+enable_lore_gun-info_messages: true
+enable_lore_control-help_messages: true
+EnableGlowEffects: false
+enableInteract:
+  Chests: false
+
+# --- Служебное ---
+# Автообновление выключено: версии в проекте зафиксированы (deploy_checklist §2),
+# подменённый на ходу jar разъехался бы с конфигом и с ресурспаком.
+AUTO-UPDATE: false
+ENABLE-DEBUG: false
+enableIgnoreUnbreakingChecks: false
+enableIgnoreSkipForBasegameItems: false
+showPossibleCrashHelpMessage: false
+unknownTranslationKeyFixer: false
+verboseItemLogging: false
+Order-Shop-By-Price: false

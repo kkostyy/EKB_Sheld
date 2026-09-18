@@ -1,0 +1,211 @@
+# EKB SHIELD — bar_casino.sk
+# Азартный уголок Бармена и платная стойка бара.
+# Требует docs/treasury.sk — ставки и выручка идут через Казну Спавна.
+#
+# Что переделано против присланной спецификации.
+#
+# 1. КОСТИ в спецификации не бросались вообще. Кнопка списывала ставку и
+#    следом безусловно выполняла `give %player_name% diamond 2` с текстом
+#    «ВЫИГРЫШ! Вы выбросили 6» — то есть выигрывали всегда и печатали алмазы.
+#    Здесь бросок настоящий (random integer 1..6), а выигрыш берётся из Казны:
+#    пустая Казна — казино закрыто.
+#
+# 2. МАТЕМАТИКА. Ставка 2💎, победа на 5 или 6 (шанс 1/3), выплата 5💎.
+#    Ожидание игрока — 1.67💎 на ставку 2💎, то есть у заведения 17%. Казино
+#    здесь не развлечение, а сток алмазов в пользу Казны; без перевеса дома
+#    оно было бы просто генератором шума.
+#
+# 3. БАР. Спецификация звала `brew give firm_beer %player_name%` без цены и
+#    без оплаты. Команда такая существует (в BreweryX 3.7.0 `give` — алиас
+#    `create`, сигнатура `/brew give <рецепт> [качество] [игрок]`), но право
+#    brewery.cmd.create есть только у Администрации, поэтому покупку исполняет
+#    консоль, а игрок платит по прайс-листу.
+#
+#    ⚠️ Цена — ПОЛНАЯ по docs/price_list.md, без скидки. Стойка Казны здесь
+#    работает потолком цены: игрок всегда может купить у города, и живой бар
+#    на Shopkeepers имеет смысл только если продаёт дешевле. Сделай стойку
+#    дешевле прайса — и игроки-бармены закроются в тот же день.
+#
+#    ⚠️ Админский самогон (128💎) в продажу НЕ вынесен: он для отыгрыша
+#    Администрации, а не для того, чтобы его покупали за алмазы.
+#
+# Команды:
+#   /dice            — бросить кости (ставка 2💎)
+#   /barmenu         — что наливают и почём
+#   /barbuy <рецепт> — купить напиток по прайсу
+
+options:
+    prefix: &d&l[БАР] &r
+    bet: 2
+    win: 5
+    cooldown: 5          # секунд между бросками
+    quality: 10
+
+# ---------------------------------------------------------------------------
+# Кости
+# ---------------------------------------------------------------------------
+
+command /dice:
+    description: Бросить кости против Бармена. Ставка 2 алмаза, выигрыш 5.
+    aliases: /кости
+    executable by: players
+    trigger:
+        # Кулдаун в голых секундах через unix timestamp: литерал времени
+        # Skript собирает только из числа, записанного в самом скрипте, —
+        # ни `{@cooldown} seconds`, ни `{_cd} seconds` не разбираются
+        # (та же грабля, что в death_note.sk).
+        set {_k} to "%uuid of player%"
+        set {_now} to unix timestamp of now
+        set {_last} to {casino::last::%{_k}%}
+        if {_last} is not set:
+            set {_last} to 0
+        if ({_now} - {_last}) < {@cooldown}:
+            send "{@prefix}&7Бармен ещё встряхивает стакан. Подожди пару секунд."
+            stop
+
+        if tr_ready() is false:
+            send "{@prefix}&cКазна Спавна не назначена — касса закрыта."
+            stop
+
+        # Казна должна покрыть выигрыш ДО того, как игрок сделает ставку.
+        # Иначе он платит за бросок, который заведомо не может выиграть.
+        if tr_loose() < {@win}:
+            send "{@prefix}&cКасса пуста: в Казне меньше &b{@win}💎&c. Бармен не принимает ставки."
+            stop
+
+        set {_r} to tr_pay(player, {@bet})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%"
+            send "{@prefix}&7Ставка — &b{@bet}💎&7."
+            stop
+
+        set {casino::last::%{_k}%} to {_now}
+        set {_roll} to random integer between 1 and 6
+        add 1 to {casino::games}
+
+        send "{@prefix}&7Бармен бросает кость... &f%{_roll}%"
+        play sound "entity.item.pickup" with volume 0.8 to player
+
+        if {_roll} >= 5:
+            set {_p} to tr_payout(player, {@win})
+            if {_p} is not "ok":
+                send "{@prefix}%{_p}%"
+                send "{@prefix}&cВыигрыш &b{@win}💎&c остался за Казной. Позови Мэрию."
+                send "[КАЗИНО] ДОЛГ: %player% выиграл {@win} алмазов, выдача не прошла" to console
+                stop
+            add 1 to {casino::wins::%{_k}%}
+            send "{@prefix}&a&lВЫИГРЫШ! &fЗабирай &b{@win}💎&f."
+            play sound "block.note_block.pling" with volume 1 to player
+            send "[КАЗИНО] %player% бросил %{_roll}% и выиграл {@win} алмазов" to console
+        else:
+            add 1 to {casino::loss::%{_k}%}
+            send "{@prefix}&cМимо. &7Ставка &b{@bet}💎&7 ушла в Казну Спавна."
+            play sound "block.note_block.bass" with volume 1 to player
+
+        set {_w} to {casino::wins::%{_k}%}
+        if {_w} is not set:
+            set {_w} to 0
+        set {_l} to {casino::loss::%{_k}%}
+        if {_l} is not set:
+            set {_l} to 0
+        send "{@prefix}&8Твой счёт у Бармена: %{_w}% побед, %{_l}% проигрышей."
+
+# ---------------------------------------------------------------------------
+# Стойка бара
+# ---------------------------------------------------------------------------
+
+# ⚠️ Список лежит в переменной, а не в функции со списочным возвратом —
+# по той же причине, что {sm::kinds::*} в spawn_market.sk.
+# Порядок: рецепт BreweryX, цена по прайс-листу, название для чата.
+on script load:
+    set {bar::menu::mojito} to 6
+    set {bar::menu::firm_beer} to 8
+    set {bar::menu::rassol} to 8
+    set {bar::menu::passionfruit} to 12
+    set {bar::menu::village_samogon} to 16
+    set {bar::menu::vodka_plain} to 20
+    set {bar::menu::tequila} to 24
+    set {bar::menu::vodka_absolut} to 32
+    set {bar::menu::rum} to 32
+    set {bar::menu::jager_orange} to 48
+    set {bar::menu::tennessee_whiskey} to 48
+    set {bar::menu::jagermeister} to 64
+    set {bar::menu::jager_dark} to 80
+
+function bar_title(recipe: text) :: text:
+    if {_recipe} is "mojito":
+        return "Мохито"
+    if {_recipe} is "firm_beer":
+        return "Разливное Фирменное"
+    if {_recipe} is "rassol":
+        return "Рассол"
+    if {_recipe} is "passionfruit":
+        return "Маракуйевая водка"
+    if {_recipe} is "village_samogon":
+        return "Деревенский самогон"
+    if {_recipe} is "vodka_plain":
+        return "Водка"
+    if {_recipe} is "tequila":
+        return "Мексиканская Текила"
+    if {_recipe} is "vodka_absolut":
+        return "Шведская водка"
+    if {_recipe} is "rum":
+        return "Капитанский Ром"
+    if {_recipe} is "jager_orange":
+        return "Егермейстер Orange"
+    if {_recipe} is "tennessee_whiskey":
+        return "Теннессийский виски"
+    if {_recipe} is "jagermeister":
+        return "Ликёр Егермейстер"
+    if {_recipe} is "jager_dark":
+        return "Егермейстер Охотничий"
+    return {_recipe}
+
+command /barmenu:
+    description: Что наливают на Спавне и почём
+    aliases: /барменю
+    executable by: players
+    trigger:
+        send "{@prefix}&7Стойка Спавна. Цены — полный прайс-лист:"
+        loop {bar::menu::*}:
+            send "&8• &f%bar_title(loop-index)%&8 — &b%loop-value%💎&8 · &7/barbuy %loop-index%"
+        send "{@prefix}&8Дороже, чем у живых барменов, — и так задумано: стойка города"
+        send "{@prefix}&8держит потолок цены, а зарабатывать должны игроки."
+        send "{@prefix}&4Алкоголь даёт дозу зависимости. Рассол трезвит, но тягу не снимает."
+
+command /barbuy <text>:
+    description: Купить напиток у стойки Спавна по прайс-листу
+    aliases: /купитьнапиток
+    executable by: players
+    trigger:
+        set {_recipe} to arg-1
+        set {_price} to {bar::menu::%{_recipe}%}
+        if {_price} is not set:
+            send "{@prefix}&cТакого в меню нет. Смотри &b/barmenu"
+            stop
+
+        # Свободный слот нужен до оплаты: /brew give кладёт через addItem,
+        # излишки он теряет молча — игрок остался бы без алмазов и без бутылки.
+        set {_free} to 0
+        loop integers from 0 to 35:
+            if tr_item(slot loop-number of player's inventory) is air:
+                add 1 to {_free}
+        if {_free} <= 0:
+            send "{@prefix}&cОсвободи слот в рюкзаке — бутылку некуда поставить."
+            stop
+
+        set {_r} to tr_pay(player, {_price})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%"
+            send "{@prefix}&7%bar_title({_recipe})% стоит &b%{_price}%💎&7."
+            stop
+
+        # Настоящий напиток собирает сам BreweryX: внутри бутылки закодированы
+        # данные рецепта, руками такой предмет не собрать. Право
+        # brewery.cmd.create есть только у Администрации, поэтому наливает
+        # консоль — тот же приём «обёртка над чужой командой», что в
+        # menu_give.sk и market_holograms.sk.
+        execute console command "brew give %{_recipe}% {@quality} %player%"
+        send "{@prefix}&aБармен налил: &f%bar_title({_recipe})%&a за &b%{_price}%💎&a."
+        play sound "entity.generic.drink" with volume 0.6 to player
+        send "[БАР] %player% купил %{_recipe}% за %{_price}% алмазов" to console

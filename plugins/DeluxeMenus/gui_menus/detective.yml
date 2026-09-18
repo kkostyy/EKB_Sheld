@@ -1,0 +1,190 @@
+menu_title: '&8Следователь'
+open_command:
+  - detective
+  - следователь
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.duty.detective
+      deny_commands:
+        - '[message] &cЭто меню следователя.'
+
+items:
+
+  'scenes':
+    material: PAPER
+    slot: 13
+    display_name: '&e&lОткрытые происшествия'
+    lore:
+      - '&7Где и когда убивали. Имён убийц тут нет:'
+      - '&7их называет только экспертиза.'
+      - ''
+      - '&aЛКМ &8— список дел'
+    left_click_commands:
+      - '[player] crimescenes'
+
+  'expertise':
+    material: SPYGLASS
+    slot: 20
+    display_name: '&9&lОсмотреть место'
+    lore:
+      - '&7Встань там, где лежало тело.'
+      - '&b20💎&7 в Казну, шанс &e50%&7.'
+      - '&aЗа пустое поле денег не берут.'
+      - '&cМесто осматривают один раз, удачно или нет.'
+      - ''
+      - '&aЛКМ &8— запустить осмотр'
+    left_click_commands:
+      - '[player] expertise'
+
+  'inspect':
+    material: WOODEN_AXE
+    slot: 22
+    display_name: '&6&lИнспектор блоков'
+    lore:
+      - '&7ЛКМ/ПКМ по блоку — кто и когда его трогал.'
+      - ''
+      - '&aЛКМ &8— включить инспектор'
+    left_click_commands:
+      - '[player] co i'
+
+  'report':
+    material: BOOK
+    slot: 24
+    display_name: '&c&lПодать обвинение'
+    lore:
+      - '&7Заключение — не приговор. Дело заводит человек.'
+      - ''
+      - '&aЛКМ &8— как подать'
+    left_click_commands:
+      - '[message] &c&lОБВИНЕНИЕ: &f/report <ник> убийство <жертва>'
+      - '[message] &8Или иск в Discord: &f/иск'
+
+  'full':
+    material: CHEST
+    slot: 31
+    display_name: '&f&lРаздел криминалистики'
+    lore:
+      - '&7Весь раздел целиком, включая логи CoreProtect.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_forensics'
+
+  'header':
+    material: SPYGLASS
+    slot: 4
+    display_name: '&9&lСледователь'
+    lore:
+      - '&7Место преступления помнит убийцу трое суток.'
+      - '&7Обвинение всё равно подаёт человек.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_duty'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

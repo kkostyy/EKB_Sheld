@@ -1,0 +1,76 @@
+# EKB SHIELD — plugins/QualityArmory/lang/message_ru.yml
+# Русской локализации у QualityArmory 2.1.4 нет: в jar лежат только
+# message_en.yml, message_cn.yml и messages_it.yml. Этот файл — наш перевод,
+# ключи один в один по message_en.yml. Подключается через language: ru в config.yml.
+#
+# Префикс — в стиле проекта: &<цвет>&l[РАЗДЕЛ] &r (см. options.prefix в docs/*.sk).
+
+Prefix: '&8&l[ОРУЖЕЙНАЯ] &r'
+
+NoPerm: '&cУ тебя нет права на это действие.'
+NoPermAnvilMessage: '&cНет доступа к оружейному верстаку. &7Shift+ЛКМ &8— открыть обычную наковальню.'
+
+ShopName: 'Оружейная лавка, страница:'
+CraftingBenchName: 'Оружейный верстак, страница:'
+Missing_Ingredients: 'Не хватает материалов для сборки.'
+Shop_Confirm: '&aКуплено: %item% за %cost% 💎.'
+
+Lore_Ammo: '&aПатроны'
+lore_bullets: '&aПуль'
+Lore_Damage: '&aУрон'
+Lore_DamagePerSecond: '&2Урон в секунду'
+Lore_Durib: 'Прочность'
+Lore_ingredients: 'Материалы'
+Lore_Variants: '&7Вариант:'
+Lore_Price: '&6Цена: '
+Lore_Crafts: 'Собирается'
+Lore_Returns: 'Возвращает'
+
+Reloading_Message: '[Перезарядка...]'
+State_AmmoCount: '[%total%]'
+State_OutOfAmmo: '[Патроны кончились]'
+HotbarMessage: '%name% = %amount%/%max% %state%'
+
+Lore-LMB-Single: '§8[ЛКМ] — одиночный огонь'
+Lore-LMB-FullAuto: '§8[Shift]+[ЛКМ] — автоматический огонь'
+Lore-RMB-Reload: '§8[ПКМ] — перезарядка'
+Lore-Ironsights-RMB: '§8[ПКМ] — прицелиться'
+Lore-Ironsights-Sneak: '§8[Shift] — прицелиться'
+Lore-Reload-Dropitem: '§8[Выбросить предмет] — перезарядка'
+Lore-Reload-RMB: '§8[ПКМ] — перезарядка'
+Lore-Helmet-RMB: '§8[ПКМ] — надеть на голову'
+
+# Рассылка пака у нас выключена (useDefaultResourcepack: false) — эти четыре
+# строки игрок не увидит, но ключи оставлены: без них QA пишет в лог
+# «missing translation key» на каждый вызов.
+NoResourcepackMessage1: '&c&lЗагрузка ресурспака...'
+NoResourcepackMessage2: '&fПримите пак, чтобы увидеть модели оружия.'
+Resourcepack_Download: 'Скачайте и включите ресурспак, чтобы увидеть модели оружия. Загрузка занимает время.'
+Resourcepack_InCaseOfCrash: 'Если пак вешает клиент — откажитесь от загрузки и возьмите его командой /qa getResourcepack.'
+Resourcepack_NowBypass: 'Вы добавлены в список тех, кому пак не предлагается. Запрос больше не придёт.'
+Resourcepack_NowOptIn: 'Вы убраны из списка. Запрос на пак придёт снова.'
+Kick_message_if_player_denied_request: "&cВы отключены: ресурспак не принят.\n&fОткройте запись сервера в списке и поставьте «Ресурспаки» в «Принимать» или «Спрашивать»."
+
+# Аптечка и кровотечение: enableBleeding в config.yml выключено,
+# эти строки не всплывут, но ключи нужны по той же причине.
+Medkit-FullyHealed: '&fТы цел. Аптечка сейчас ни к чему.'
+Medkit-Healing: 'Лечение'
+Medkit-Bleeding: 'Скорость кровопотери:'
+Medkit-HEALING_HEARTS_AMOUNT: 1.0
+Medkit-HEALING_WEAPPING_DELAY_IN_SECONDS: 6.0
+Medkit-Lore_RMB: '&f[ПКМ] — перевязаться'
+Bleeding:
+  StartBleeding: '&cКровотечение! Найди аптечку.'
+  Losingconsciousness: '&cТы теряешь сознание от кровопотери!'
+  ProtectedByKevlar: '&aБронежилет остановил пулю.'
+
+EntityType:
+  IRON_INGOT: Железный слиток
+  REDSTONE: Редстоун
+  OAK_PLANKS: Дубовые доски
+  BLAZE_POWDER: Огненный порошок
+  GOLD_INGOT: Золотой слиток
+  GUNPOWDER: Порох
+  NETHER_STAR: Звезда Нижнего мира
+  BLAZE_ROD: Огненный стержень
+  TNT: Динамит

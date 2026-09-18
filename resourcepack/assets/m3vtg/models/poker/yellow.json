@@ -1,0 +1,7 @@
+{
+	"credit": "by miniking1000",
+	"parent": "m3vtg:poker/parent",
+	"textures": {
+		"layer0": "m3vtg:item/poker/poker_chip_yellow"
+	}
+}

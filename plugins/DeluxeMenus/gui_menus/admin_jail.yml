@@ -1,0 +1,212 @@
+menu_title: '&8Тюрьма'
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.admin
+      deny_commands:
+        - '[message] &cЭто меню Администрации.'
+
+items:
+  'info':
+    material: COMPASS
+    slot: 10
+    display_name: '&b&lКто сидит'
+    lore:
+      - '&7Точка тюрьмы, заключённые и остаток срока,'
+      - '&7содержимое судейского ящика.'
+      - ''
+      - '&aЛКМ &8— /jailinfo'
+    left_click_commands:
+      - '[close]'
+      - '[player] jailinfo'
+
+  'sentence':
+    material: IRON_BARS
+    slot: 11
+    display_name: '&c&lПосадить'
+    lore:
+      - '&8/sentence <ник> <минут>'
+      - ''
+      - '&7Срок идёт ТОЛЬКО пока игрок в сети.'
+      - '&7При посадке инвентарь целиком уходит'
+      - '&7в судейский ящик, в камере нельзя ломать'
+      - '&7и ставить, эндер-жемчуг не телепортирует.'
+      - '&7Есть, пить и курить — можно.'
+    left_click_commands:
+      - '[player] ekbmenu jail'
+
+  'free':
+    material: LIME_DYE
+    slot: 12
+    display_name: '&a&lОсвободить досрочно'
+    lore:
+      - '&8/freeearly <ник>'
+      - ''
+      - '&7Освобождённый сам выберет в меню, куда выйти:'
+      - '&7кровать, спавн или крыльцо Суда.'
+    left_click_commands:
+      - '[player] ekbmenu free'
+
+  'items':
+    material: CHEST
+    slot: 13
+    display_name: '&6&lСудейский ящик'
+    lore:
+      - '&8/jailitems list [ник] &7— что изъято'
+      - '&8/jailitems give <ник> &7— вернуть владельцу'
+      - '&8/jailitems clear <ник> &7— конфисковать в Казну'
+      - ''
+      - '&7Выдача откажет, если в рюкзаке меньше'
+      - '&7свободных слотов, чем предметов в ящике.'
+      - ''
+      - ''
+      - '&aЛКМ &8— разобрать ящик по предметам'
+      - '&aПКМ &8— вернуть всё сразу'
+      - '&8Shift+ЛКМ &8— список ящиков'
+    left_click_commands:
+      - '[player] jailprop'
+    right_click_commands:
+      - '[player] ekbmenu items'
+    shift_left_click_commands:
+      - '[close]'
+      - '[player] jailitems list'
+
+  'setjail':
+    material: BEACON
+    slot: 14
+    display_name: '&e&lТочка тюрьмы'
+    lore:
+      - '&7Встань в камере и нажми — координаты'
+      - '&7запишутся как место отбывания срока.'
+      - ''
+      - '&aЛКМ &8— /setjailpoint'
+    left_click_commands:
+      - '[close]'
+      - '[player] setjailpoint'
+
+  'setcourt':
+    material: OAK_DOOR
+    slot: 15
+    display_name: '&e&lКрыльцо Суда'
+    lore:
+      - '&7Точка, куда выходят освобождённые,'
+      - '&7если выберут её в меню выхода.'
+      - ''
+      - '&aЛКМ &8— /setcourtpoint'
+    left_click_commands:
+      - '[close]'
+      - '[player] setcourtpoint'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_admin'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_4':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 4
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

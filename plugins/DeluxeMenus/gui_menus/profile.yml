@@ -1,0 +1,351 @@
+menu_title: '&8Профиль'
+open_command:
+  - profile
+  - профиль
+size: 54
+
+items:
+
+  'skins':
+    material: PLAYER_HEAD
+    slot: 13
+    display_name: '&f&lСкины'
+    lore:
+      - '&7Сервер в offline-режиме: скин задаёт плагин.'
+      - ''
+      - '&aЛКМ &8— каталог скинов'
+      - '&aПКМ &8— вернуть стандартный'
+    left_click_commands:
+      - '[player] skins'
+    right_click_commands:
+      - '[player] skin clear'
+
+  'skinname':
+    material: ARMOR_STAND
+    slot: 20
+    display_name: '&b&lСкин по нику'
+    lore:
+      - '&aЛКМ &8— как взять чужой скин'
+    left_click_commands:
+      - '[message] &8&lСкин: &7/skin set <ник>'
+
+  'freedom':
+    material: IRON_DOOR
+    slot: 22
+    display_name: '&a&lКуда выйти из тюрьмы'
+    lore:
+      - '&7Кровать, спавн или крыльцо Суда.'
+      - '&8Работает только в день освобождения.'
+      - ''
+      - '&aЛКМ &8— выбрать точку'
+    left_click_commands:
+      - '[player] freedom'
+
+  'status':
+    material: GLASS_BOTTLE
+    slot: 24
+    display_name: '&d&lСостояние'
+    lore:
+      - '&7Зависимость, ломка, время без дозы.'
+      - ''
+      - '&aЛКМ &8— проверить себя'
+    left_click_commands:
+      - '[player] addiction'
+
+  'mail':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
+    slot: 28
+    display_name: '&f&lПочта'
+    lore:
+      - '&aЛКМ &8— как отправить'
+      - '&aПКМ &8— очистить почту'
+    left_click_commands:
+      - '[message] &8&lПочта: &7/mailsend <ник> <текст>'
+    right_click_commands:
+      - '[player] mailclear'
+
+  'contracts':
+    material: IRON_SWORD
+    slot: 29
+    display_name: '&4&lКонтракты'
+    lore:
+      - '&7Тёмная сторона: заказы на устранение.'
+      - '&4Вне контракта убивать нельзя — статья 4.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_contracts'
+
+  'masks':
+    material: CARVED_PUMPKIN
+    slot: 30
+    display_name: '&8&lЛичина'
+    lore:
+      - '&7Чужой скин и псевдоним вместо ника'
+      - '&7в списке игроков.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_masks'
+
+  'shadow':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
+    slot: 31
+    display_name: '&4&lТеневое Сообщество'
+    lore:
+      - '&7Место сбора, Личина, доска контрактов.'
+      - '&8Видно только своим.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.shadow.member
+    left_click_commands:
+      - '[openguimenu] ekb_blackmarket'
+
+  'onair':
+    material: REDSTONE_TORCH
+    slot: 32
+    display_name: '&d&lАнонс эфира'
+    lore:
+      - '&7Стрим или ролик — на весь сервер.'
+      - '&7Бесплатно, раз в 4 часа.'
+      - '&8Право Стримера и Ютубера.'
+      - ''
+      - '&aЛКМ &8— как анонсировать'
+    view_requirement:
+      minimum_requirements: 1
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.media.streamer
+        perm2:
+          type: has permission
+          permission: ekb.media.youtuber
+    left_click_commands:
+      - '[message] &d&lЭФИР: &f/onair <текст или ссылка>'
+
+  'pose':
+    material: OAK_STAIRS
+    slot: 33
+    display_name: '&a&lПоза'
+    lore:
+      - '&7Сесть на месте или лечь.'
+      - '&8Отыгрыш: раненый лежит, гость сидит за столом.'
+      - ''
+      - '&aЛКМ &8— сесть'
+      - '&aПКМ &8— лечь'
+    left_click_commands:
+      - '[player] gsit'
+    right_click_commands:
+      - '[player] glay'
+
+  'carry':
+    material: LEAD
+    slot: 34
+    display_name: '&6&lНести на руках'
+    lore:
+      - '&7Взять человека на плечи — раненого до Клиники'
+      - '&7или пьяного до дома.'
+      - '&8Он принимает: /aceptar, отказ: /rechazar'
+      - '&8Отпустить: /soltar'
+      - ''
+      - '&aЛКМ &8— как это работает'
+    left_click_commands:
+      - '[message] &6&lНЕСТИ: &7/cargar <ник> &8— запрос человеку'
+      - '[message] &8Принять: &7/aceptar &8· Отказать: &7/rechazar &8· Отпустить: &7/soltar'
+
+  'bugreport':
+    material: REDSTONE
+    slot: 37
+    display_name: '&c&lСообщить о баге'
+    lore:
+      - '&7Не жалоба на игрока, а поломка механики.'
+      - '&8Жалобы на людей — кнопка ниже.'
+      - ''
+      - '&aЛКМ &8— как сообщить'
+    left_click_commands:
+      - '[message] &c&lБАГ: &7/bugreport <что сломалось>'
+
+  'reports':
+    material: BOOK
+    slot: 38
+    display_name: '&e&lМои жалобы'
+    lore:
+      - '&aЛКМ &8— что я отправлял'
+      - '&aПКМ &8— как пожаловаться'
+    left_click_commands:
+      - '[player] myreports'
+    right_click_commands:
+      - '[message] &8&lЖалоба: &7/report <ник> <причина>'
+
+  'ignore':
+    material: BARRIER
+    slot: 39
+    display_name: '&c&lЧёрный список'
+    lore:
+      - '&7Игнор не отменяет УК: оскорбления — в Суд.'
+      - ''
+      - '&aЛКМ &8— как скрыть игрока'
+    left_click_commands:
+      - '[message] &8&lИгнор: &7/ignore <ник> &8· &7/unignore <ник>'
+
+  'citizen':
+    material: SHIELD
+    slot: 40
+    display_name: '&a&lГражданство'
+    lore:
+      - '&7Права и обязанности гражданина.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.citizen
+    left_click_commands:
+      - '[openguimenu] ekb_citizen'
+
+  'capital':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmVlZjdlNTZjZGU3NDA3NzJkZmI3NmRkZDJmNTg0YmU4OTA3Yjg1OTc2NjhlNDAyNjM0OTg2NDY5MjMwYWE0OSJ9fX0=
+    slot: 41
+    display_name: '&b&lЖитель Спавна'
+    lore:
+      - '&7Мэрия, Клиника, Рынок, Почта.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.capital
+    left_click_commands:
+      - '[openguimenu] ekb_capital'
+
+  'nomad':
+    material: LEATHER_BOOTS
+    slot: 42
+    display_name: '&7&lКочевник'
+    lore:
+      - '&7Как получить гражданство и где заработать.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_nomad'
+
+  'header':
+    material: PLAYER_HEAD
+    slot: 4
+    display_name: '&b&lПрофиль'
+    lore:
+      - '&7Всё, что касается тебя самого.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_main'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

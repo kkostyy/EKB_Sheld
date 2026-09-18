@@ -1,0 +1,768 @@
+# !!! IMPORTANT: BreweryX configuration files do NOT support external comments! If you add any comments, they will be overwritten !!!
+# -- Рецепты напитков--
+
+# Удобный и локализованный гайд на этот раздел можно найти по ссылке - https://brewery.lumamc.net/ru/guide/recipies/
+
+# enabled: true/false - позволяет выключить напиток, не удаляя его из файла
+
+# name: Имя, ИЛИ три различных имени для плохого/среднего/хорошего качества напитка (Поддерживает цвет: &6 или hex - &#123123)
+#   пример: name: 'Плохое пиво/Среднее пиво/&6&lПИЗДАТОЕ ПИВО'
+
+# ingredients: 'ID/Количество'
+#   https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+#   Вещи из других плагинов вписывать с префиксом: 'plugin:id/кол-во' (Сейчас поддерживаются Brewery, Garden (BreweryX Garden Addon), Oraxen, ItemsAdder, Nexo, Slimefun).
+#   Например: '- itemsadder:grape/5'
+#   Кастом итемы (из custom-items.yml) вписываются просто по их ID, без префикса (Например, '- vinograd/10')
+#   Также можно использовать одни напитки в качестве ингредиентов для других. Формат выглядит вот так: 'brewery:ID/число'
+#   Например: '- brewery:wheatbeer/1'
+
+# cookingtime: Время, в минутах, которое ингредиенты должны вариться в котле.
+
+# distillruns: Сколько кругов дистилляции на зельеварке напиток должен пройти.
+
+# distilltime: Сколько секунд занимает один круг дистилляции (Время по умолчанию - 40 сек. Дефолтное время для ванильных зелий - 20 сек)
+
+# wood: Из какого дерева должна быть бочка:
+#   0=Любое 1=Береза 2=Дуб 3=Тропическое 4=Ель
+#   5=Акация 6=Темный дуб 7=Багровое 8=Искаженное 9=Мангровое
+#   10=Вишневое 11=Бамбуковое 12=Резная Медь 13=Бледный Дуб
+#     Вместо номера можно также указывать название или ID.
+#     Возможные варианты:
+#     wood: 13
+#     wood: pale_oak
+#     wood: pale oak
+#   Если включено настаивание в ванильных майнкрафтовских бочках, то они считаются за дубовые.
+
+# age: Сколько "лет" напиток должен настояться в бочке.
+
+# color: Цвет готового зелья
+#   Возможные цвета: DARK_RED, RED, BRIGHT_RED, ORANGE, YELLOW, PINK, PURPLE, BLUE, CYAN, WATER, TEAL, OLIVE, GREEN, LIME, BLACK, GREY, BRIGHT_GREY, WHITE
+#   Или RGB-цвета (color: 99FF33)
+
+# difficulty: Сложность напитка. Чем выше - тем более точно нужно будет следовать рецепту, чтобы напиток получился 5-звездным
+
+# alcohol: Количество опьянения, которое добавляется при употреблении (до 100, поддерживаются отрицательные значения)
+
+# lore: Описание готового напитка (Поддерживает цвет: &6, или &#AABBCC)
+#   при помощи плюсов можно указать разное описание для разных кровней качества: + bad, ++ normal, +++ good.
+#   - +++ Крутейшее пойло.
+#   - ++ Ну такое...
+#   - + Эх щас бы сливок на соски себе намазать...
+
+# servercommands: Команды, выполняемые СЕРВЕРОМ при употреблении (Плейсхолдеры: %player_name%  %quality%)
+#   Как и описания, поддерживает различные уровни качества: + bad, ++ normal, +++ good.
+#   - +++ op %player_name%
+#   - ++ money give %player_name% 10
+#   - + essentials:heal %player_name%
+#  Команды могут быть отложены, если добавить "/ <число>s" в конце:
+#   - op Jsinco / 3s
+#  Вместо s (секунды) можно использовать m или h (минуты или часы)
+
+# playercommands: Команды, выполняемые ОТ ЛИЦА ИГРОКА при употреблении (Плейсхолдеры: %player_name%  %quality%)
+#   Как и описания, поддерживает различные уровни качества: + bad, ++ normal, +++ good.
+#   - +++ spawn
+#   - ++ home
+#   - + suicide
+#  Команды могут быть отложены, если добавить "/ <число>s" в конце:
+#   - op Jsinco / 3s
+#  Вместо s (секунды) можно использовать m или h (минуты или часы)
+
+# drinkmessage: Сообщение в чате, которое показывается игроку при употреблении.
+
+# drinktitle: Сообщение на экране, которое показывается при употреблении
+
+# glint: true/false - должен ли готовый напиток сиять как зачарованный предмет
+
+# customModelData: номер Custom Model Data.
+#   Можно указать один, а можно сразу для всех уровней качества:
+#   customModelData: 1
+#   customModelData: 1/2/3
+
+# effects: ID/уровень/длительность. Эффект, который накладывается при выпивании.
+#   Айдишники эффектов: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/potion/PotionEffectType.html
+#   ВАЖНО!!! Если ваша версия ниже 1.20.5, то некоторые эффекты у вас будут иметь другие ID, а не те, что по ссылке выше. Таков костыль баккита, существовавший до 1.20.5:
+#   Мгновенный урон - HARM, лечение - HEAL, тошнота - CONFUSION, медлительность - SLOW, прыгучесть - JUMP, спешка - FAST_DIGGING, сила - INCREASE_DAMAGE.
+#   Уровень и длительность эффекта поддерживают разброс в зависимости от качества приготовления при помощи "-",
+#   например: 'SPEED/1-2/30-40' = Скорость I на 30 сек. при худшем качестве и Скорость II на 40 сек. при лучшем качестве.
+#   Разброс может быть и в обратную сторону: 'POISON/3-1/20-5' = меньшее отравление при повышении качества.
+#   Максимальная длительность - 1638 секунд. Мгновенным эффектам, по типу Лечения, необязательно указывать длительность.
+recipes:
+  ex:
+    enabled: false
+    name: Bad Example/Example/Good Example
+    ingredients:
+    - BEDROCK/2
+    - SPRUCE_PLANKS/8
+    - BEDROCK/1
+    - Brewery:Wheatbeer/2
+    - ExoticGarden:Grape/3
+    - ex-item/4
+    cookingtime: 3
+    distillruns: 2
+    distilltime: 60
+    wood: 4
+    age: 11
+    color: DARK_RED
+    difficulty: 3
+    alcohol: 14
+    lore:
+    - This is an example brew
+    - ++Just a normal Example
+    - This text would be on the brew
+    - + Smells disgusting
+    - ++ Smells alright
+    - +++ Smells really good
+    servercommands:
+    - +++ weather clear
+    - + weather rain
+    playercommands:
+    - homes
+    drinkmessage: Tastes good
+    drinktitle: Warms you from inside
+    glint: true
+    customModelData: 556/557/557
+    effects:
+    - FIRE_RESISTANCE/20
+    - INSTANT_HEALTH/1
+    - WEAKNESS/2-3/50-60
+    - POISON/1-0/20-0
+  wheatbeer:
+    name: Skunky Wheatbeer/Wheatbeer/Fine Wheatbeer
+    ingredients:
+    - WHEAT/3
+    cookingtime: 8
+    distillruns: 0
+    wood: 1
+    age: 2
+    color: ffb84d
+    difficulty: 1
+    alcohol: 5
+    lore:
+    - +++ &8Refreshing
+  beer:
+    name: Skunky Beer/Beer/Fine Beer
+    ingredients:
+    - WHEAT/6
+    cookingtime: 8
+    distillruns: 0
+    wood: 0
+    age: 3
+    color: ffd333
+    difficulty: 1
+    alcohol: 6
+    lore:
+    - +++ &8Crisp taste
+  darkbeer:
+    name: Skunky Darkbeer/Darkbeer/Fine Darkbeer
+    ingredients:
+    - WHEAT/6
+    cookingtime: 8
+    distillruns: 0
+    wood: 6
+    age: 8
+    color: '650013'
+    difficulty: 2
+    alcohol: 7
+    lore:
+    - +++ &8Roasted taste
+  wine:
+    name: Red Wine
+    ingredients:
+    - SWEET_BERRIES/5
+    cookingtime: 5
+    distillruns: 0
+    wood: 0
+    age: 20
+    color: RED
+    difficulty: 4
+    alcohol: 8
+    lore:
+    - + &8Harsh
+    - + &8Corked
+    - ++ &8Mellow
+    - +++ &8Full-Bodied
+  mead:
+    name: Awkward Mead/Mead/&6Golden Mead
+    ingredients:
+    - SUGAR_CANE/6
+    cookingtime: 3
+    distillruns: 0
+    wood: 2
+    age: 4
+    color: ORANGE
+    difficulty: 2
+    alcohol: 9
+    lore:
+    - +++ Has a golden shine
+  ap_mead:
+    name: Apple Mead/Sweet Apple Mead/&6Sweet Golden Apple Mead
+    ingredients:
+    - SUGAR_CANE/6
+    - APPLE/2
+    cookingtime: 4
+    distillruns: 0
+    wood: 2
+    age: 4
+    color: ORANGE
+    difficulty: 4
+    alcohol: 11
+    lore:
+    - Is there any Apple in this?
+    - Refreshing taste of Apple
+    - Sweetest hint of Apple
+    effects:
+    - WATER_BREATHING/1-2/150
+  cidre:
+    name: Poor Cidre/Apple Cider/Great Apple Cider
+    ingredients:
+    - APPLE/14
+    cookingtime: 7
+    distillruns: 0
+    wood: 0
+    age: 3
+    color: f86820
+    difficulty: 4
+    alcohol: 7
+  apple_liquor:
+    name: Sour Apple Liquor/Apple Liquor/Calvados
+    ingredients:
+    - APPLE/12
+    cookingtime: 16
+    distillruns: 3
+    wood: 5
+    age: 6
+    color: BRIGHT_RED
+    difficulty: 5
+    alcohol: 14
+    lore:
+    - +Sour like Acid
+    - +++ Good Apple Liquor
+  whiskey:
+    name: Unsightly Whiskey/Whiskey/Scotch Whiskey
+    ingredients:
+    - WHEAT/10
+    cookingtime: 10
+    distillruns: 2
+    distilltime: 50
+    wood: 4
+    age: 18
+    color: ORANGE
+    difficulty: 7
+    alcohol: 26
+    lore:
+    - '&7Single Malt'
+  vodka:
+    name: Lousy Vodka/Vodka/Russian Vodka
+    ingredients:
+    - POTATO/10
+    cookingtime: 15
+    distillruns: 3
+    age: 0
+    color: WHITE
+    difficulty: 4
+    alcohol: 20
+    lore:
+    - + &8Almost undrinkable
+    effects:
+    - WEAKNESS/15
+    - POISON/10
+  shroom_vodka:
+    name: Mushroom Vodka/Mushroom Vodka/Glowing Mushroom Vodka
+    ingredients:
+    - POTATO/10
+    - RED_MUSHROOM/3
+    - BROWN_MUSHROOM/3
+    cookingtime: 18
+    distillruns: 5
+    age: 0
+    color: ff9999
+    difficulty: 7
+    alcohol: 18
+    lore:
+    - +++&aGlows in the dark
+    effects:
+    - WEAKNESS/80
+    - NAUSEA/27
+    - NIGHT_VISION/50-80
+    - BLINDNESS/12-2
+    - SLOWNESS/10-3
+  gin:
+    name: Pale Gin/Gin/Old Tom Gin
+    ingredients:
+    - WHEAT/9
+    - blue-flowers/6
+    - APPLE/1
+    cookingtime: 6
+    distillruns: 2
+    color: 99ddff
+    difficulty: 6
+    alcohol: 20
+    lore:
+    - ++ With the
+    - ++ taste of juniper
+    - +++ Perfectly finished off
+    - +++ with juniper
+  absinthe:
+    name: Poor Absinthe/Absinthe/Strong Absinthe
+    ingredients:
+    - SHORT_GRASS/15
+    cookingtime: 3
+    distillruns: 6
+    distilltime: 80
+    color: GREEN
+    difficulty: 8
+    alcohol: 42
+    lore:
+    - +++&8High proof liquor
+    effects:
+    - POISON/15-25
+  gr_absinthe:
+    name: Poor Absinthe/Green Absinthe/Bright Green Absinthe
+    ingredients:
+    - SHORT_GRASS/17
+    - POISONOUS_POTATO/2
+    cookingtime: 5
+    distillruns: 6
+    distilltime: 85
+    color: LIME
+    difficulty: 9
+    alcohol: 46
+    lore:
+    - '&aLooks poisonous'
+    effects:
+    - POISON/25-40
+    - INSTANT_DAMAGE/2
+    - NIGHT_VISION/40-60
+  potato_soup:
+    name: Potato soup
+    ingredients:
+    - POTATO/5
+    - SHORT_GRASS/3
+    cookingtime: 3
+    color: ORANGE
+    difficulty: 1
+    effects:
+    - INSTANT_HEALTH/0-1
+  coffee:
+    name: Stale Coffee/Coffee/Strong Coffee
+    ingredients:
+    - COCOA_BEANS/12
+    - MILK_BUCKET/2
+    cookingtime: 2
+    color: BLACK
+    difficulty: 3
+    alcohol: -6
+    lore:
+    - + &8Probably a week old
+    effects:
+    - REGENERATION/1/2-5
+    - SPEED/1/30-140
+  eggnog:
+    name: Egg Liquor/Eggnog/Advocaat
+    ingredients:
+    - EGG/5
+    - SUGAR/2
+    - MILK_BUCKET/1
+    cookingtime: 2
+    age: 3
+    color: ffe680
+    difficulty: 4
+    alcohol: 10
+    lore:
+    - Made with raw egg
+  g_vodka:
+    name: Rancid Vodka/&6Golden Vodka/&6Shimmering Golden Vodka
+    ingredients:
+    - POTATO/10
+    - GOLD_NUGGET/2
+    cookingtime: 18
+    distillruns: 3
+    age: 0
+    color: ORANGE
+    difficulty: 6
+    alcohol: 20
+    effects:
+    - WEAKNESS/28
+    - POISON/4
+  fire_whiskey:
+    name: Powdery Whiskey/Burning Whiskey/Blazing Whiskey
+    ingredients:
+    - WHEAT/10
+    - BLAZE_POWDER/2
+    cookingtime: 12
+    distillruns: 3
+    distilltime: 55
+    wood: 4
+    age: 18
+    color: ORANGE
+    difficulty: 7
+    alcohol: 28
+    drinkmessage: You get a burning feeling in your mouth
+  hot_choc:
+    name: Hot Chocolate
+    ingredients:
+    - COOKIE/3
+    cookingtime: 2
+    color: DARK_RED
+    difficulty: 2
+    effects:
+    - HASTE/40
+  iced_coffee:
+    name: Watery Coffee/Iced Coffee/Strong Iced Coffee
+    ingredients:
+    - COOKIE/8
+    - SNOWBALL/4
+    - MILK_BUCKET/1
+    cookingtime: 1
+    color: BLACK
+    difficulty: 4
+    alcohol: -8
+    effects:
+    - REGENERATION/30
+    - SPEED/10
+  jagermeister:
+    name: Мутная настойка/Ликёр Егермейстер/&6Егермейстер выдержанный
+    ingredients:
+    - OAK_LEAVES/3
+    - FERN/2
+    - SUGAR_CANE/2
+    - SWEET_BERRIES/4
+    cookingtime: 5
+    distillruns: 0
+    wood: 0
+    age: 8
+    color: DARK_RED
+    difficulty: 6
+    alcohol: 20
+    customModelData: '1001'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСкорость I-II &8(120–180 с)'
+    - '&8• &aПрыгучесть I-II &8(120–180 с)'
+    - '&8• &aНочное зрение I &8(90–200 с)'
+    effects:
+    - SPEED/1-2/120-180
+    - JUMP_BOOST/1-2/120-180
+    - NIGHT_VISION/1/90-200
+  firm_beer:
+    name: Скисшее пиво/Разливное Фирменное/&6Фирменное выдержанное
+    ingredients:
+    - WHEAT/8
+    - WHEAT_SEEDS/4
+    cookingtime: 3
+    distillruns: 0
+    wood: 1
+    age: 3
+    color: ffb84d
+    difficulty: 2
+    alcohol: 8
+    customModelData: '1002'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aПоглощение I-II &8(90–150 с)'
+    - '&8• &aНасыщение I &8(20–60 с)'
+    - '&8• &aРегенерация I &8(8–20 с)'
+    effects:
+    - ABSORPTION/1-2/90-150
+    - SATURATION/1/20-60
+    - REGENERATION/1/8-20
+  tequila:
+    name: Кактусовая бражка/Мексиканская Текила/&6Текила Añejo
+    ingredients:
+    - CACTUS/6
+    - SUGAR/2
+    cookingtime: 4
+    distillruns: 2
+    distilltime: 40
+    wood: 2
+    age: 2
+    color: YELLOW
+    difficulty: 7
+    alcohol: 30
+    customModelData: '1003'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСпешка I-II &8(90–150 с)'
+    - '&8• &aОгнестойкость I &8(60–120 с)'
+    - '&8• &cТошнота II-I &8(40–15 с)'
+    effects:
+    - HASTE/1-2/90-150
+    - FIRE_RESISTANCE/1/60-120
+    - NAUSEA/2-1/40-15
+  rum:
+    name: Тростниковое пойло/Капитанский Ром/&6Ром Адмиральский
+    ingredients:
+    - SUGAR_CANE/12
+    - COCOA_BEANS/2
+    cookingtime: 5
+    distillruns: 1
+    wood: 4
+    age: 6
+    color: 8B4513
+    difficulty: 5
+    alcohol: 25
+    customModelData: '1004'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСопротивление I &8(120–180 с)'
+    - '&8• &aПодводное дыхание I &8(60–150 с)'
+    - '&8• &aГрация дельфина I &8(30–90 с)'
+    effects:
+    - RESISTANCE/1/120-180
+    - WATER_BREATHING/1/60-150
+    - DOLPHINS_GRACE/1/30-90
+  admin_samogon:
+    name: Подозрительная жижа/Админский самогон/&c&lАдминский самогон
+    ingredients:
+    - SWEET_BERRIES/5
+    - NETHER_WART/3
+    - GOLDEN_APPLE/1
+    cookingtime: 4
+    distillruns: 3
+    wood: 0
+    age: 5
+    color: BRIGHT_RED
+    difficulty: 9
+    alcohol: 40
+    customModelData: '1005'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСвечение I &8(120 с)'
+    - '&8• &cЛевитация I &8(10 с)'
+    - '&8• &aУдача I &8(300 с)'
+    - '&8• &aРегенерация I-II &8(15–30 с)'
+    effects:
+    - GLOWING/1/120
+    - LEVITATION/1/10
+    - LUCK/1/300
+    - REGENERATION/1-2/15-30
+  vodka_absolut:
+    name: Палёная водка/Шведская водка/&bШведская водка премиум
+    ingredients:
+    - POTATO/10
+    - WHEAT/4
+    cookingtime: 6
+    distillruns: 3
+    distilltime: 45
+    wood: 0
+    age: 0
+    color: WHITE
+    difficulty: 6
+    alcohol: 35
+    customModelData: '1006'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСила I-II &8(60–120 с)'
+    - '&8• &aСопротивление I &8(60–90 с)'
+    - '&8• &cМедлительность II-I &8(40–15 с)'
+    effects:
+    - STRENGTH/1-2/60-120
+    - RESISTANCE/1/60-90
+    - SLOWNESS/2-1/40-15
+  vodka_plain:
+    name: Сивуха/Водка/&fВодка особая
+    ingredients:
+    - POTATO/8
+    - SUGAR/2
+    cookingtime: 4
+    distillruns: 2
+    distilltime: 40
+    wood: 0
+    age: 0
+    color: WHITE
+    difficulty: 4
+    alcohol: 30
+    customModelData: '1007'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСила I &8(45–90 с)'
+    - '&8• &aОгнестойкость I &8(30–80 с)'
+    - '&8• &cТошнота II-I &8(45–15 с)'
+    effects:
+    - STRENGTH/1/45-90
+    - FIRE_RESISTANCE/1/30-80
+    - NAUSEA/2-1/45-15
+  tennessee_whiskey:
+    name: Бочковая бурда/Теннессийский виски/&6Виски Old No.7
+    ingredients:
+    - WHEAT/12
+    - SUGAR/1
+    cookingtime: 8
+    distillruns: 2
+    distilltime: 50
+    wood: 4
+    age: 20
+    color: 8B5A2B
+    difficulty: 7
+    alcohol: 33
+    customModelData: '1008'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСила I-II &8(90–150 с)'
+    - '&8• &aСопротивление I &8(60–120 с)'
+    - '&8• &cМедлительность I &8(25–10 с)'
+    effects:
+    - STRENGTH/1-2/90-150
+    - RESISTANCE/1/60-120
+    - SLOWNESS/1/25-10
+  jager_orange:
+    name: Апельсиновая бурда/Егермейстер Orange/&6Егермейстер Orange выдержанный
+    ingredients:
+    - SWEET_BERRIES/4
+    - GLOW_BERRIES/4
+    - OAK_LEAVES/2
+    - SUGAR/2
+    cookingtime: 5
+    distillruns: 0
+    wood: 0
+    age: 6
+    color: ORANGE
+    difficulty: 6
+    alcohol: 18
+    customModelData: '1009'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСкорость I-II &8(120–180 с)'
+    - '&8• &aСпешка I &8(90–150 с)'
+    - '&8• &aНочное зрение I &8(60–150 с)'
+    effects:
+    - SPEED/1-2/120-180
+    - HASTE/1/90-150
+    - NIGHT_VISION/1/60-150
+  jager_dark:
+    name: Тёмная настойка/Егермейстер Dark/&2Егермейстер Охотничий
+    ingredients:
+    - OAK_LEAVES/4
+    - FERN/3
+    - NETHER_WART/1
+    - SWEET_BERRIES/3
+    cookingtime: 7
+    distillruns: 0
+    wood: 6
+    age: 12
+    color: 2d4a2b
+    difficulty: 7
+    alcohol: 22
+    customModelData: '1010'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aНочное зрение I &8(180–300 с)'
+    - '&8• &aСила I &8(60–120 с)'
+    - '&8• &aСкорость I &8(90–150 с)'
+    effects:
+    - NIGHT_VISION/1/180-300
+    - STRENGTH/1/60-120
+    - SPEED/1/90-150
+  passionfruit:
+    name: Кислая брага/Маракуйевая водка/&dМаракуйя премиум
+    ingredients:
+    - GLOW_BERRIES/6
+    - SWEET_BERRIES/4
+    - SUGAR/3
+    cookingtime: 4
+    distillruns: 1
+    wood: 10
+    age: 2
+    color: f0a020
+    difficulty: 4
+    alcohol: 16
+    customModelData: '1011'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aРегенерация I-II &8(15–35 с)'
+    - '&8• &aНасыщение I &8(30–60 с)'
+    - '&8• &aСкорость I &8(60–120 с)'
+    effects:
+    - REGENERATION/1-2/15-35
+    - SATURATION/1/30-60
+    - SPEED/1/60-120
+  mojito:
+    name: Мутный лайм/Мохито/&aМохито Lime & Mint
+    ingredients:
+    - SUGAR_CANE/6
+    - FERN/3
+    - MELON_SLICE/4
+    cookingtime: 3
+    distillruns: 1
+    wood: 11
+    age: 1
+    color: LIME
+    difficulty: 3
+    alcohol: 12
+    customModelData: '1012'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСкорость I-II &8(120–200 с)'
+    - '&8• &aПрыгучесть I &8(60–120 с)'
+    - '&8• &aПодводное дыхание I &8(40–100 с)'
+    effects:
+    - SPEED/1-2/120-200
+    - JUMP_BOOST/1/60-120
+    - WATER_BREATHING/1/40-100
+  village_samogon:
+    name: Мутный первач/Деревенский самогон/&7Первач тройной перегонки
+    ingredients:
+    - WHEAT/6
+    - SUGAR/4
+    - BROWN_MUSHROOM/1
+    cookingtime: 5
+    distillruns: 3
+    distilltime: 35
+    wood: 0
+    age: 0
+    color: BRIGHT_GREY
+    difficulty: 8
+    alcohol: 45
+    customModelData: '1013'
+    lore:
+    - '&8Эффекты при употреблении:'
+    - '&8• &aСила I &8(45–90 с)'
+    - '&8• &aСпешка I &8(45–90 с)'
+    - '&8• &cТошнота III-I &8(70–20 с)'
+    - '&8• &cГолод I &8(30–10 с)'
+    effects:
+    - STRENGTH/1/45-90
+    - HASTE/1/45-90
+    - NAUSEA/3-1/70-20
+    - HUNGER/1/30-10
+  rassol:
+    name: Мутная бурда/Рассол/&aРассол огуречный
+    ingredients:
+    - SEA_PICKLE/3
+    - SUGAR/2
+    - BROWN_MUSHROOM/1
+    cookingtime: 2
+    distillruns: 0
+    wood: 0
+    age: 0
+    color: OLIVE
+    difficulty: 2
+    alcohol: -40
+    customModelData: '1014'
+    drinkmessage: Мир перестаёт качаться.
+    lore:
+    - '&8Не алкоголь. Снимает опьянение:'
+    - '&8• &bдо 40 единиц разом'
+    - '&8Чем выше качество, тем больше снимает.'
+    effects:
+    - REGENERATION/1/10
+    - SATURATION/1/10
+
+# More recipe ideas:
+# Dandelion Liquor
+# Beetroot Spirit
+# Poppy Liquor: Macum/Grand Poppy
+# Bamboo Liquor: Chu Yeh Ching
+# Cachaca
+# Cognac
+# Sake
+# Buorbon
+# Moonshine
+# Different Wines
+# Brandy
+# Amaretto
+# etc. as well as variations like,
+# Pumpkin Spice Beer
+# Melon Vodka
+
+# There are a lot of items in Minecraft like Vines, Milk and items added by plugins that would make great ingredients.

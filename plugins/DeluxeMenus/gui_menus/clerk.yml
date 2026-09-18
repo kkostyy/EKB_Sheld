@@ -1,0 +1,200 @@
+menu_title: '&8Приказчик Мэрии'
+open_command:
+  - clerk
+  - приказчик
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.duty.clerk
+      deny_commands:
+        - '[message] &cЭто меню приказчика Мэрии.'
+
+items:
+
+  'treasury':
+    material: DIAMOND
+    slot: 13
+    display_name: '&b&lКазна Спавна'
+    lore:
+      - '&7Сколько у города денег прямо сейчас'
+      - '&7и в каких сундуках они лежат.'
+      - '&8Мало места — Администрация добавляет сундук: /addtreasury'
+      - ''
+      - '&aЛКМ &8— баланс'
+      - '&aПКМ &8— журнал движений'
+    left_click_commands:
+      - '[player] treasury'
+    right_click_commands:
+      - '[player] treasurylog'
+
+  'rent':
+    material: EMERALD
+    slot: 20
+    display_name: '&e&lАрендаторы'
+    lore:
+      - '&7Кто держит палатку и сколько ему осталось.'
+      - '&4Просрочка — закрытие точки, УК 7.2.'
+      - '&7Сносить и трогать сундуки нельзя: имущество'
+      - '&7возвращают по решению Суда, а не по таймеру.'
+      - ''
+      - '&aЛКМ &8— список арендаторов'
+    left_click_commands:
+      - '[player] arenda список'
+
+  'buyer':
+    material: HOPPER
+    slot: 22
+    display_name: '&a&lСкупщик'
+    lore:
+      - '&7Половина прайса, платит Казна.'
+      - ''
+      - '&aЛКМ &8— оценить груз'
+    left_click_commands:
+      - '[player] skupka'
+
+  'lots':
+    material: OAK_SIGN
+    slot: 24
+    display_name: '&6&lДоска лотов'
+    lore:
+      - '&aЛКМ &8— что на доске'
+    left_click_commands:
+      - '[player] lots'
+
+  'calls':
+    material: BELL
+    slot: 30
+    display_name: '&e&lЗаявки в Мэрию'
+    lore:
+      - '&aЛКМ &8— открытые заявки'
+    left_click_commands:
+      - '[player] calls'
+
+  'market':
+    material: CHEST
+    slot: 31
+    display_name: '&f&lТорговая Коллегия'
+    lore:
+      - '&7Весь раздел целиком.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_market'
+
+  'header':
+    material: LECTERN
+    slot: 4
+    display_name: '&b&lПриказчик Мэрии'
+    lore:
+      - '&7Держит Казну Спавна и Рыночную площадь.'
+      - '&7Пустая Казна — скупщик стоит.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_duty'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

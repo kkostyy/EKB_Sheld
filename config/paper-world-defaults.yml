@@ -1,0 +1,142 @@
+# EKB SHIELD — config/paper-world-defaults.yml
+# Все ключи сверены с эталонными дефолтами Paper (docs.papermc.io, 15.09.2026).
+# Paper молча игнорирует несуществующие ключи, поэтому опечатка здесь = настройка,
+# которая «вроде стоит», но не работает. Проверяй новые ключи по справочнику.
+#
+# УДАЛЕНО как несуществующее в современном Paper:
+#   unsupported-settings.allow-piston-duplication
+#   unsupported-settings.allow-headless-pistons
+#   unsupported-settings.allow-permanent-block-break-exploits
+#   entities.behavior.async-mob-spawning
+#   chunks.entity-chunk-ticket-expiry-ticks
+# Paper убрал эти переключатели — дюп-механики больше не включаются конфигом.
+# Если экономика проекта на них рассчитывалась, это надо пересмотреть отдельно.
+
+unsupported-settings:
+  # Пустой мир не тикает вообще — сервер не жжёт CPU, пока никого нет.
+  # Заменяет собой плагины вида Slumber.
+  disable-world-ticking-when-empty: true
+  fix-invulnerable-end-crystal-exploit: true
+
+chunks:
+  auto-save-interval: 6000
+  max-auto-save-chunks-per-tick: 24
+  prevent-moving-into-unloaded-chunks: true
+
+collisions:
+  # Дефолт 8. Меньше = дешевле массовые фермы и толпы мобов в загонах.
+  max-entity-collisions: 2
+
+entities:
+  armor-stands:
+    # Стойки брони не тикают и не ищут коллизии. DecentHolograms рисует
+    # голограммы пакетами, а не реальными стойками, поэтому рынок не пострадает.
+    tick: false
+    do-collision-entity-lookups: false
+  behavior:
+    disable-chest-cat-detection: true
+  spawning:
+    # Лимит мобов считается на игрока, а не на сервер: один игрок с фермой
+    # больше не съедает весь mob-cap остальных.
+    per-player-mob-spawns: true
+    despawn-ranges:
+      monster:
+        soft: 32
+        hard: 96
+
+environment:
+  # Кеширует поиск сущностей во время взрыва. Критично при max-tnt-per-tick: 200
+  # в spigot.yml — войны с ТНТ перестают ронять тикрейт.
+  optimize-explosions: true
+
+misc:
+  # Alternate Current — переписанная реализация редстоуна, в разы дешевле
+  # ванильной на длинных линиях. Поведение пыли слегка отличается от ванили:
+  # https://github.com/SpaceWalkerRS/alternate-current
+  redstone-implementation: ALTERNATE_CURRENT
+  # Мобы не пересчитывают маршрут на каждое обновление блока. Один из самых
+  # заметных приростов TPS; минус — мобы чуть тупее реагируют на стройку.
+  update-pathfinding-on-block-update: false
+
+tick-rates:
+  # Спавнеры считаются раз в 2 тика вместо каждого.
+  mob-spawner: 2
+  # container-update НЕ трогаем: значения выше 1 дают рассинхрон инвентарей.
+
+# hopper.disable-move-event НЕ включён намеренно: он ускоряет воронки, но
+# ломает InventoryMoveItemEvent, на котором CoreProtect ведёт лог контейнеров.
+# Без этого лога разваливаются дела о кражах (Глава 1 УК).
+
+anticheat:
+  anti-xray:
+    enabled: true
+    engine-mode: 2
+    max-block-height: 64
+    update-radius: 2
+    lava-obscures: false
+    use-permission: false
+    hidden-blocks:
+      - copper_ore
+      - deepslate_copper_ore
+      - raw_copper_block
+      - diamond_ore
+      - deepslate_diamond_ore
+      - gold_ore
+      - deepslate_gold_ore
+      - iron_ore
+      - deepslate_iron_ore
+      - raw_iron_block
+      - lapis_ore
+      - deepslate_lapis_ore
+      - redstone_ore
+      - deepslate_redstone_ore
+    replacement-blocks:
+      - chest
+      - amethyst_block
+      - andesite
+      - budding_amethyst
+      - calcite
+      - coal_ore
+      - deepslate_coal_ore
+      - deepslate
+      - diorite
+      - dirt
+      - emerald_ore
+      - deepslate_emerald_ore
+      - granite
+      - gravel
+      - oak_planks
+      - smooth_basalt
+      - stone
+      - tuff
+
+# --- Для world/dimensions/minecraft/the_nether/paper-world.yml: ---
+# anticheat:
+#   anti-xray:
+#     enabled: true
+#     engine-mode: 2
+#     max-block-height: 128
+#     update-radius: 2
+#     lava-obscures: false
+#     use-permission: false
+#     hidden-blocks:
+#       - ancient_debris
+#       - bone_block
+#       - glowstone
+#       - magma_block
+#       - nether_bricks
+#       - nether_gold_ore
+#       - nether_quartz_ore
+#       - polished_blackstone_bricks
+#     replacement-blocks:
+#       - basalt
+#       - blackstone
+#       - gravel
+#       - netherrack
+#       - soul_sand
+#       - soul_soil
+#
+# --- Для world/dimensions/minecraft/the_end/paper-world.yml: ---
+# anticheat:
+#   anti-xray:
+#     enabled: false

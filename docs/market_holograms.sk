@@ -1,0 +1,55 @@
+# EKB SHIELD — market_holograms.sk
+# Голограммы над лавками Рыночной площади.
+#
+# ВАЖНО: у Skript НЕТ встроенного синтаксиса голограмм — выражения вроде
+# "create hologram ... at", "loop all holograms", "targeted hologram of player"
+# требуют отдельного аддона, которого в проекте нет. Поэтому скрипт работает
+# как обёртка над командами DecentHolograms (/dh), которые точно существуют.
+#
+# Требуется: Skript + DecentHolograms. Права /dh у исполнителя команды.
+
+options:
+    prefix: &6&l[РЫНОК] &r
+
+# ID голограммы строится из координат — так его потом легко найти и удалить
+command /markethologram <text> <number> <number>:
+    permission: coreprotect.rollback
+    description: Создать голограмму лавки (название, цена, количество)
+    usage: /markethologram <Название> <Цена> <Количество>
+    executable by: players
+    trigger:
+        set {_x} to round(x-coordinate of player)
+        set {_y} to round(y-coordinate of player)
+        set {_z} to round(z-coordinate of player)
+        set {_id} to "shop_%{_x}%_%{_y}%_%{_z}%"
+        make player execute command "dh create %{_id}% &6&l%arg-1%"
+        make player execute command "dh line add %{_id}% &7Цена: &b%arg-2%♢"
+        make player execute command "dh line add %{_id}% &8В наличии: &f%arg-3% шт."
+        add {_id} to {market::holograms::*}
+        send "{@prefix}&aГолограмма &f%{_id}% &aсоздана." to player
+
+command /markethologramremove <text>:
+    permission: coreprotect.rollback
+    description: Удалить голограмму лавки по её ID
+    usage: /markethologramremove <ID>
+    executable by: players
+    trigger:
+        make player execute command "dh delete %arg-1%"
+        remove arg-1 from {market::holograms::*}
+        send "{@prefix}&aГолограмма &f%arg-1% &aудалена." to player
+
+command /markethologramlist:
+    permission: coreprotect.rollback
+    description: Список голограмм, созданных этим скриптом
+    trigger:
+        if {market::holograms::*} is not set:
+            send "{@prefix}&7Голограмм пока нет."
+            stop
+        send "{@prefix}&7Создано голограмм: &f%size of {market::holograms::*}%"
+        loop {market::holograms::*}:
+            send "&8- &f%loop-value%"
+
+# Автоматическое создание голограммы при постройке лавки ChestShop здесь НЕ
+# реализовано: у ChestShop нет события, которое Skript понимает без аддона.
+# Ставить голограммы вручную командой выше — на Рыночной площади лавок немного,
+# а Статья 6 УК и так требует согласования каждой точки с Мэрией.

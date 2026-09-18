@@ -1,0 +1,184 @@
+menu_title: '&8Торговая Коллегия'
+open_command:
+  - market
+  - коллегия
+size: 54
+
+items:
+
+  'buyer':
+    material: HOPPER
+    slot: 13
+    display_name: '&a&lСкупщик в Казну'
+    lore:
+      - '&7Сдать стройматериалы за половину прайса.'
+      - '&7Платит Казна Спавна — пустая Казна не купит ничего.'
+      - '&8Булыжник 256 шт → 1💎 · песок 128 → 1💎 · железо 16 → 1💎'
+      - ''
+      - '&aЛКМ &8— оценить груз'
+      - '&aПКМ &8— сдать и получить'
+    left_click_commands:
+      - '[player] skupka'
+    right_click_commands:
+      - '[player] skupka сдать'
+
+  'rent':
+    material: EMERALD
+    slot: 20
+    display_name: '&e&lАренда палатки'
+    lore:
+      - '&7Точка 5x5 на Рыночной площади.'
+      - '&7&b10💎&7 за 7 дней, в Казну Спавна.'
+      - '&4Неуплата — закрытие точки, УК 7.2.'
+      - ''
+      - '&aЛКМ &8— мой срок'
+      - '&aПКМ &8— оплатить 7 дней'
+    left_click_commands:
+      - '[player] arenda'
+    right_click_commands:
+      - '[player] arenda оплатить'
+
+  'lots':
+    material: OAK_SIGN
+    slot: 22
+    display_name: '&6&lДоска лотов'
+    lore:
+      - '&7Объявления о редких вещах.'
+      - '&8Аукциона на сервере нет: доска только объявляет,'
+      - '&8вещь и алмазы стороны передают лично.'
+      - ''
+      - '&aЛКМ &8— что на доске'
+      - '&aПКМ &8— как выставить'
+    left_click_commands:
+      - '[player] lots'
+    right_click_commands:
+      - '[message] &6&lЛОТ: &7возьми вещь в руку и введи &f/lot <цена>'
+      - '[message] &8Снять свой: &f/lotdrop <номер>&8. Лот живёт 48 ч.'
+
+  'treasury':
+    material: DIAMOND
+    slot: 24
+    display_name: '&b&lКазна Спавна'
+    lore:
+      - '&7Сколько у города денег прямо сейчас.'
+      - '&7Пополняется арендой, штрафами и конфискатом.'
+      - ''
+      - '&aЛКМ &8— показать баланс'
+    left_click_commands:
+      - '[player] treasury'
+
+  'header':
+    material: HOPPER
+    slot: 4
+    display_name: '&a&lТорговая Коллегия Спавна'
+    lore:
+      - '&7Скупка, аренда и объявления.'
+      - '&7Деньги города лежат в сундуке Казны.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_trade'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

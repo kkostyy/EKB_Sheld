@@ -1,0 +1,172 @@
+# EKB SHIELD — press.sk
+# Газета «EKB SHIELD Times»: выпуск, продажа копий, экстренная новость.
+# Требует docs/treasury.sk — выручка и рассылка идут через Казну Спавна.
+#
+# Что переделано против присланной спецификации.
+#
+# 1. Спецификация выдавала выпуск командой
+#       give %player_name% written_book{title:"EKB Times #1",author:"Редакция"}
+#    Это книга с обложкой и БЕЗ СТРАНИЦ — купив её, игрок открыл бы пустоту.
+#    Записать страницы в книгу извне нельзя ни Skript'ом, ни EssentialsX
+#    (см. разбор в death_note.sk). Единственный рабочий путь — взять уже
+#    написанную и ПОДПИСАННУЮ книгу у живого журналиста и размножать её.
+#
+# 2. ⚠️ Поэтому /newsissue принимает только ПОДПИСАННУЮ книгу.
+#    У Skript 2.16.2 в ExprBookPages стоит проверка
+#       if (book.getMaterial() != Material.WRITTEN_BOOK) return new Component[0]
+#    то есть у книги с пером всегда ноль страниц, даже когда текст в ней есть.
+#    Журналист пишет выпуск сам, подписывает его — и только потом сдаёт.
+#
+# 3. «Кабинет журналиста» в спецификации просто печатал «Введите текст в чат»
+#    и ничего не делал, а цена 16💎 нигде не списывалась. Здесь экстренная
+#    новость — настоящая команда с настоящей оплатой в Казну.
+#
+# Хранилище:
+#   {news::issue}      — предмет-выпуск (подписанная книга)
+#   {news::number}     — номер выпуска
+#   {news::editor}     — кто сдал выпуск
+#   {news::when}       — когда
+#
+# Команды:
+#   /newsissue          — сдать подписанную книгу как новый выпуск (журналист)
+#   /newsbuy            — купить копию свежего выпуска (1💎)
+#   /newsflash <текст>  — экстренная новость на весь сервер (16💎, журналист)
+#   /news               — что сейчас в продаже
+
+options:
+    prefix: &6&l[ГАЗЕТА] &r
+    journalist: ekb.duty.journalist
+    price: 1
+    flash_price: 16
+    onair_cd: 14400     # секунд между анонсами эфира, 4 часа
+
+command /news:
+    description: Свежий выпуск газеты EKB SHIELD Times
+    aliases: /газета
+    executable by: players
+    trigger:
+        if {news::issue} is not set:
+            send "{@prefix}&7Редакция пока молчит: свежего выпуска нет."
+            if player has permission "{@journalist}":
+                send "{@prefix}&7Напиши книгу, подпиши её и сдай: &b/newsissue"
+            stop
+        send "{@prefix}&fВыпуск №&e%{news::number}%&f — &7%{news::editor}%&f, %{news::when}%"
+        send "{@prefix}&7Копия стоит &b{@price}💎&7: &b/newsbuy"
+        if player has permission "{@journalist}":
+            send "{@prefix}&7Новый выпуск: &b/newsissue&7 · экстренная новость: &b/newsflash <текст>&7 (&b{@flash_price}💎&7)"
+
+command /newsissue:
+    permission: {@journalist}
+    permission message: &cВыпускать газету может только журналист.
+    description: Сдать подписанную книгу из руки как новый выпуск
+    executable by: players
+    trigger:
+        set {_b} to player's tool
+        if {_b} is not written book:
+            send "{@prefix}&cВ руке должна быть ПОДПИСАННАЯ книга."
+            send "{@prefix}&7Книга с пером не годится: у неё для Skript ноль страниц,"
+            send "{@prefix}&7сколько бы текста в ней ни было. Напиши и подпиши."
+            stop
+        add 1 to {news::number}
+        set {news::issue} to {_b}
+        set {news::editor} to "%player%"
+        set {news::when} to "%now%"
+        send "{@prefix}&aВыпуск №&f%{news::number}%&a принят в печать."
+        send "{@prefix}&7Оригинал остался у тебя. Игроки покупают копии по &b{@price}💎&7."
+        broadcast "{@prefix}&fВышел выпуск №&e%{news::number}%&f. Купить: &b/newsbuy &7(&b{@price}💎&7)"
+        send "[ГАЗЕТА] выпуск %{news::number}% сдан журналистом %player%" to console
+
+command /newsbuy:
+    description: Купить копию свежего выпуска газеты
+    aliases: /купитьгазету
+    executable by: players
+    trigger:
+        if {news::issue} is not set:
+            send "{@prefix}&7Свежего выпуска нет."
+            stop
+
+        # Свободный слот проверяем до оплаты: give кладёт через addItem,
+        # а излишки он теряет молча — игрок остался бы без алмаза и без газеты.
+        set {_free} to 0
+        loop integers from 0 to 35:
+            if tr_item(slot loop-number of player's inventory) is air:
+                add 1 to {_free}
+        if {_free} <= 0:
+            send "{@prefix}&cОсвободи слот — газету некуда положить."
+            stop
+
+        set {_r} to tr_pay(player, {@price})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%"
+            stop
+        give {news::issue} to player
+        send "{@prefix}&aВыпуск №&f%{news::number}%&a твой."
+        play sound "item.book.page_turn" with volume 0.8 to player
+
+# ---------------------------------------------------------------------------
+# Медийные роли: Стример и Ютубер
+# ---------------------------------------------------------------------------
+# Роль, которая ничего не делает, — это просто строчка в списке прав, и на
+# сервере с принципом «кнопка либо что-то делает, либо её нет» такой быть не
+# должно. Поэтому у медийных ролей есть ровно одно настоящее право: анонс
+# на весь сервер.
+#
+# ⚠️ Анонс БЕСПЛАТНЫЙ, в отличие от /newsflash за 16💎. Экстренная новость —
+# это внутриигровая услуга, за неё платят Казне. Эфир — реклама самого
+# сервера, брать за неё деньги с того, кто её делает, бессмысленно.
+#
+# ⚠️ Кулдаун 4 часа считается в голых секундах через unix timestamp:
+# литерал времени Skript собирает только из числа, записанного в самом
+# скрипте, — ни `{@onair_cd} seconds`, ни `{_cd} seconds` не разбираются.
+
+command /onair [<text>]:
+    description: Объявить эфир или новый ролик на весь сервер
+    aliases: /эфир
+    executable by: players
+    trigger:
+        set {_kind} to ""
+        if player has permission "ekb.media.streamer":
+            set {_kind} to "стрим"
+        if player has permission "ekb.media.youtuber":
+            set {_kind} to "ролик"
+        if {_kind} is "":
+            send "{@prefix}&cАнонсы доступны Стримерам и Ютуберам."
+            send "{@prefix}&7Роль выдаёт Администрация через &b/ekbroles&7."
+            stop
+
+        if arg-1 is not set:
+            send "{@prefix}&7Напиши, что анонсируешь: &b/onair <текст или ссылка>"
+            send "{@prefix}&7Раз в 4 часа, бесплатно."
+            stop
+
+        set {_k} to "%uuid of player%"
+        set {_now} to unix timestamp of now
+        set {_last} to {media::last::%{_k}%}
+        if {_last} is not set:
+            set {_last} to 0
+        set {_wait} to {@onair_cd} - ({_now} - {_last})
+        if {_wait} > 0:
+            send "{@prefix}&7Следующий анонс через &f%floor({_wait} / 3600)%&7 ч. &f%floor(mod({_wait}, 3600) / 60)%&7 мин."
+            stop
+
+        set {media::last::%{_k}%} to {_now}
+        broadcast "{@prefix}&d&lСЕЙЧАС В ЭФИРЕ"
+        broadcast "&f%player%&7 — %{_kind}%: &f%arg-1%"
+        send "[ЭФИР] %player% (%{_kind}%): %arg-1%" to console
+
+command /newsflash <text>:
+    permission: {@journalist}
+    permission message: &cЭкстренные новости рассылает журналист.
+    description: Разослать экстренную новость на весь сервер (16 алмазов)
+    aliases: /экстренно
+    executable by: players
+    trigger:
+        set {_r} to tr_pay(player, {@flash_price})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%"
+            send "{@prefix}&7Рассылка стоит &b{@flash_price}💎&7 и идёт в Казну Спавна."
+            stop
+        broadcast "{@prefix}&c&lЭКСТРЕННО"
+        broadcast "&f%arg-1%"
+        broadcast "&8— %player%, «EKB SHIELD Times»"
+        send "[ГАЗЕТА] экстренная новость от %player%: %arg-1%" to console

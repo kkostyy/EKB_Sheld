@@ -1,0 +1,238 @@
+# EKB SHIELD — jail_property.sk
+# Судейский ящик с разбором по предметам: что вернуть, что конфисковать.
+#
+# /jailitems give и clear работают «всё или ничего» — этого мало, когда
+# из десяти вещей краденых три. Здесь судья открывает ящик как обычный
+# сундук, щёлкает по вещам, помечая каждую, и применяет решение одним
+# нажатием.
+#
+# ⚠ Своё окно опознаётся по предмету-маркеру в слоте 49 (CMD 7200), а не по
+# переменной-флагу: открытие нового инвентаря закрывает предыдущий, событие
+# закрытия приходит уже поверх открытого меню и флаг гасит (на этом сломался
+# первый вариант menu_players.sk). Маркер лежит в самом окне и не теряется.
+#
+#   7200 — «Применить» (он же маркер окна)
+#   7201 — вернуть всё      7202 — конфисковать всё
+#   7203 — отмена           7204 — голова владельца ящика в списке
+#   7205 — пусто/заглушка
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &c&l[СУД] &r
+
+# Хранилище (ключ — UUID судьи):
+#   {jailprop::owner::%uuid%}      — UUID владельца открытого ящика
+#   {jailprop::name::%uuid%}       — его ник
+#   {jailprop::mark::%uuid%::%N%}  — "seize" у предметов, помеченных к изъятию
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+function jp_cmd(i: item) :: number:
+    # У воздуха нет меты: `custom model data of air` кидает исключение,
+    # а проверять пустые слоты приходится постоянно.
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function jp_button(i: item, cmd: number, title: text) :: item:
+    set custom model data of {_i} to {_cmd}
+    set name of {_i} to {_title}
+    return {_i}
+
+function jp_frame(inv: inventory, slots: numbers):
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7205
+    set name of {_f} to " "
+    loop {_slots::*}:
+        set slot loop-value of {_inv} to {_f}
+
+# ---------------------------------------------------------------------------
+# Список ящиков: чьи вещи лежат у Суда
+# ---------------------------------------------------------------------------
+
+command /jailprop [<offlineplayer>]:
+    permission: coreprotect.rollback
+    description: Разобрать судейский ящик по предметам
+    usage: /jailprop [ник]
+    trigger:
+        if arg-1 is set:
+            jp_open(player, "%uuid of arg-1%", "%arg-1%")
+            stop
+        jp_list(player)
+
+function jp_list(p: player):
+    set {_inv} to a chest inventory with 6 rows named "&8Судейские ящики"
+    set {_frame::*} to 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 50, 51, 52 and 53
+    jp_frame({_inv}, {_frame::*})
+    set {_slots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+    set {_n} to 0
+    loop {jail_name::*}:
+        set {_k} to loop-index
+        set {_cnt} to size of {jail_seized::%{_k}%::*}
+        if {_cnt} > 0:
+            if {_n} < 28:
+                add 1 to {_n}
+                set {_h} to 1 of player head
+                set skull owner of {_h} to loop-value parsed as offline player
+                set custom model data of {_h} to 7204
+                set name of {_h} to "&f%loop-value%"
+                set lore of {_h} to "&7В ящике: &f%{_cnt}%&7 предметов" and "&8Клик — разобрать"
+                set slot ({_slots::%{_n}%}) of {_inv} to {_h}
+    if {_n} is 0:
+        set slot 22 of {_inv} to jp_button(1 of barrier, 7203, "&7Ящики пусты")
+    set slot 49 of {_inv} to jp_button(1 of barrier, 7203, "&cЗакрыть")
+    open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Разбор одного ящика
+# ---------------------------------------------------------------------------
+
+function jp_open(p: player, owner: text, name: text):
+    set {_u} to "%uuid of {_p}%"
+    if {jail_seized::%{_owner}%::*} is not set:
+        send "{@prefix}&7У %{_name}% ничего не изъято." to {_p}
+    else:
+        set {jailprop::owner::%{_u}%} to {_owner}
+        set {jailprop::name::%{_u}%} to {_name}
+        jp_draw({_p})
+
+function jp_draw(p: player):
+    set {_u} to "%uuid of {_p}%"
+    set {_owner} to {jailprop::owner::%{_u}%}
+    set {_name} to {jailprop::name::%{_u}%}
+    set {_inv} to a chest inventory with 6 rows named "&8Имущество: %{_name}%"
+
+    set {_keep} to 0
+    set {_seize} to 0
+    loop {jail_seized::%{_owner}%::*}:
+        set {_i} to loop-index
+        set {_slot} to ({_i} parsed as number) - 1
+        if {_slot} <= 44:
+            set {_it} to loop-value
+            if {jailprop::mark::%{_u}%::%{_i}%} is "seize":
+                set lore of {_it} to "&c✘ КОНФИСКОВАТЬ в Казну" and "&8Клик — вернуть владельцу"
+                add 1 to {_seize}
+            else:
+                set lore of {_it} to "&a✔ Вернуть владельцу" and "&8Клик — конфисковать"
+                add 1 to {_keep}
+            set slot {_slot} of {_inv} to {_it}
+
+    set {_frame::*} to 47, 48, 50 and 51
+    jp_frame({_inv}, {_frame::*})
+    set slot 45 of {_inv} to jp_button(1 of lime dye, 7201, "&aВернуть всё")
+    set slot 46 of {_inv} to jp_button(1 of red dye, 7202, "&cКонфисковать всё")
+
+    set {_ok} to 1 of chest
+    set custom model data of {_ok} to 7200
+    set name of {_ok} to "&6&lПрименить решение"
+    set lore of {_ok} to "&a✔ вернуть: &f%{_keep}%" and "&c✘ конфисковать: &f%{_seize}%" and "&8Владелец должен быть в сети"
+    set slot 49 of {_inv} to {_ok}
+
+    set slot 52 of {_inv} to jp_button(1 of arrow, 7204, "&7К списку ящиков")
+    set slot 53 of {_inv} to jp_button(1 of barrier, 7203, "&cОтмена")
+    open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Клики
+# ---------------------------------------------------------------------------
+
+on inventory click:
+    set {_u} to "%uuid of player%"
+    set {_top} to current inventory of player
+    set {_marker} to jp_cmd(slot 49 of {_top})
+
+    # окно разбора: маркер «Применить» в слоте 49
+    if {_marker} is 7200:
+        cancel event
+        set {_slot} to index of event-slot
+        set {_c} to jp_cmd(event-item)
+        if {_c} is 7203:
+            delete {jailprop::mark::%{_u}%::*}
+            close player's inventory
+            stop
+        if {_c} is 7204:
+            delete {jailprop::mark::%{_u}%::*}
+            jp_list(player)
+            stop
+        if {_c} is 7201:
+            delete {jailprop::mark::%{_u}%::*}
+            jp_draw(player)
+            stop
+        if {_c} is 7202:
+            set {_owner} to {jailprop::owner::%{_u}%}
+            loop {jail_seized::%{_owner}%::*}:
+                set {jailprop::mark::%{_u}%::%loop-index%} to "seize"
+            jp_draw(player)
+            stop
+        if {_c} is 7200:
+            jp_apply(player)
+            stop
+        # клик по вещи: слот 0-44 -> индекс в ящике
+        if {_slot} <= 44:
+            if event-item is not air:
+                set {_idx} to {_slot} + 1
+                set {_i} to "%{_idx}%"
+                if {jailprop::mark::%{_u}%::%{_i}%} is "seize":
+                    delete {jailprop::mark::%{_u}%::%{_i}%}
+                else:
+                    set {jailprop::mark::%{_u}%::%{_i}%} to "seize"
+                jp_draw(player)
+        stop
+
+    # список ящиков: клик по голове владельца
+    if event-item is not air:
+        set {_c} to jp_cmd(event-item)
+        if {_c} is 7204:
+            cancel event
+            set {_n} to uncoloured (name of event-item)
+            jp_open(player, "%uuid of ({_n} parsed as offline player)%", {_n})
+        else if {_c} is 7203:
+            cancel event
+            close player's inventory
+        else if {_c} is 7205:
+            cancel event
+
+# ---------------------------------------------------------------------------
+# Применение решения
+# ---------------------------------------------------------------------------
+
+function jp_apply(p: player):
+    set {_u} to "%uuid of {_p}%"
+    set {_owner} to {jailprop::owner::%{_u}%}
+    set {_name} to {jailprop::name::%{_u}%}
+    set {_to} to {_name} parsed as player
+    if {_to} is not set:
+        send "{@prefix}&cВладелец не в сети — вещи выдаются только в руки." to {_p}
+        stop
+
+    # что возвращаем, что забираем
+    delete {_keep::*}
+    set {_take} to 0
+    loop {jail_seized::%{_owner}%::*}:
+        if {jailprop::mark::%{_u}%::%loop-index%} is "seize":
+            add 1 to {_take}
+        else:
+            add loop-value to {_keep::*}
+
+    set {_need} to size of {_keep::*}
+    if {_need} > 0:
+        set {_free} to jail_free({_to})
+        if {_free} < {_need}:
+            send "{@prefix}&cВ рюкзаке %{_name}% свободно &f%{_free}%&c слотов, а вернуть надо &f%{_need}%&c." to {_p}
+            stop
+        loop {_keep::*}:
+            give loop-value to {_to}
+
+    delete {jail_seized::%{_owner}%::*}
+    delete {jail_seized_at::%{_owner}%}
+    delete {jailprop::mark::%{_u}%::*}
+    close {_p}'s inventory
+
+    send "{@prefix}Решение исполнено: возвращено &f%{_need}%&r, конфисковано &f%{_take}%&r." to {_p}
+    send "{@prefix}Суд вернул тебе &f%{_need}%&r предметов." to {_to}
+    if {_take} > 0:
+        send "{@prefix}&7Остальное (&f%{_take}%&7) обращено в Казну." to {_to}
+        broadcast "{@prefix}Часть имущества %{_name}% (&f%{_take}%&r предметов) конфискована решением Суда."

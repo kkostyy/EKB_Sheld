@@ -1,0 +1,344 @@
+# EKB SHIELD — death_note.sk
+# Тёмная Тетрадь Смерти: одна на весь сервер, убивает по имени, вписанному
+# в неё рукой владельца.
+#
+# ПОЧЕМУ ПО КНОПКЕ «ПОДПИСАТЬ», А НЕ ПРОСТО ПРИ ЗАКРЫТИИ КНИГИ.
+# В Skript 2.16.2 выражение `book pages of` физически не умеет читать книгу
+# с пером — в его коде стоит проверка:
+#     if (book.getMaterial() != Material.WRITTEN_BOOK ...) return new Component[0];
+# то есть страницы отдаются ТОЛЬКО у подписанной книги. Проверено вживую:
+# у writable_book всегда 0 страниц, даже если текст в ней есть; у written_book
+# всё читается вместе с переносами строк. Записать страницы в книгу с пером
+# Skript тоже не может — работает лишь ванильная команда give с компонентом
+# minecraft:writable_book_content.
+# Поэтому цикл такой: игрок пишет имена и жмёт «Подписать» — на подписанной
+# книге скрипт читает список, приводит приговор и возвращает владельцу новую
+# книгу с пером с тем же списком.
+#
+# ПОЧЕМУ СПИСОК ЖИВЁТ В ПЕРЕМЕННОЙ, А НЕ В КНИГЕ.
+# `{deathnote::names::*}` — источник истины, книга лишь его отражение. Поэтому
+# «записанное не стирается» выполняется буквально: что бы игрок ни стёр, при
+# следующей подписи скрипт перепишет страницы из переменной.
+#
+# ПОЧЕМУ НЕ ExecutableItems. Старая версия читала первую строку книги по клику.
+# Нынешние правила так не сделать; активаторы в конфиге EI вырезаны, иначе клик
+# убивал бы в обход правил и кулдауна.
+#
+# Требуется: Skript 2.16.2. Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &8&l[ТЕТРАДЬ] &r
+    cooldown: 18000     # кулдаун по умолчанию, 5 часов; меняется /deathnote cooldown
+    idle: 1             # через сколько суток простоя тетрадь можно изымать
+    limit: 2            # больше двух тетрадей на сервере быть не должно
+
+# ---------------------------------------------------------------------------
+# Предмет
+# ---------------------------------------------------------------------------
+
+function dn_rules() :: text:
+    return "ТЁМНАЯ ТЕТРАДЬ СМЕРТИ. Человек, чьё имя записано в этой тетради, умрёт. 1) Имена пишутся со второй страницы, по одному на страницу. 2) Записанное не стирается. 3) Жертва должна быть в сети. 4) Одна смерть в 5 часов. 5) Чтобы приговор вступил в силу, нажми ПОДПИСАТЬ."
+
+# Книгу собирает ванильная команда: Skript не умеет писать страницы в книгу
+# с пером, а give с компонентом writable_book_content — умеет. Имена кладём
+# по одному на страницу, поэтому в SNBT не нужны ни переносы, ни экранирование.
+function dn_give(p: player):
+    set {_pages} to """%dn_rules()%"""
+    loop {deathnote::names::*}:
+        set {_pages} to "%{_pages}%,""%loop-value%"""
+    make console execute command "minecraft:give %{_p}% minecraft:writable_book[minecraft:writable_book_content={pages:[%{_pages}%]},minecraft:custom_model_data={floats:[6666]}] 1"
+
+# имя и лор проставляем скриптом: в SNBT их пришлось бы экранировать трижды
+function dn_brand(p: player):
+    loop integers from 0 to 35:
+        if dn_cmd(slot loop-number of {_p}'s inventory) is 6666:
+            set name of slot loop-number of {_p}'s inventory to "&8&lТЁМНАЯ ТЕТРАДЬ СМЕРТИ"
+            set lore of slot loop-number of {_p}'s inventory to "&7Имена — со второй страницы." and "&8Подпиши книгу, чтобы приговор вступил в силу."
+
+# Кулдаун живёт в переменной, чтобы его можно было менять на ходу командой;
+# опция {@cooldown} остаётся значением по умолчанию для чистого сервера.
+function dn_cooldown() :: number:
+    if {deathnote::cooldown} is not set:
+        return {@cooldown}
+    return {deathnote::cooldown}
+
+# сколько тетрадей сейчас на руках
+function dn_issued() :: number:
+    if {deathnote::issued} is not set:
+        return 0
+    return {deathnote::issued}
+
+# остаток кулдауна человеческим текстом
+function dn_left(sec: number) :: text:
+    if {_sec} >= 3600:
+        return "%round({_sec} / 360) / 10% ч"
+    if {_sec} >= 60:
+        return "%round({_sec} / 60)% мин"
+    return "%round({_sec})% с"
+
+function dn_cmd(i: item) :: number:
+    # У воздуха нет меты: `custom model data of air` кидает исключение,
+    # а проверять пустые слоты приходится постоянно.
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+# страницы 2+ одной простынёй, чтобы потом разбить на строки
+function dn_body(pages: texts) :: text:
+    set {_t} to ""
+    loop {_pages::*}:
+        if loop-index is not "1":
+            set {_t} to "%{_t}%%nl%%loop-value%"
+    return {_t}
+
+# ---------------------------------------------------------------------------
+# Сердце механики: подпись книги
+# ---------------------------------------------------------------------------
+
+# Читать страницы можно только у подписанной книги, поэтому ждём тик: к этому
+# моменту в руке уже written_book, и `book pages of` отдаёт текст.
+on book sign:
+    dn_cmd(past event-item) is 6666
+    wait 1 tick
+    set {_book} to player's tool
+    dn_cmd({_book}) is 6666
+
+    set {_pages::*} to book pages of {_book}
+    set {_found::*} to split dn_body({_pages::*}) at nl
+
+    delete {_added::*}
+    loop {_found::*}:
+        if loop-value is not "":
+            if {deathnote::names::*} does not contain loop-value:
+                add loop-value to {_added::*}
+
+    set {_verdict} to ""
+    if {_added::*} is not set:
+        set {_verdict} to "&7Новых имён нет."
+    else if size of {_added::*} > 1:
+        set {_verdict} to "&cЗа раз пишется только одно имя."
+    else:
+        set {_name} to {_added::1}
+        set {_ok} to true
+
+        if {deathnote::lastkill} is set:
+            set {_passed} to (unix timestamp of now) - (unix timestamp of {deathnote::lastkill})
+            set {_cd} to dn_cooldown()
+            if {_passed} < {_cd}:
+                set {_verdict} to "&cТетрадь ещё не насытилась. Ждать: &f%dn_left({_cd} - {_passed})%"
+                set {_ok} to false
+
+        if {_ok} is true:
+            set {_victim} to {_name} parsed as player
+            if {_victim} is not set:
+                set {_verdict} to "&7В мире живых нет никого с именем &f%{_name}%&7. Тетрадь молчит."
+            else if {_victim} is player:
+                set {_verdict} to "&cСвоё имя тетрадь не принимает."
+            else:
+                # приговор: имя уходит в список сервера навсегда
+                add {_name} to {deathnote::names::*}
+                set {deathnote::lastkill} to now
+                add "%{_victim}% (%now%)" to {deathnote::victims::*}
+                kill {_victim}
+                broadcast "{@prefix}&4&l%{_victim}% &cскончался."
+                set {_verdict} to "&8Имя вписано навсегда. Тетрадь сыта на 5 часов."
+                play sound "entity.wither.spawn" with volume 0.4 at player
+
+    # подписанную книгу забираем и возвращаем перо со списком из переменной:
+    # что бы игрок ни стёр, страницы соберутся заново
+    set player's tool to air
+    dn_give(player)
+    wait 1 tick
+    dn_brand(player)
+    send "{@prefix}%{_verdict}%" to player
+
+# ---------------------------------------------------------------------------
+# Розыск тетради
+# ---------------------------------------------------------------------------
+
+# Отдельно инвентарь и отдельно эндер-сундук: владелец вправе спрятать её и туда.
+#
+# ⚠ Верхняя граница цикла — не `amount of slots`. У инвентаря игрока их 41,
+# и на слотах 36-40 (броня, вторая рука) Skript 2.16.2 строит EquipmentSlot
+# по индексу и падает с `NullPointerException: bukkitSlot cannot be null`:
+# в 26.1 набор EquipmentSlot у Bukkit шире, чем его маппинг. Поэтому рюкзак
+# и сундуки обходятся до 36-го слота, а вторая рука проверяется отдельно —
+# книгу можно держать в ней, а вот надеть нельзя.
+function dn_slot_has(inv: inventory) :: boolean:
+    set {_max} to amount of slots of {_inv}
+    if {_max} > 36:
+        set {_max} to 36
+    loop integers from 0 to ({_max} - 1):
+        if dn_cmd(slot loop-number of {_inv}) is 6666:
+            return true
+    return false
+
+# Вторая рука живёт отдельно от слотов инвентаря — ищем её через игрока.
+function dn_offhand_has(p: player) :: boolean:
+    if dn_cmd(off hand tool of {_p}) is 6666:
+        return true
+    return false
+
+# ВАЖНО: писать надо прямо в `slot N of ...`. Если положить слот в переменную
+# и присвоить ей air, поменяется переменная, а инвентарь останется как был —
+# на этом уже обожглись: тетради не изымались, а копились.
+function dn_take(inv: inventory) :: boolean:
+    set {_max} to amount of slots of {_inv}
+    if {_max} > 36:
+        set {_max} to 36
+    loop integers from 0 to ({_max} - 1):
+        if dn_cmd(slot loop-number of {_inv}) is 6666:
+            set slot loop-number of {_inv} to air
+            return true
+    return false
+
+function dn_take_offhand(p: player) :: boolean:
+    if dn_cmd(off hand tool of {_p}) is 6666:
+        set off hand tool of {_p} to air
+        return true
+    return false
+
+# ---------------------------------------------------------------------------
+# Команда
+# ---------------------------------------------------------------------------
+
+command /deathnote [<text>] [<text>]:
+    permission: ekb.deathnote.admin
+    permission message: &cТетрадь — забота главного админа.
+    aliases: /dn
+    description: Выдача, розыск и изъятие Тёмной Тетради Смерти
+    usage: /deathnote give <ник|random> | find | reclaim <ник> | cooldown <часы> | setcount <n> | info
+    trigger:
+        if arg-1 is "give":
+            if arg-2 is "random":
+                set {_target} to random player out of all players
+            else:
+                set {_target} to arg-2 parsed as player
+            if {_target} is not set:
+                send "{@prefix}&cНекому выдавать: игрок не в сети."
+                stop
+            if dn_issued() >= {@limit}:
+                send "{@prefix}&cНа сервере уже &f%dn_issued()% &cтетради из &f{@limit}&c."
+                send "{@prefix}&7Сначала изыми одну: &b/deathnote find&7, потом &b/deathnote reclaim <ник>&7."
+                stop
+            set {deathnote::issued} to dn_issued() + 1
+            dn_give({_target})
+            wait 1 tick
+            dn_brand({_target})
+            set {deathnote::holder} to "%{_target}%"
+            set {deathnote::given} to now
+            send "{@prefix}&aТетрадь ушла к &f%{_target}%&a."
+            send "{@prefix}&8Тебе в руки легла тетрадь. Прочти первую страницу." to {_target}
+            stop
+
+        if arg-1 is "find":
+            set {_found} to false
+            loop all players:
+                if dn_offhand_has(loop-player) is true:
+                    send "{@prefix}&aТетрадь во второй руке &f%loop-player%&a."
+                    set {_found} to true
+                else if dn_slot_has(loop-player's inventory) is true:
+                    send "{@prefix}&aТетрадь в инвентаре &f%loop-player%&a."
+                    set {_found} to true
+                else if dn_slot_has(loop-player's ender chest) is true:
+                    send "{@prefix}&aТетрадь в эндер-сундуке &f%loop-player%&a."
+                    set {_found} to true
+            if {_found} is false:
+                send "{@prefix}&7Среди онлайна тетради нет."
+                if {deathnote::holder} is set:
+                    send "{@prefix}&7Последним её получал &f%{deathnote::holder}%&7 (%{deathnote::given}%)."
+                    send "{@prefix}&7Изъять у оффлайн-игрока: &b/deathnote reclaim %{deathnote::holder}%"
+            stop
+
+        if arg-1 is "reclaim":
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи ник."
+                stop
+            set {_online} to arg-2 parsed as player
+            if {_online} is set:
+                if dn_take_offhand({_online}) is true:
+                    dn_give(player)
+                    send "{@prefix}&aТетрадь изъята из второй руки &f%{_online}%&a."
+                    stop
+                if dn_take({_online}'s inventory) is true:
+                    dn_give(player)
+                    send "{@prefix}&aТетрадь изъята из инвентаря &f%{_online}%&a."
+                    stop
+                if dn_take({_online}'s ender chest) is true:
+                    dn_give(player)
+                    send "{@prefix}&aТетрадь изъята из эндер-сундука &f%{_online}%&a."
+                    stop
+                send "{@prefix}&7У &f%{_online}% &7тетради нет."
+                stop
+
+            # оффлайн: инвентарь читает только OpenInv, Skript туда не достаёт
+            set {_off} to arg-2 parsed as offline player
+            if {_off} is not set:
+                send "{@prefix}&cТакого игрока сервер не знает."
+                stop
+            set {_idle} to difference between (last login of {_off}) and now
+            if {_idle} is less than {@idle} days:
+                send "{@prefix}&cОн заходил меньше суток назад (%{_idle}% назад). Изъятие — только после суток простоя."
+                stop
+            send "{@prefix}&7Простой: &f%{_idle}%&7. Открываю его инвентарь и эндер-сундук."
+            make player execute command "oi %arg-2%"
+            make player execute command "oe %arg-2%"
+            send "{@prefix}&7Забери тетрадь руками из открытых окон (OpenInv)."
+            stop
+
+        if arg-1 is "cooldown":
+            if arg-2 is not set:
+                set {_cd} to dn_cooldown()
+                send "{@prefix}&7Сейчас кулдаун: &f%dn_left({_cd})%&7. Задать: &b/deathnote cooldown <часы>"
+                stop
+            set {_h} to arg-2 parsed as number
+            if {_h} is not set:
+                send "{@prefix}&cЧасы числом, например &f/deathnote cooldown 5"
+                stop
+            if {_h} < 0:
+                send "{@prefix}&cОтрицательного кулдауна не бывает."
+                stop
+            set {deathnote::cooldown} to {_h} * 3600
+            set {_cd} to dn_cooldown()
+            send "{@prefix}&aКулдаун тетради теперь: &f%dn_left({_cd})%&a."
+            stop
+
+        if arg-1 is "setcount":
+            if arg-2 is not set:
+                send "{@prefix}&7Выдано тетрадей: &f%dn_issued()%&7 из &f{@limit}&7. Поправить: &b/deathnote setcount <число>"
+                stop
+            set {_n} to arg-2 parsed as integer
+            if {_n} is not set:
+                send "{@prefix}&cНужно число."
+                stop
+            set {deathnote::issued} to {_n}
+            send "{@prefix}&aСчётчик выданных тетрадей: &f%dn_issued()%&a."
+            stop
+
+        if arg-1 is "info":
+            if {deathnote::lastkill} is set:
+                set {_passed} to (unix timestamp of now) - (unix timestamp of {deathnote::lastkill})
+                set {_cd} to dn_cooldown()
+                if {_passed} < {_cd}:
+                    send "{@prefix}&7Тетрадь перезаряжается ещё &f%dn_left({_cd} - {_passed})%&7."
+                else:
+                    send "{@prefix}&aТетрадь готова."
+            else:
+                send "{@prefix}&aТетрадь ещё никого не забрала."
+            send "{@prefix}&7Выдано тетрадей: &f%dn_issued()%&7 из &f{@limit}&7."
+            set {_cdi} to dn_cooldown()
+            send "{@prefix}&7Кулдаун: &f%dn_left({_cdi})%&7."
+            if {deathnote::holder} is set:
+                send "{@prefix}&7Последний известный владелец: &f%{deathnote::holder}%&7."
+            if {deathnote::victims::*} is set:
+                send "{@prefix}&7Забрала жизней: &f%size of {deathnote::victims::*}%"
+                loop {deathnote::victims::*}:
+                    send "&8- &f%loop-value%"
+            stop
+
+        send "{@prefix}&7/deathnote give <ник|random> &8— выдать"
+        send "{@prefix}&7/deathnote find &8— у кого она сейчас"
+        send "{@prefix}&7/deathnote reclaim <ник> &8— изъять (оффлайн — после суток простоя)"
+        send "{@prefix}&7/deathnote cooldown <часы> &8— сменить кулдаун"
+        send "{@prefix}&7/deathnote setcount <n> &8— поправить счётчик выданных"
+        send "{@prefix}&7/deathnote info &8— кулдаун и список жертв"

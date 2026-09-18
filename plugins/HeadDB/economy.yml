@@ -1,0 +1,19 @@
+enabled: false
+provider: vault
+
+prices:
+  # Fallback price for every head. Set to 0 to make heads free.
+  any-head: 0.0
+
+  # Price for player heads. If omitted, any-head is used.
+  player-heads: 0.0
+
+  # Remote/custom head category prices. These override any-head.
+  categories: {}
+
+  # More Categories prices, keyed by custom category id. These override normal category prices.
+  custom-categories: {}
+
+  # Per-head prices. Keys can use visible ids: 1, custom:example, player:<uuid>.
+  # Per-head prices override category and fallback prices.
+  heads: {}

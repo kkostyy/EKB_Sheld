@@ -1,0 +1,140 @@
+# EKB SHIELD — deathnote_tracker.sk
+# Розыск Тетради Смерти и списание, когда она пропала совсем.
+#
+# Тетрадь регулярно теряется: её выбрасывают, она деспавнится, сгорает
+# в лаве или уезжает в сундук, о котором никто не помнит. Счётчик
+# {deathnote::issued} при этом остаётся, и выдать новую нельзя — лимит
+# в две штуки считает призраков.
+#
+# Что делает скрипт:
+#   — каждую минуту ищет тетрадь у онлайна (рюкзак + эндер-сундук),
+#     среди брошенных предметов и в известных схронах;
+#   — если не нашёл {@missing} минут подряд, списывает пропажу: счётчик
+#     уменьшается, и тетрадь можно выдавать заново.
+#
+# ⚠ Блоки чанков НЕ перебираются. Один чанк — 98 304 блока, полсотни
+# загруженных чанков это пять миллионов проверок за тик, и сервер встаёт
+# колом (ровно так его уже подвесил /mbg). Вместо поиска по миру скрипт
+# запоминает сундуки в тот момент, когда в них кладут тетрадь.
+#
+# Схрон в невыгруженном чанке считается «тетрадь на месте»: проверить его
+# нельзя, а списывать по незнанию хуже, чем подождать.
+#
+# Требует death_note.sk (использует его функцию dn_slot_has).
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &8&l[ТЕТРАДЬ] &r
+    missing: 10        # минут подряд «нигде нет», после которых списываем
+    cmd: 6666          # CustomModelData тетради
+
+# Хранилище:
+#   {deathnote::stash::%локация%}  — сундук, в котором видели тетрадь
+#   {deathnote::lastchest::%uuid%} — какой контейнер игрок открыл последним
+#   {deathnote::missing}           — сколько минут подряд не находим
+#   {deathnote::lastseen}          — где видели в последний раз (текстом)
+
+# ---------------------------------------------------------------------------
+# Запоминаем сундуки: дёшево и точно
+# ---------------------------------------------------------------------------
+
+on right click on chest or trapped chest or barrel or shulker box or ender chest:
+    set {deathnote::lastchest::%uuid of player%} to location of clicked block
+
+# При закрытии смотрим, что осталось в том контейнере, который открывали.
+# Так схрон появляется в списке ровно тогда, когда тетрадь туда положили,
+# и исчезает, когда забрали.
+on inventory close:
+    set {_u} to "%uuid of player%"
+    set {_loc} to {deathnote::lastchest::%{_u}%}
+    if {_loc} is set:
+        delete {deathnote::lastchest::%{_u}%}
+        set {_block} to block at {_loc}
+        if {_block} is chest or trapped chest or barrel or shulker box:
+            if dn_slot_has(inventory of {_block}) is true:
+                set {deathnote::stash::%{_loc}%} to {_loc}
+            else:
+                delete {deathnote::stash::%{_loc}%}
+
+# ---------------------------------------------------------------------------
+# Поиск
+# ---------------------------------------------------------------------------
+
+# Где тетрадь сейчас: текстом, либо "" если нигде не нашли
+function dn_locate() :: text:
+    loop all players:
+        if dn_slot_has(loop-player's inventory) is true:
+            return "в рюкзаке %loop-player%"
+        if dn_slot_has(loop-player's ender chest) is true:
+            return "в эндер-сундуке %loop-player%"
+
+    # брошенные предметы: их немного, перебор дешёвый
+    loop all dropped items in world "world":
+        if dn_cmd(item of loop-value) is {@cmd}:
+            return "лежит на земле: %location of loop-value%"
+
+    loop {deathnote::stash::*}:
+        set {_loc} to loop-value
+        if chunk at {_loc} is loaded:
+            set {_b} to block at {_loc}
+            if {_b} is chest or trapped chest or barrel or shulker box:
+                if dn_slot_has(inventory of {_b}) is true:
+                    return "в сундуке: %{_loc}%"
+                else:
+                    delete {deathnote::stash::%{_loc}%}
+            else:
+                delete {deathnote::stash::%{_loc}%}
+        else:
+            # чанк выгружен — проверить нельзя, считаем что тетрадь там
+            return "в сундуке вне загруженных чанков: %{_loc}%"
+    return ""
+
+# ---------------------------------------------------------------------------
+# Раз в минуту: ищем и считаем пропажу
+# ---------------------------------------------------------------------------
+
+every 1 minute:
+    if dn_issued() > 0:
+        set {_where} to dn_locate()
+        if {_where} is not "":
+            set {deathnote::lastseen} to {_where}
+            delete {deathnote::missing}
+        else:
+            add 1 to {deathnote::missing}
+            if {deathnote::missing} >= {@missing}:
+                delete {deathnote::missing}
+                set {_had} to dn_issued()
+                set {deathnote::issued} to 0
+                delete {deathnote::stash::*}
+                loop all players:
+                    if loop-player has permission "ekb.deathnote.admin":
+                        send "{@prefix}&cТетрадь не находится уже {@missing} минут — считаю утерянной." to loop-player
+                        send "{@prefix}&7Счётчик сброшен (&f%{_had}%&7 → &f0&7), можно выдавать заново." to loop-player
+                        if {deathnote::lastseen} is set:
+                            send "{@prefix}&8Последний раз видели: %{deathnote::lastseen}%" to loop-player
+                        if {deathnote::holder} is set:
+                            send "{@prefix}&8Последний владелец: &f%{deathnote::holder}%&8 — если он вернётся с тетрадью, поправь &b/deathnote setcount" to loop-player
+
+# ---------------------------------------------------------------------------
+# Ручная проверка
+# ---------------------------------------------------------------------------
+
+command /dnscan:
+    permission: ekb.deathnote.admin
+    permission message: &cТетрадь — забота главного админа.
+    description: Где сейчас Тетрадь Смерти
+    trigger:
+        set {_where} to dn_locate()
+        send "{@prefix}&7Выдано тетрадей: &f%dn_issued()%&7." to sender
+        if {_where} is "":
+            set {_min} to {deathnote::missing}
+            if {_min} is not set:
+                set {_min} to 0
+            send "{@prefix}&cНигде не найдена. Не находится &f%{_min}%&c мин из {@missing}." to sender
+            if {deathnote::lastseen} is set:
+                send "{@prefix}&8Последний раз видели: %{deathnote::lastseen}%" to sender
+            send "{@prefix}&7Схронов на учёте: &f%size of {deathnote::stash::*}%&7." to sender
+            send "{@prefix}&8Списать сразу: &b/deathnote setcount 0" to sender
+        else:
+            send "{@prefix}&aНайдена — %{_where}%&a." to sender
+            delete {deathnote::missing}

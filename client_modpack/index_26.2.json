@@ -1,0 +1,163 @@
+{
+  "formatVersion": 1,
+  "game": "minecraft",
+  "versionId": "1.0.0",
+  "name": "EKB SHIELD Client Pack (26.2)",
+  "summary": "Клиентский набор разрешённых модов для сервера EKB SHIELD (Fabric)",
+  "files": [
+    {
+      "path": "mods/sodium.jar",
+      "hashes": {
+        "sha1": "62a70961a5b3e06938e06ab5f2dc4c5a51cf3323",
+        "sha512": "9b7a7aade8824543ce2a804fddfd04e37f57d1f91c00574e7dc87e554eb1835d888313ee6f715a7599bd729840cf01fd74e02aeae87b4e5a3c10c34a016e407c"
+      },
+      "env": {
+        "client": "required",
+        "server": "unsupported"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/AANobbMI/versions/xJZxADzI/sodium-fabric-0.9.2%2Bmc26.2.jar"
+      ],
+      "fileSize": 1885572
+    },
+    {
+      "path": "mods/iris.jar",
+      "hashes": {
+        "sha1": "bd0b24731a94b8fe164531e6345718d30ab08ed2",
+        "sha512": "dee955580976aebc92373f5c2d88398ad1019b043c6254a41fe7ab8a6ca3a5ff29d58df2b22ec43a31198beb769e814658eef06fbf980066a2e2c216eeafd32a"
+      },
+      "env": {
+        "client": "required",
+        "server": "unsupported"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/YL57xq9U/versions/gxZWWnKH/iris-fabric-1.11.4%2Bmc26.2.jar"
+      ],
+      "fileSize": 2821616
+    },
+    {
+      "path": "mods/custom-player-models.jar",
+      "hashes": {
+        "sha1": "bc2aabbc75f2350d2ca782637511ef9817972778",
+        "sha512": "c260f75cbc345dcf097bd9af7166ae8f9c825b99260af78f7ee8334e3c29adfe34eb44bdb5c0992c95eb498595d5299d81216fbc9febe12de328f5c2189cdad9"
+      },
+      "env": {
+        "client": "required",
+        "server": "optional"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/h1E7sQNL/versions/klnLackF/CustomPlayerModels-Fabric-26.2-0.6.27c.jar"
+      ],
+      "fileSize": 2836608
+    },
+    {
+      "path": "mods/litematica.jar",
+      "hashes": {
+        "sha1": "736eda2b7a9f08ef2a104f6a79bce2c2715ecf28",
+        "sha512": "d1c80538f3311b585c9311e59f14fd7fd3eb82288fe5afb399b2139cb35b42d24db7203379f2f61b50a610736335a86dbd395ca1795b001622e6b24dc6fe2a67"
+      },
+      "env": {
+        "client": "required",
+        "server": "unsupported"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/bEpr0Arc/versions/CuniXtbo/litematica-fabric-26.2-0.28.8.jar"
+      ],
+      "fileSize": 1929569
+    },
+    {
+      "path": "mods/malilib.jar",
+      "hashes": {
+        "sha1": "8e4959313bec2d413ac898d1a030f1d73d419d5a",
+        "sha512": "0fab398f835d9c4736dac65510f707c77a60be6e6051bfd008225c20a5ff13e146296da258bee551d39fa28102b8854d77fa25b2ecb6b0f89fb3c874bac563db"
+      },
+      "env": {
+        "client": "required",
+        "server": "unsupported"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/GcWjdA9I/versions/KvjmGjAV/malilib-fabric-26.2-0.29.6.jar"
+      ],
+      "fileSize": 2037195
+    },
+    {
+      "path": "mods/freecam.jar",
+      "hashes": {
+        "sha1": "3f60f5af3e6a0e4e301e4daee9839b6a35a7a296",
+        "sha512": "2f6ec6819b3dae39fac0dabdc2d717980630a8f123981d308bbeb03fde033d42e1c86943cbcc9b7d085d4aad50143bcd8443e6bf4cf4932a4eb583906c0a4035"
+      },
+      "env": {
+        "client": "required",
+        "server": "unsupported"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/XeEZ3fK2/versions/r125dZ2j/freecam-fabric-1.4.1%2Bmc26.2.jar"
+      ],
+      "fileSize": 1370306
+    },
+    {
+      "path": "mods/plasmo-voice.jar",
+      "hashes": {
+        "sha1": "c7313bca7a4e0c9273a6a79f159ebb4c6f3e1584",
+        "sha512": "653fb434622343ca3758f46ad6fac6de73120aeb5e842bc258170b2c66c44a146401bd487c9213926a4eecc34506a0978245f8b8ddd38d304cef49f231599c88"
+      },
+      "env": {
+        "client": "required",
+        "server": "required"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/1bZhdhsH/versions/lmQvyHuY/plasmovoice-fabric-26.2-2.1.17.jar"
+      ],
+      "fileSize": 12247451
+    },
+    {
+      "path": "mods/armor-poser.jar",
+      "hashes": {
+        "sha1": "47e285a209dd133c7e62d2421d7bef8f49e8fb42",
+        "sha512": "0a4de0246b37ab6180df01738b580e658af2daff37a1b38258d6341df081d17588e733a24b2f0496c9dba77fbcce833ce0f7e804a0dd2a608a5214f91e1c5a10"
+      },
+      "env": {
+        "client": "required",
+        "server": "required"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/PFwYNrHb/versions/kAojpcBr/ArmorPoser-fabric-26.2-15.0.3.jar"
+      ],
+      "fileSize": 184273
+    },
+    {
+      "path": "mods/imageframe-client.jar",
+      "hashes": {
+        "sha1": "776a32b3d9a8979d6aaaf89397f8b35f3df09cdd",
+        "sha512": "923450c367844f22c617cb7f54bbda0a1611f499db42a5b63886b2d991a765cc5dd876039976c0ddf34942300b120e8d2cd4f571838746d1e8c904d32301ecf7"
+      },
+      "env": {
+        "client": "required",
+        "server": "unsupported"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/7JSyQd4e/versions/3oal0krh/ImageFrameClient-26.2-fabric-1.2.0.jar"
+      ],
+      "fileSize": 266913
+    },
+    {
+      "path": "mods/female-gender.jar",
+      "hashes": {
+        "sha1": "7c36d1253e345903fd2adbe32f1664ca6f5acb31",
+        "sha512": "0a030fb34983ab22a45cf6e9a8170ca528f8e6f005f95bb97919ba3af5943b1b19d0392171afc7394b889dd35b01f53bca01f098810e0fc2dd61bedf09bbcf5c"
+      },
+      "env": {
+        "client": "required",
+        "server": "optional"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/bcOsQHnC/versions/a98J621N/Female-Gender-Mod-5.0.0-Beta.5%2Bmc26.2-fabric.jar"
+      ],
+      "fileSize": 1169312
+    }
+  ],
+  "dependencies": {
+    "minecraft": "26.2",
+    "fabric-loader": "0.19.5"
+  }
+}

@@ -1,0 +1,30 @@
+# EKB SHIELD — Squaremap config.yml
+
+web-address: "http://your-server-ip:8080/"
+port: 8080
+bind: "0.0.0.0"
+
+world-settings:
+  default:
+    enabled: true
+    render:
+      biomes: true
+      lighting: FLAT
+      lighting-flat-shadow-opacity: 0.35
+    zoom:
+      math: normal
+      max-out: 3
+    update:
+      full-render:
+        cpu-pool-size: 2
+        maxrate: 100
+    show-caves: false
+    render-spawn-icon: true
+
+advanced:
+  # Ускоряет прогрев рендера на 30x30 чанков карты
+  chunks-per-interval: 1
+  interval-between-runs: 1
+  ticks-between-chunk-scans: 1
+
+link-discord-webhook: ""

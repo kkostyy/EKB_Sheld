@@ -1,0 +1,447 @@
+# EKB SHIELD — jail_online_time.sk
+# Требует плагин Skript (skriptlang.github.io) — без Java-кода.
+# Считает срок ТОЛЬКО пока игрок в сети (пауза при выходе), в отличие
+# от стандартного jail-плагина, который тикает и оффлайн.
+#
+# Режим содержания (Конституция, УК 7.1):
+#   — при посадке инвентарь целиком (рюкзак, броня, вторая рука) уходит
+#     в судейский ящик, заключённый стоит в камере с пустыми руками;
+#   — ломать и ставить блоки нельзя вообще — иначе камера вскрывается
+#     за минуту и срок превращается в формальность;
+#   — а вот ЕСТЬ, ПИТЬ и КУРИТЬ переданное можно: еду, алкоголь Brewery
+#     и косяки Nirvana судья или конвой выдают прямо в камеру, правый
+#     клик по ним не трогается.
+# Вещи по окончании срока сами НЕ возвращаются: их выдаёт судья
+# командой /jailitems give <ник> — так Суд решает, что вернуть, а что
+# конфисковать в Казну (УК 6.1, 6.3).
+# Освобождённый сам выбирает в меню, куда выйти: к своей кровати,
+# на спавн или к выходу из Суда (/setcourtpoint).
+
+options:
+    prefix: &c&l[СУД] &r
+
+# ---------------------------------------------------------------------------
+# КЛЮЧ ПЕРЕМЕННОЙ — ВСЕГДА UUID, И ТОЛЬКО ЯВНЫМ `%uuid of ...%`
+#
+# В имени переменной Skript подставляет не то же, что в тексте сообщения:
+#   {x::%player%}        -> ключ "5e2069b0-...-db8284d65888"  (UUID!)
+#   {x::%offlineplayer%} -> ключ "kosyvx"                      (ник)
+# Команды принимают offlineplayer, события дают player — и половина скрипта
+# писала по нику, а вторая читала по UUID. Внешне это выглядело так, будто
+# заключённый может ломать блоки, а срок не тикает вообще: условия просто
+# смотрели в пустую ячейку. Поэтому ключ везде считается один раз в {_k}.
+#
+# Хранилище (ключ = UUID):
+#   {jail_name::%uuid%}       — ник для списков и сообщений
+#   {jail_remaining::%uuid%}  — оставшиеся секунды срока
+#   {jail_active::%uuid%}     — true/false, отбывает ли срок сейчас
+#   {jail_seized::%uuid%::*}  — судейский ящик: изъятые вещи
+#   {jail_seized_at::%uuid%}  — когда изъяли
+#   {jail_pending::%uuid%}    — приговор вынесен оффлайн, изъять при входе
+#   {jail_release::%uuid%}    — освобождён, но ещё не выбрал, куда выйти
+#   {jail_warn_cd::%uuid%}    — антиспам предупреждений в камере
+#   {jail_menu::%uuid%}       — открыто меню выбора (клики отменяются)
+#   {jail_confirm::%судья%}   — чей ящик судья собрался стереть
+#   {court-location}          — крыльцо Суда, /setcourtpoint
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+# Слот -> предмет. Класть `slot N of inv` прямо в переменную нельзя: туда
+# ляжет ссылка на слот, а не его содержимое (тем же кончились первые версии
+# /deathnote reclaim). Типизированный параметр функции заставляет Skript
+# привести слот к предмету — приём проверен в death_note.sk (dn_cmd).
+function jail_item(i: item) :: item:
+    return {_i}
+
+# Антиспам: в камере игрок долбит по блокам десятками кликов в секунду.
+function jail_warn(p: player, msg: text):
+    set {_k} to "%uuid of {_p}%"
+    set {_now} to unix timestamp of now
+    set {_last} to {jail_warn_cd::%{_k}%}
+    if {_last} is not set:
+        set {_last} to 0
+    if ({_now} - {_last}) >= 3:
+        set {jail_warn_cd::%{_k}%} to {_now}
+        send "{@prefix}%{_msg}%" to {_p}
+
+# Изъятие всего инвентаря.
+# Слоты 36-40 (броня и вторая рука) через `slot N of inventory` НЕ берутся:
+# Skript строит для них EquipmentSlot по индексу и падает с
+# `NullPointerException: bukkitSlot cannot be null` — в 26.1 набор
+# EquipmentSlot у Bukkit шире, чем маппинг Skript 2.16.2. Поэтому рюкзак
+# обходится циклом 0-35, а экипировка снимается именованными выражениями.
+function jail_seize(p: player) :: number:
+    set {_inv} to {_p}'s inventory
+    set {_k} to "%uuid of {_p}%"
+    set {_c} to 0
+    loop integers from 0 to 35:
+        set {_it} to jail_item(slot loop-number of {_inv})
+        if {_it} is not air:
+            add {_it} to {jail_seized::%{_k}%::*}
+            add 1 to {_c}
+        set slot loop-number of {_inv} to air
+    loop (helmet of {_p}) and (chestplate of {_p}) and (leggings of {_p}) and (boots of {_p}) and (off hand tool of {_p}):
+        if loop-value is not air:
+            add loop-value to {jail_seized::%{_k}%::*}
+            add 1 to {_c}
+    set helmet of {_p} to air
+    set chestplate of {_p} to air
+    set leggings of {_p} to air
+    set boots of {_p} to air
+    set off hand tool of {_p} to air
+    if {_c} > 0:
+        set {jail_seized_at::%{_k}%} to now
+    return {_c}
+
+# Свободные слоты рюкзака (без брони и второй руки) — чтобы выдача
+# не потеряла вещи: `give` кладёт через addItem, а излишки пропадают.
+function jail_free(p: player) :: number:
+    set {_c} to 0
+    loop integers from 0 to 35:
+        if jail_item(slot loop-number of {_p}'s inventory) is air:
+            add 1 to {_c}
+    return {_c}
+
+# ---------------------------------------------------------------------------
+# Приговор и освобождение
+# ---------------------------------------------------------------------------
+
+command /sentence <offlineplayer> <number>:
+    permission: coreprotect.rollback
+    description: Посадить игрока на N минут ОНЛАЙН-времени (не реального)
+    trigger:
+        if {jail-location} is not set:
+            send "{@prefix}&cТочка тюрьмы не задана — сначала /setjailpoint." to sender
+            stop
+        set {_k} to "%uuid of arg-1%"
+        set {_n} to "%arg-1%"
+        set {jail_name::%{_k}%} to {_n}
+        set {jail_remaining::%{_k}%} to arg-2 * 60
+        set {jail_active::%{_k}%} to true
+        broadcast "{@prefix}Игрок %{_n}% приговорён к %arg-2% минутам ОНЛАЙН-заключения."
+        if arg-1 is online:
+            set {_p} to {_n} parsed as player
+            teleport {_p} to {jail-location}
+            set {_c} to jail_seize({_p})
+            send "{@prefix}Ты заключён в тюрьму на %arg-2% минут ОНЛАЙН-времени." to {_p}
+            send "{@prefix}&7Имущество (&f%{_c}%&7 предметов) изъято и передано Суду." to {_p}
+            send "{@prefix}&7В камере нельзя ничего ломать и ставить. Есть, пить и курить — можно." to {_p}
+            send "{@prefix}&7Изъято у %{_n}%: &f%{_c}%&7 предметов. Вернуть: &b/jailitems give %{_n}%" to sender
+        else:
+            set {jail_pending::%{_k}%} to true
+            send "{@prefix}&7Игрок оффлайн — имущество будет изъято при входе." to sender
+
+command /freeearly <offlineplayer>:
+    permission: coreprotect.rollback
+    description: Досрочно освободить игрока
+    trigger:
+        set {_k} to "%uuid of arg-1%"
+        set {_n} to "%arg-1%"
+        set {jail_active::%{_k}%} to false
+        delete {jail_remaining::%{_k}%}
+        delete {jail_pending::%{_k}%}
+        broadcast "{@prefix}Игрок %{_n}% освобождён досрочно решением Судьи."
+        if arg-1 is online:
+            set {_p} to {_n} parsed as player
+            jail_release_menu({_p})
+        if {jail_seized::%{_k}%::*} is set:
+            set {_cnt} to size of {jail_seized::%{_k}%::*}
+            send "{@prefix}&7В судейском ящике лежит &f%{_cnt}%&7 предметов. Вернуть: &b/jailitems give %{_n}%" to sender
+
+# Каждую минуту уменьшаем срок только у тех, кто сейчас в сети
+every 1 minute:
+    loop all players:
+        set {_k} to "%uuid of loop-player%"
+        if {jail_active::%{_k}%} is true:
+            if {jail_remaining::%{_k}%} > 0:
+                remove 60 from {jail_remaining::%{_k}%}
+                teleport loop-player to {jail-location}  # удержание в тюрьме
+            else:
+                set {jail_active::%{_k}%} to false
+                delete {jail_remaining::%{_k}%}
+                send "{@prefix}Твой срок ОНЛАЙН-заключения истёк. Ты свободен." to loop-player
+                if {jail_seized::%{_k}%::*} is set:
+                    send "{@prefix}&7Имущество осталось у Суда. Обратись к Судье за возвратом." to loop-player
+                broadcast "{@prefix}Игрок %loop-player% отбыл срок и освобождён."
+                jail_release_menu(loop-player)
+
+# При входе игрока — если у него активен срок, сразу телепортируем в тюрьму.
+# Приговор могли вынести оффлайн: тогда имущество изымается именно здесь,
+# до того как заключённый успеет что-то сделать.
+on join:
+    set {_k} to "%uuid of player%"
+    set {jail_name::%{_k}%} to "%player%"
+    if {jail_active::%{_k}%} is true:
+        teleport player to {jail-location}
+        if {jail_pending::%{_k}%} is true:
+            wait 1 tick
+            set {_c} to jail_seize(player)
+            delete {jail_pending::%{_k}%}
+            send "{@prefix}&7Имущество (&f%{_c}%&7 предметов) изъято и передано Суду." to player
+        set {_m} to {jail_remaining::%{_k}%} / 60
+        send "{@prefix}У тебя ещё %{_m}% минут ОНЛАЙН-срока." to player
+        send "{@prefix}&7В камере нельзя ничего ломать и ставить." to player
+    else if {jail_release::%{_k}%} is set:
+        wait 1 tick
+        jail_release_menu(player)
+
+# ---------------------------------------------------------------------------
+# Освобождение: куда выйти, решает сам освобождённый
+# ---------------------------------------------------------------------------
+
+# Иконки различаются по CustomModelData, а не по типу предмета: сравнение
+# именованного предмета с алиасом (`event-item is red bed`) учитывает мету
+# и ломается. Номера 7001-7013 в ресурспаке не описаны — иконки отрисуются
+# ванильными, для меню этого достаточно.
+function jail_icon(i: item, cmd: number, title: text, note: text) :: item:
+    set custom model data of {_i} to {_cmd}
+    set name of {_i} to {_title}
+    set lore of {_i} to {_note}
+    return {_i}
+
+function jail_cmd(i: item) :: number:
+    return custom model data of {_i}
+
+function jail_release_menu(p: player):
+    set {_k} to "%uuid of {_p}%"
+    set {jail_release::%{_k}%} to true
+    set {_inv} to a chest inventory with 1 row named "&aКуда отправиться"
+
+    if (bed location of {_p}) is set:
+        set slot 2 of {_inv} to jail_icon(1 of red bed, 7001, "&aДомой, к кровати", "&7Твоя точка возрождения.")
+    else:
+        set slot 2 of {_inv} to jail_icon(1 of barrier, 7011, "&7Кровати нет", "&8Ты не спал ни в одной кровати.")
+
+    set slot 4 of {_inv} to jail_icon(1 of compass, 7002, "&eНа Спавн", "&7Общая точка появления мира.")
+
+    if {court-location} is set:
+        set slot 6 of {_inv} to jail_icon(1 of oak door, 7003, "&6К выходу из Суда", "&7Крыльцо здания Суда.")
+    else:
+        set slot 6 of {_inv} to jail_icon(1 of barrier, 7013, "&7Точка Суда не задана", "&8Судья задаёт её командой /setcourtpoint.")
+
+    set {jail_menu::%{_k}%} to true
+    open {_inv} to {_p}
+    send "{@prefix}&7Выбери, куда отправиться. Вернуть меню: &b/freedom" to {_p}
+
+on inventory click:
+    set {_k} to "%uuid of player%"
+    {jail_menu::%{_k}%} is set
+    cancel event
+    event-item is not air
+    set {_c} to jail_cmd(event-item)
+    if {_c} is 7001:
+        set {_to} to bed location of player
+        if {_to} is not set:
+            send "{@prefix}&cКровать не найдена — выбери другое." to player
+            stop
+    else if {_c} is 7002:
+        if {jail-location} is set:
+            set {_to} to spawn point of (world of {jail-location})
+        else:
+            set {_to} to spawn point of (world of player)
+    else if {_c} is 7003:
+        set {_to} to {court-location}
+        if {_to} is not set:
+            send "{@prefix}&cТочка Суда не задана — выбери другое." to player
+            stop
+    else:
+        stop
+    delete {jail_menu::%{_k}%}
+    delete {jail_release::%{_k}%}
+    close player's inventory
+    teleport player to {_to}
+    send "{@prefix}Ты на свободе." to player
+
+# Флаг снимается при закрытии и на выходе: иначе он залипнет и у игрока
+# перестанет работать собственный инвентарь — клики-то отменяются.
+on inventory close:
+    delete {jail_menu::%uuid of player%}
+
+on quit:
+    delete {jail_menu::%uuid of player%}
+
+# Меню закрыли, не выбрав, — открыть заново
+command /freedom:
+    description: Выбрать, куда отправиться после освобождения
+    trigger:
+        if {jail_release::%uuid of player%} is not set:
+            send "{@prefix}&7Ты никуда не выходишь: срока за тобой нет." to player
+            stop
+        jail_release_menu(player)
+
+# Крыльцо Суда — точка, куда выходят освобождённые
+command /setcourtpoint:
+    permission: coreprotect.rollback
+    description: Назначить точку у выхода из Суда
+    trigger:
+        set {court-location} to location of player
+        send "{@prefix}Выход из Суда установлен в твоих координатах." to player
+
+# ---------------------------------------------------------------------------
+# Режим камеры: руки связаны, но рот свободен
+# ---------------------------------------------------------------------------
+
+on break:
+    if {jail_active::%uuid of player%} is true:
+        cancel event
+        jail_warn(player, "&cВ камере запрещено что-либо ломать.")
+
+on place:
+    if {jail_active::%uuid of player%} is true:
+        cancel event
+        jail_warn(player, "&cВ камере запрещено что-либо ставить.")
+
+# Эндер-жемчуг и хорус — тот же побег, только мгновенный (УК 7.1).
+# Режем и бросок (жемчуг тогда не тратится), и сам телепорт: жемчуг мог
+# быть кинут за миг до приговора, а хорус срабатывает от еды.
+on right click holding ender pearl:
+    if {jail_active::%uuid of player%} is true:
+        cancel event
+        jail_warn(player, "&cИз тюрьмы не телепортируются.")
+
+on player teleport:
+    if {jail_active::%uuid of player%} is true:
+        if teleport cause is ender pearl or chorus fruit:
+            cancel event
+            jail_warn(player, "&cИз тюрьмы не телепортируются.")
+
+# ---------------------------------------------------------------------------
+# Судейский ящик
+# ---------------------------------------------------------------------------
+
+command /jailitems [<text>] [<offlineplayer>]:
+    permission: coreprotect.rollback
+    description: Судейский ящик с имуществом заключённых
+    usage: /jailitems list [ник] | give <ник> | clear <ник>
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix}&7/jailitems list [ник]&8 — что изъято" to sender
+            send "{@prefix}&7/jailitems give <ник>&8 — вернуть владельцу" to sender
+            send "{@prefix}&7/jailitems clear <ник>&8 — конфисковать в Казну" to sender
+            stop
+
+        if arg-1 is "list":
+            if arg-2 is not set:
+                # перебирается реестр ников, а НЕ {jail_seized::*}: у Skript 2.16.2
+                # loop по списку не отдаёт ветки без собственного значения,
+                # поэтому ящики (там только подсписки) в такой перебор не попадают
+                set {_any} to false
+                loop {jail_name::*}:
+                    set {_key} to loop-index
+                    set {_cnt} to size of {jail_seized::%{_key}%::*}
+                    if {_cnt} > 0:
+                        set {_who} to loop-value
+                        set {_when} to {jail_seized_at::%{_key}%}
+                        send "&7 - &f%{_who}%&7: %{_cnt}% предметов (изъято %{_when}%)" to sender
+                        set {_any} to true
+                if {_any} is false:
+                    send "{@prefix}&7Судейский ящик пуст." to sender
+                stop
+            set {_k} to "%uuid of arg-2%"
+            set {_n} to "%arg-2%"
+            if {jail_seized::%{_k}%::*} is not set:
+                send "{@prefix}&7У %{_n}% ничего не изъято." to sender
+                stop
+            set {_cnt} to size of {jail_seized::%{_k}%::*}
+            send "{@prefix}Имущество %{_n}% (&f%{_cnt}%&r):" to sender
+            loop {jail_seized::%{_k}%::*}:
+                send "&7- &f%loop-value%" to sender
+            stop
+
+        if arg-1 is "give":
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи ник." to sender
+                stop
+            set {_k} to "%uuid of arg-2%"
+            set {_n} to "%arg-2%"
+            if {jail_seized::%{_k}%::*} is not set:
+                send "{@prefix}&7У %{_n}% ничего не изъято." to sender
+                stop
+            set {_to} to {_n} parsed as player
+            if {_to} is not set:
+                send "{@prefix}&cИгрок не в сети — вещи выдаются только в руки." to sender
+                stop
+            set {_need} to size of {jail_seized::%{_k}%::*}
+            set {_free} to jail_free({_to})
+            if {_free} < {_need}:
+                send "{@prefix}&cВ рюкзаке %{_n}% свободно &f%{_free}%&c слотов, а вернуть надо &f%{_need}%&c." to sender
+                send "{@prefix}&7Пусть освободит место — иначе вещи пропадут при выдаче." to sender
+                stop
+            loop {jail_seized::%{_k}%::*}:
+                give loop-value to {_to}
+            delete {jail_seized::%{_k}%::*}
+            delete {jail_seized_at::%{_k}%}
+            send "{@prefix}Имущество (&f%{_need}%&r предметов) возвращено %{_n}%." to sender
+            send "{@prefix}Суд вернул тебе изъятое имущество." to {_to}
+            stop
+
+        if arg-1 is "clear":
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи ник." to sender
+                stop
+            set {_k} to "%uuid of arg-2%"
+            set {_n} to "%arg-2%"
+            if {jail_seized::%{_k}%::*} is not set:
+                send "{@prefix}&7У %{_n}% ничего не изъято." to sender
+                stop
+            set {_judge} to "%sender%"
+            if {jail_confirm::%{_judge}%} is {_k}:
+                delete {jail_confirm::%{_judge}%}
+                set {_cnt} to size of {jail_seized::%{_k}%::*}
+                delete {jail_seized::%{_k}%::*}
+                delete {jail_seized_at::%{_k}%}
+                broadcast "{@prefix}Имущество %{_n}% (&f%{_cnt}%&r предметов) конфисковано в Казну решением Суда."
+                stop
+            set {jail_confirm::%{_judge}%} to {_k}
+            set {_cnt} to size of {jail_seized::%{_k}%::*}
+            send "{@prefix}&cКонфискация безвозвратна: &f%{_cnt}%&c предметов." to sender
+            send "{@prefix}&7Повтори &b/jailitems clear %{_n}%&7 в течение 30 секунд." to sender
+            wait 30 seconds
+            if {jail_confirm::%{_judge}%} is {_k}:
+                delete {jail_confirm::%{_judge}%}
+                send "{@prefix}&7Конфискация %{_n}% отменена по таймауту." to sender
+            stop
+
+        send "{@prefix}&cНеизвестное действие. Смотри &b/jailitems" to sender
+
+# ---------------------------------------------------------------------------
+# Настройка и справка
+# ---------------------------------------------------------------------------
+
+# Задать координаты тюрьмы командой (один раз при настройке)
+command /setjailpoint:
+    permission: coreprotect.rollback
+    trigger:
+        set {jail-location} to location of player
+        send "{@prefix}Точка тюрьмы установлена в твоих координатах." to player
+
+# Показать точку тюрьмы и список отбывающих срок
+command /jailinfo:
+    permission: coreprotect.rollback
+    description: Точка тюрьмы и текущие заключённые
+    trigger:
+        if {jail-location} is not set:
+            send "{@prefix}&cТочка тюрьмы не задана. Встань на месте тюрьмы и выполни /setjailpoint" to sender
+            stop
+        send "{@prefix}Тюрьма: %{jail-location}%" to sender
+        loop {jail_active::*}:
+            if loop-value is true:
+                set {_key} to loop-index
+                set {_who} to {jail_name::%{_key}%}
+                if {_who} is not set:
+                    set {_who} to {_key}
+                set {_m} to {jail_remaining::%{_key}%} / 60
+                send "&7 - &f%{_who}%&7: осталось %{_m}% мин" to sender
+        loop {jail_name::*}:
+            set {_key} to loop-index
+            set {_cnt} to size of {jail_seized::%{_key}%::*}
+            if {_cnt} > 0:
+                send "&7- &f%loop-value%&7: в судейском ящике %{_cnt}% предметов" to sender
+
+# Напоминание при загрузке скрипта: без точки тюрьмы приговоры телепортируют в никуда
+on load:
+    if {jail-location} is not set:
+        broadcast "{@prefix}&cТочка тюрьмы НЕ задана — выполни /setjailpoint на месте тюрьмы."

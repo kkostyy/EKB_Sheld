@@ -1,0 +1,232 @@
+menu_title: '&8Врач Клиники'
+open_command:
+  - doctor
+  - врач
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.doctor
+      deny_commands:
+        - '[message] &cЭто меню Клиники.'
+
+items:
+  'diagnose':
+    material: SPYGLASS
+    slot: 10
+    display_name: '&b&lОсмотр пациента'
+    lore:
+      - '&8/addiction info <ник>'
+      - ''
+      - '&7Покажет обе шкалы — алкоголь и траву,'
+      - '&7стадию ломки и сколько пациент без дозы.'
+      - '&7Осмотр по Прайс-листу бесплатный.'
+    left_click_commands:
+      - '[player] ekbmenu info'
+
+  'cure':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmU3YTgxMGQyMTEyMjc1Y2MxODIxZGNjNmUyOWRhM2QyYjhmYzY1OWFmNzI5MGEzY2I3MGJlNTM2YWUyMDQwYSJ9fX0=
+    slot: 11
+    display_name: '&a&lКурс лечения'
+    lore:
+      - '&8/addiction cure <ник> &7— обе зависимости'
+      - '&8/addiction cure <ник> alco &7— только алкоголь'
+      - '&8/addiction cure <ник> weed &7— только трава'
+      - ''
+      - '&7Прайс: одна зависимость &f64–96💎&7,'
+      - '&7обе сразу &f128–160💎&7, выезд к пациенту &f+32💎&7.'
+      - ''
+      - '&4Деньги вперёд: команда лечит мгновенно'
+      - '&4и отменить её нечем.'
+    left_click_commands:
+      - '[player] ekbmenu heal'
+
+  'relief':
+    material: MILK_BUCKET
+    slot: 12
+    display_name: '&f&lОблегчить симптомы'
+    lore:
+      - '&7Молоко и рассол глушат ломку на 5 минут,'
+      - '&7но тягу не снимают. Это обезболивание,'
+      - '&7а не лечение.'
+      - ''
+      - '&7Молоко &f2💎&7, рассол &f8💎 &7(ещё и трезвит).'
+
+  'sober':
+    material: POTION
+    slot: 13
+    display_name: '&6&lВытрезвитель'
+    lore:
+      - '&8/brew set <ник> 0 &7— полностью протрезвить'
+      - ''
+      - '&7Опьянение и зависимость — разные вещи:'
+      - '&7трезвый пациент может быть в ломке,'
+      - '&7а пьяный — совершенно здоровым.'
+    left_click_commands:
+      - '[player] ekbmenu sober'
+
+  'howitworks':
+    material: BOOK
+    slot: 14
+    display_name: '&e&lКак устроена зависимость'
+    lore:
+      - '&7Каждая доза — плюс единица к своей шкале.'
+      - '&7С &f10 доз &7наступает зависимость.'
+      - ''
+      - '&7Дальше считается время ОНЛАЙН без дозы:'
+      - '&f20 мин &7— тошнота и голод,'
+      - '&f45 мин &7— плюс слабость и замедление.'
+      - '&7Урона ломка не наносит.'
+      - ''
+      - '&4Воздержание не лечит: шкала не падает'
+      - '&4сама. Только курс или смерть.'
+
+  'ethics':
+    material: PAPER
+    slot: 15
+    display_name: '&f&lПорядок приёма'
+    lore:
+      - '&f1. &7Осмотри пациента — &f/addiction info'
+      - '&f2. &7Назови цену по Прайс-листу.'
+      - '&f3. &7Возьми оплату алмазами.'
+      - '&f4. &7Проведи курс — &f/addiction cure'
+      - '&f5. &7Предупреди: повторные дозы вернут всё.'
+      - ''
+      - '&7Спор о деньгах решает Суд, как и любой другой.'
+
+  'emergency':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWRlYmM3YjJiYzYxNTE0YmQ0NDY2NjUwMzc1NTFiZjdjODMzMjM3ZTgzMjBmZWZiNDg1NDExZjhmNDJmNjZjOCJ9fX0=
+    slot: 16
+    display_name: '&c&lВыезд к пациенту'
+    lore:
+      - '&7Телепорты врачу не положены, если он'
+      - '&7не сотрудник САП. Выезд — это дорога ногами,'
+      - '&7потому он и стоит отдельных &f32💎&7.'
+
+  'prices':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
+    slot: 22
+    display_name: '&b&lПрайс Клиники'
+    lore:
+      - '&7Осмотр — бесплатно'
+      - '&7Курс от одной зависимости — &f64–96💎'
+      - '&7Курс сразу от обеих — &f128–160💎'
+      - '&7Выезд врача — &f+32💎'
+      - '&7Молоко &f2💎 &8· &7Рассол &f8💎'
+      - ''
+      - '&aЛКМ &8— весь Прайс-лист'
+    left_click_commands:
+      - '[openguimenu] ekb_laws'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_duty'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_4':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 4
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

@@ -1,0 +1,281 @@
+menu_title: '&8Стойка бара'
+open_command:
+  - barshop
+  - стойка
+size: 54
+
+items:
+
+  'mojito':
+    material: POTION
+    slot: 13
+    display_name: '&a&lМохито'
+    lore:
+      - '&b6💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy mojito'
+
+  'firm_beer':
+    material: POTION
+    slot: 20
+    display_name: '&6&lРазливное Фирменное'
+    lore:
+      - '&b8💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy firm_beer'
+
+  'rassol':
+    material: POTION
+    slot: 22
+    display_name: '&e&lРассол'
+    lore:
+      - '&b8💎'
+      - '&7Трезвит и глушит ломку на 5 минут.'
+      - '&4Тягу не снимает — лечит только Клиника.'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy rassol'
+
+  'passionfruit':
+    material: POTION
+    slot: 24
+    display_name: '&d&lМаракуйевая водка'
+    lore:
+      - '&b12💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy passionfruit'
+
+  'village_samogon':
+    material: POTION
+    slot: 28
+    display_name: '&f&lДеревенский самогон'
+    lore:
+      - '&b16💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy village_samogon'
+
+  'vodka_plain':
+    material: POTION
+    slot: 29
+    display_name: '&f&lВодка'
+    lore:
+      - '&b20💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy vodka_plain'
+
+  'tequila':
+    material: POTION
+    slot: 30
+    display_name: '&a&lМексиканская Текила'
+    lore:
+      - '&b24💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy tequila'
+
+  'vodka_absolut':
+    material: POTION
+    slot: 31
+    display_name: '&b&lШведская водка'
+    lore:
+      - '&b32💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy vodka_absolut'
+
+  'rum':
+    material: POTION
+    slot: 32
+    display_name: '&6&lКапитанский Ром'
+    lore:
+      - '&b32💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy rum'
+
+  'jager_orange':
+    material: POTION
+    slot: 33
+    display_name: '&6&lЕгермейстер Orange'
+    lore:
+      - '&b48💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy jager_orange'
+
+  'tennessee_whiskey':
+    material: POTION
+    slot: 34
+    display_name: '&e&lТеннессийский виски'
+    lore:
+      - '&b48💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy tennessee_whiskey'
+
+  'jagermeister':
+    material: POTION
+    slot: 39
+    display_name: '&2&lЛикёр Егермейстер'
+    lore:
+      - '&b64💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy jagermeister'
+
+  'jager_dark':
+    material: POTION
+    slot: 40
+    display_name: '&2&lЕгермейстер Охотничий'
+    lore:
+      - '&b80💎'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] barbuy jager_dark'
+
+  'warn':
+    material: SKELETON_SKULL
+    slot: 41
+    display_name: '&4&lО зависимости'
+    lore:
+      - '&7Каждая доза копится. С 10 доз — ломка,'
+      - '&7и воздержание её не снимает.'
+      - '&8Админский самогон в продажу не вынесен.'
+      - ''
+      - '&aЛКМ &8— моё состояние'
+    left_click_commands:
+      - '[player] addiction'
+
+  'header':
+    material: BREWING_STAND
+    slot: 4
+    display_name: '&6&lСтойка Спавна'
+    lore:
+      - '&7Цены полные, по прайс-листу. Живой бармен'
+      - '&7на Shopkeepers имеет смысл, если продаёт дешевле.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_casino'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

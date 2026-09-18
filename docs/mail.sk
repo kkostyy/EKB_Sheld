@@ -1,0 +1,228 @@
+# EKB SHIELD — mail.sk
+# Ламповая Почта: письма и посылки с задержкой доставки.
+# Требует docs/treasury.sk — марка оплачивается в Казну Спавна.
+#
+# Замена плагина MyCommand: живых сборок под 26.x у него нет (deploy_checklist §1).
+#
+# Что переделано против присланной спецификации.
+#
+# 1. Марка теперь ДЕЙСТВИТЕЛЬНО списывается и ложится в Казну (tr_pay), а не
+#    исчезает через `[player] clear %player_name% diamond 1`. Заодно это
+#    второй по величине доход Казны после аренды палаток.
+#
+# 2. Посылка НЕ «отправляется командой broadcast» — предмет физически
+#    изымается у отправителя и лежит на почте, пока не дойдёт.
+#
+# 3. ⚠️ ГЛАВНОЕ: доставка идёт по ЧАСАМ, а не по `wait 20 minutes`.
+#    Прошлая версия ждала прямо в команде, и это работало только для текста:
+#    перезапуск сервера обрывает все отложенные задачи Skript. С посылкой это
+#    означало бы, что вещь у отправителя изъяли, а получателю она не пришла
+#    НИКОГДА — предмет просто исчезает из мира. Теперь отправление лежит в
+#    переменной с меткой времени, а выдаёт его периодическая проверка и
+#    вход игрока. Перезапуск максимум задерживает доставку на минуту.
+#
+# Хранилище (ключ — сквозной номер отправления):
+#   {mail::id}                 — счётчик
+#   {mail::to::<id>}           — ник получателя
+#   {mail::from::<id>}         — ник отправителя
+#   {mail::kind::<id>}         — "letter" или "parcel"
+#   {mail::text::<id>}         — текст письма
+#   {mail::item::<id>}         — предмет посылки
+#   {mail::due::<id>}          — unix-время, когда можно вручать
+#
+# Команды:
+#   /mailsend <ник> <текст>   — письмо, 1💎
+#   /parcel <ник>             — посылка из главной руки, 4💎
+#   /mailbox                  — что мне идёт и что я отправил
+#   /mailclear                — выбросить свои недоставленные письма
+
+options:
+    prefix: &6&l[ПОЧТА] &r
+    delay: 1200          # секунд; 20 минут = «один игровой день» по лору проекта
+    letter_price: 1
+    parcel_price: 4
+
+# ---------------------------------------------------------------------------
+# Отправка
+# ---------------------------------------------------------------------------
+
+command /mailsend <offline player> <text>:
+    description: Отправить письмо игроку. Доставка — 20 минут. Марка 1 алмаз.
+    usage: /mailsend <Ник> <Текст письма>
+    aliases: /письмо
+    executable by: players
+    trigger:
+        set {_to} to "%arg-1%"
+        if {_to} is "%player%":
+            send "{@prefix}&cСам себе письма не пишут."
+            stop
+
+        set {_r} to tr_pay(player, {@letter_price})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%"
+            send "{@prefix}&7Марка стоит &b{@letter_price}💎&7 и идёт в Казну Спавна."
+            stop
+
+        add 1 to {mail::id}
+        set {_id} to "%{mail::id}%"
+        set {mail::to::%{_id}%} to {_to}
+        set {mail::from::%{_id}%} to "%player%"
+        set {mail::kind::%{_id}%} to "letter"
+        set {mail::text::%{_id}%} to arg-2
+        set {mail::due::%{_id}%} to (unix timestamp of now) + {@delay}
+
+        send "{@prefix}&7Письмо игроку &b%{_to}%&7 принято. Курьер идёт 20 минут."
+        play sound "block.chest.close" with volume 0.6 to player
+
+command /parcel <offline player>:
+    description: Отправить посылкой предмет из главной руки. Марка 4 алмаза.
+    usage: /parcel <Ник>
+    aliases: /посылка
+    executable by: players
+    trigger:
+        set {_to} to "%arg-1%"
+        if {_to} is "%player%":
+            send "{@prefix}&cСамому себе посылки не шлют."
+            stop
+
+        set {_i} to player's tool
+        if {_i} is air:
+            send "{@prefix}&cВозьми в главную руку то, что отправляешь."
+            stop
+
+        set {_r} to tr_pay(player, {@parcel_price})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%"
+            send "{@prefix}&7Марка на посылку — &b{@parcel_price}💎&7, идёт в Казну Спавна."
+            stop
+
+        # Предмет изымается СРАЗУ. Иначе отправитель успеет его потратить,
+        # и почта доставит копию — а это дюп, причём бесплатный.
+        #
+        # ⚠️ Писать надо прямо в выражение слота, а не через переменную:
+        # `set {_s} to player's tool` кладёт значение, и `set {_s} to air`
+        # поменяет только переменную. На этом в проекте обожглись трижды
+        # (/deathnote reclaim, тлеющая трубка, jail_seize).
+        set {_sent} to {_i}
+        set player's tool to air
+
+        add 1 to {mail::id}
+        set {_id} to "%{mail::id}%"
+        set {mail::to::%{_id}%} to {_to}
+        set {mail::from::%{_id}%} to "%player%"
+        set {mail::kind::%{_id}%} to "parcel"
+        set {mail::item::%{_id}%} to {_sent}
+        set {mail::due::%{_id}%} to (unix timestamp of now) + {@delay}
+
+        send "{@prefix}&7Посылка (&f%{_sent}%&7) игроку &b%{_to}%&7 принята. Курьер идёт 20 минут."
+        send "{@prefix}&8Отправление №%{_id}%. Пока не вручено — лежит на почте, не потеряется."
+        play sound "block.chest.close" with volume 0.6 to player
+        send "[ПОЧТА] №%{_id}%: %player% -> %{_to}%, посылка %{_sent}%" to console
+
+# ---------------------------------------------------------------------------
+# Доставка
+# ---------------------------------------------------------------------------
+
+# Вручить одно отправление. Возвращает true, если получатель его принял.
+#
+# Посылка требует свободного слота: `give` кладёт через addItem, а излишки
+# он теряет молча — та же причина, по которой /jailitems give отказывает при
+# нехватке места. Не влезло — отправление остаётся на почте до следующего раза.
+function mail_deliver(id: text, p: player) :: boolean:
+    if {mail::kind::%{_id}%} is "parcel":
+        set {_free} to 0
+        loop integers from 0 to 35:
+            if tr_item(slot loop-number of {_p}'s inventory) is air:
+                add 1 to {_free}
+        if {_free} <= 0:
+            send "{@prefix}&cТебе пришла посылка от &f%{mail::from::%{_id}%}%&c, но рюкзак полон." to {_p}
+            send "{@prefix}&7Освободи слот — курьер подождёт." to {_p}
+            return false
+        give {mail::item::%{_id}%} to {_p}
+        send "{@prefix}&fПосылка от &e%{mail::from::%{_id}%}%&f: &a%{mail::item::%{_id}%}%" to {_p}
+        play sound "block.chest.open" with volume 1 to {_p}
+    else:
+        send "{@prefix}&fПисьмо от &e%{mail::from::%{_id}%}%&f:" to {_p}
+        send "&7&o%{mail::text::%{_id}%}%" to {_p}
+        play sound "block.chest.open" with volume 1 to {_p}
+
+    delete {mail::to::%{_id}%}
+    delete {mail::from::%{_id}%}
+    delete {mail::kind::%{_id}%}
+    delete {mail::text::%{_id}%}
+    delete {mail::item::%{_id}%}
+    delete {mail::due::%{_id}%}
+    return true
+
+# Раздать всё, что дозрело, конкретному игроку.
+function mail_flush(p: player):
+    set {_now} to unix timestamp of now
+    # Перебор по реестру получателей: у ветки {mail::<id>} собственного
+    # значения нет, и `loop {mail::*}` вернул бы пусто — той же граблёй
+    # /jailitems list рапортовал о пустом ящике при 19 предметах в нём.
+    loop {mail::to::*}:
+        if loop-value is "%{_p}%":
+            if {mail::due::%loop-index%} <= {_now}:
+                mail_deliver(loop-index, {_p})
+
+# Курьер обходит почту раз в минуту. Минута задержки на доставке
+# двадцатиминутного письма незаметна, а проверять чаще незачем.
+every 1 minute:
+    loop all players:
+        mail_flush(loop-player)
+
+on join:
+    wait 4 seconds
+    mail_flush(player)
+
+# ---------------------------------------------------------------------------
+# Почтовый ящик
+# ---------------------------------------------------------------------------
+
+command /mailbox:
+    description: Что мне идёт по почте и что я отправил
+    aliases: /ящик
+    executable by: players
+    trigger:
+        set {_now} to unix timestamp of now
+        set {_in} to 0
+        set {_out} to 0
+        send "{@prefix}&7Почтовое отделение Спавна:"
+        loop {mail::to::*}:
+            set {_id} to loop-index
+            set {_what} to "письмо"
+            if {mail::kind::%{_id}%} is "parcel":
+                set {_what} to "посылка (%{mail::item::%{_id}%}%)"
+            set {_left} to {mail::due::%{_id}%} - {_now}
+            set {_when} to "&aготово к выдаче"
+            if {_left} > 0:
+                set {_when} to "&7ещё &f%ceil({_left} / 60)%&7 мин."
+            if loop-value is "%player%":
+                add 1 to {_in}
+                send "&8 ← &f%{_what}%&8 от &7%{mail::from::%{_id}%}%&8 · %{_when}%"
+            if {mail::from::%{_id}%} is "%player%":
+                add 1 to {_out}
+                send "&8 → &f%{_what}%&8 для &7%loop-value%&8 · %{_when}%"
+        if {_in} <= 0:
+            if {_out} <= 0:
+                send "&7Пусто. Письмо — &b/mailsend <ник> <текст>&7 (&b{@letter_price}💎&7),"
+                send "&7посылка — &b/parcel <ник>&7 с вещью в руке (&b{@parcel_price}💎&7)."
+
+command /mailclear:
+    description: Выбросить свои недоставленные ПИСЬМА (посылки не трогаются)
+    executable by: players
+    trigger:
+        set {_n} to 0
+        # Посылки здесь не удаляются намеренно: в них лежит чужая вещь,
+        # а уничтожение чужого имущества — это Глава 1 УК, а не команда игрока.
+        loop {mail::to::*}:
+            set {_id} to loop-index
+            if loop-value is "%player%":
+                if {mail::kind::%{_id}%} is "letter":
+                    add 1 to {_n}
+                    delete {mail::to::%{_id}%}
+                    delete {mail::from::%{_id}%}
+                    delete {mail::kind::%{_id}%}
+                    delete {mail::text::%{_id}%}
+                    delete {mail::due::%{_id}%}
+        send "{@prefix}&7Выброшено писем: &f%{_n}%&7. Посылки остались на почте — в них чужие вещи."

@@ -1,0 +1,100 @@
+# EKB SHIELD — plugins/ImageFrame/config.yml
+# ImageFrame 2026.1.4.0 (Modrinth, folia/paper/purpur/spigot, 26.1.2).
+# Картины на картах в рамках: вывески лавок, объявления Суда, карты городов.
+#
+# Соседство с DreamDisplays: тот рисует ЭКРАНЫ (видео, анимация, свой рендер),
+# ImageFrame — статичные картинки на ванильных картах в item frame. Конфликта
+# нет, они трогают разные объекты; пересекаются только в голове у игрока.
+#
+# Язык. Переводы ImageFrame не лежат в jar — плагин тянет их с
+# loohpjames.com/imageframe/languages/ по коду из Language. Страница отдаёт
+# список не в HTML, а скриптом с api.loohpjames.com/spigot/plugins/imageframe/
+# language — именно поэтому «подтвердить не удалось». Сверено 18.09.2026:
+# ru_ru в списке есть (вместе с uk_ua и ещё 27 языками).
+
+Settings:
+  Language: "ru_ru"
+  DateFormat: "dd.MM.yyyy HH:mm:ss zzz"
+  MapItemFormat: "&f{Name} &7({X}, {Y})"
+
+  # Карта стоит бумаги и компаса. Это единственное, что делает картину
+  # предметом с себестоимостью — иначе вывеска бесплатна, а всё остальное
+  # на сервере добыто руками.
+  RequireEmptyMaps: true
+
+  # 100 — дефолт плагина, это 100x100 = 10 000 карт на одну картину.
+  # 16x16 = 256 карт, стена 16 блоков в высоту: для вывески и карты города
+  # с запасом, а сервер не ляжет на рендере.
+  MaxSize: 16
+
+  # Сколько картин может создать игрок. Группа задаётся правом
+  # imageframe.createlimit.<группа>; без права действует default.
+  PlayerCreationLimit:
+    default: 5
+    citizen: 10
+    admin: -1
+
+  # Картинка тянется по URL, то есть игрок вешает на стену что угодно из
+  # интернета. Для сервера с Судом и УК это модерация, которой нет: список
+  # источников закрыт. Свой аплоад (UploadService ниже) под ограничение
+  # не попадает — он и есть штатный путь «залей картинку, получи ссылку».
+  RestrictImageUrl:
+    Enabled: true
+    Whitelist:
+      - "https://i.imgur.com"
+      - "https://cdn.discordapp.com"
+      - "https://media.discordapp.net"
+      - "https://textures.minecraft.net"
+
+  MaxImageFileSize: 16777216
+  MaxProcessingTime: 30
+  ParallelProcessingLimit: 1
+  MapMarkerLimit: 20
+  MapPacketSendingRateLimit: -1
+  ExemptMapIdsFromDeletion:
+    - "-1"
+  MapRenderersContextual: false
+  HandleAnimatedMapsOnMainThread: false
+  SendAnimatedMapsOnMainThread: false
+  CacheControlMode: "MANUAL_PERSISTENT"
+  TryDeleteBlankMapFiles: false
+  CombinedByDefault: false
+
+# Встроенный веб-сервер: игрок кидает файл в браузер, получает ссылку для /if.
+# ⚠️ Это открытый HTTP-порт наружу. Host 0.0.0.0 оставлен намеренно — иначе
+# аплоад не работает ни у кого, кроме тех, кто сидит на самой машине.
+# Порт 8517 должен быть открыт в фаерволе, а DisplayURL — заменён на реальный
+# адрес (та же заглушка, что в plugins/squaremap/config.yml).
+UploadService:
+  Enabled: true
+  DisplayURL: "http://your-server-ip:8517"
+  WebServer:
+    Host: "0.0.0.0"
+    Port: 8517
+
+# Клиентский мод ImageFrame: показывает картинку в родном разрешении и цвете
+# вместо 128x128 карты. Добавлен в client_modpack — без него всё работает,
+# просто грубее.
+ImageFrameClient:
+  Enabled: true
+
+# Невидимые рамки без креатива: брось рамку на землю и кинь в неё зелье
+# невидимости. Ровно то, чем должен добываться декор на этом сервере.
+InvisibleFrame:
+  MaxConversionsPerSplash: 8
+  GlowEmptyFrames: true
+
+Storage:
+  Type: file
+  Options:
+    JdbcUrl: "jdbc:mysql://localhost:3306/imageframe"
+    Username: "imageframe"
+    Password: "imageframe"
+    ActivePollInterval: 5
+
+Hooks:
+  ViaVersion:
+    DisableSmoothAnimationForLegacyPlayers: false
+
+DebugLogging: false
+Updater: false

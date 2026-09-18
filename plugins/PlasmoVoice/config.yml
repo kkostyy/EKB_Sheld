@@ -1,0 +1,8 @@
+port: 25465
+max_distance: 18
+voice_quality:
+  bitrate: 48000
+  frame_size: 20
+occlusion:
+  enabled: true
+  volume_factor: 0.8

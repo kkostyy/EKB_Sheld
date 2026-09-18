@@ -1,0 +1,793 @@
+# EKB SHIELD — artifacts.sk
+# Шесть особых предметов: Компас Охотника, Кинжал Теневого Шага, Песочные
+# Часы, Журнал Контрабандиста, Чёрная Метка и Маска Безликого.
+# На каждый — не больше двух экземпляров на весь мир.
+#
+# ПОЧЕМУ ЭТО SKRIPT, А НЕ ExecutableItems.
+# Присланная спецификация была написана под ExecutableItems, но ни один её
+# ключ не работает на той версии, что стоит у нас (EI 7.26.9.14 + SCore
+# 5.26.9.14, сверено по jar'ам):
+#
+#   1. `server-limit: 2` / `max-amount: 2` — такого поля у предмета нет
+#      вообще. В EI есть usageLimit (сколько раз сработает ОДИН экземпляр)
+#      и pickup-limit в общем конфиге (сколько EI-предметов игрок может
+#      поднять — на игрока, а не на мир). Лимита «столько-то штук на
+#      сервере» плагин не считает никак: он не знает, что лежит в чужих
+#      сундуках. Значит, лимит нужно вести самому — реестром, как у Тетради.
+#   2. Активаторы `RIGHT_CLICK_ALL` и `PLAYER_RIGHT_CLICK_PLAYER` в enum
+#      Option отсутствуют: там PLAYER_RIGHT_CLICK, PLAYER_CLICK_ON_PLAYER и
+#      PLAYER_HIT_PLAYER. Неизвестный активатор EI пропускает — предмет
+#      загрузился бы и молча ничего не делал.
+#   3. Команд `[take-durability]` и `[commanddelay N]` у SCore нет: они
+#      называются MODIFYDURABILITY и DELAY.
+#   4. `[execute-command-for-target-in-radius 500] compass X Y Z` звало
+#      команду /compass, которой нет ни в ванили, ни в наших плагинах.
+#   5. `tab player <ник> nametag-visibility false` — у TAB 6.1.3 такого
+#      свойства нет (разбор в shadow.sk).
+#
+# Поэтому всё здесь: реестр, лимит, кулдауны и сама механика. Предметы
+# собираются Skript'ом, как в nirvana.sk, а ресурспак рисует их по
+# CustomModelData 3001-3006.
+#
+# ЧТО ПЕРЕДЕЛАНО ПО СУЩЕСТВУ.
+#
+#   Компас. Ванильная стрелка крутится на модели, которой у нас нет: под
+#   CMD 3001 лежит наш плоский диск, анимации у него нет и быть не может
+#   (32 кадра стрелки — это 32 модели и 32 текстуры). Поэтому импульс не
+#   «поворачивает стрелку», а минуту ведёт цель строкой над хотбаром:
+#   сторона света и расстояние с точностью до 16 блоков. Пеленг вместо
+#   стрелки — и точнее, и видно без разглядывания иконки.
+#
+#   Кинжал. `tp %player% ~ ~ ~` от лица цели ставит нападающего В цель, а
+#   не за спину: здесь считается точка в 1.2 блока позади с её же рысканьем,
+#   и если там стена — шаг не выходит. Прочность не трогаем: у незеритового
+#   меча 2031 очко, и `durability: 5` в спецификации ломал бы кинжал за пять
+#   ОБЫЧНЫХ ударов. Заряды живут в реестре по номеру экземпляра.
+#
+#   Чёрная Метка. `clear %player% coal 1` стёр бы любой уголь в рюкзаке,
+#   включая обычный. Сжигается ровно тот предмет, что в руке. Координаты
+#   цели печатаются живыми — раз в 3 минуты, из реестра, а не из плейсхолдера,
+#   застывшего в момент клика.
+#
+#   Маска. Ник над головой не скрывается — этого не умеет TAB (shadow.sk).
+#   Маска надевается на голову и включает ту же Личину, что /disguise:
+#   чужой скин и псевдоним из ct_alias(). Тыквенная рамка на пол-экрана —
+#   не побочный эффект, а цена: смотреть на мир через маску и правда хуже.
+#
+# ЛИМИТ. У каждого артефакта два номерных экземпляра. Номер записан первой
+# строкой лора и читается обратно (`line 1 of lore of`) — в реестре по нему
+# лежат владелец, кулдаун и заряды. Занятый номер держит выдачу: третьего
+# не будет, пока один не вернётся. Освобождается номер сам, когда предмет
+# расходуется (Метка, севший Кинжал, смытая Маска), и вручную —
+# /artifact release, если экземпляр утонул в лаве.
+#
+# Полного розыска, как у Тетради (deathnote_tracker.sk), здесь нет
+# намеренно: шесть предметов × обход мира — это уже не «дёшево», а
+# /artifact find по онлайну и эндер-сундукам закрывает те же случаи.
+#
+# Требует contracts.sk (ct_alias) и shadow.sk (sh_skin) — только для Маски.
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &5&l[АРТЕФАКТ] &r
+    hunt:   &c&l[ОХОТА] &r
+    blade:  &8&l[ТЕНЬ] &r
+    clock:  &e&l[ВРЕМЯ] &r
+    vault:  &8&l[ХРАНИЛИЩЕ] &r
+    mark:   &4&l[ЧЁРНАЯ МЕТКА] &r
+    mask:   &f&l[МАСКА] &r
+    admin:  ekb.artifact.admin
+    limit:  2
+    line:   &8&m----------------------------------------
+
+# Хранилище:
+#   {art::holder::<id>::<N>}   — ник последнего известного владельца (номер занят)
+#   {art::given::<id>::<N>}    — когда выдан
+#   {art::charges::<id>::<N>}  — заряды (только кинжал)
+#   {art::cd::<id>::<N>}       — unix-время последнего применения
+#   {art::hunt::%uuid%}        — до какого времени держится импульс Компаса
+#   {art::hunt::at::%uuid%}    — ник цели импульса
+#   {art::mark::%uuid%}        — до какого времени висит Чёрная Метка (ключ — жертва)
+#   {art::mark::by::%uuid%}    — кто её поставил
+#   {art::mask::%uuid%}        — Маска надета
+
+# ---------------------------------------------------------------------------
+# Предметы
+# ---------------------------------------------------------------------------
+
+# ⚠ `custom model data of air` кидает исключение, а пустые слоты проверяются
+# постоянно — та же грабля, что в nirvana.sk и death_note.sk.
+function art_cmd(i: item) :: number:
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function art_cmd_of(id: text) :: number:
+    if {_id} is "compass":
+        return 3001
+    if {_id} is "dagger":
+        return 3002
+    if {_id} is "hourglass":
+        return 3003
+    if {_id} is "journal":
+        return 3004
+    if {_id} is "mark":
+        return 3005
+    if {_id} is "mask":
+        return 3006
+    return 0
+
+function art_id(cmd: number) :: text:
+    if {_cmd} is 3001:
+        return "compass"
+    if {_cmd} is 3002:
+        return "dagger"
+    if {_cmd} is 3003:
+        return "hourglass"
+    if {_cmd} is 3004:
+        return "journal"
+    if {_cmd} is 3005:
+        return "mark"
+    if {_cmd} is 3006:
+        return "mask"
+    return ""
+
+function art_title(id: text) :: text:
+    if {_id} is "compass":
+        return "Компас Охотника за Головами"
+    if {_id} is "dagger":
+        return "Кинжал Теневого Шага"
+    if {_id} is "hourglass":
+        return "Песочные Часы Времени"
+    if {_id} is "journal":
+        return "Журнал Контрабандиста"
+    if {_id} is "mark":
+        return "Чёрная Метка"
+    if {_id} is "mask":
+        return "Маска Безликого"
+    return ""
+
+# Номер экземпляра — ПЕРВОЙ строкой лора, а не последней: читается он по
+# номеру строки (`line 1 of lore of`), а длина лора у артефактов разная.
+function art_tag(serial: number) :: text:
+    return "&8Экземпляр %{_serial}% из {@limit}"
+
+function art_serial(i: item) :: number:
+    if {_i} is air:
+        return 0
+    set {_l} to line 1 of lore of {_i}
+    if {_l} is not set:
+        return 0
+    set {_p::*} to split "%{_l}%" at " "
+    if {_p::2} is not set:
+        return 0
+    set {_n} to "%{_p::2}%" parsed as number
+    if {_n} is not set:
+        return 0
+    return {_n}
+
+function art_item(id: text, serial: number) :: item:
+    set {_tag} to art_tag({_serial})
+    set {_i} to 1 of stone
+
+    if {_id} is "compass":
+        set {_i} to 1 of compass
+        set custom model data of {_i} to 3001
+        set name of {_i} to "&c&lКомпас Охотника за Головами"
+        set lore of {_i} to {_tag} and "&7Импульс находит ближайшего человека" and "&7в 500 блоках и минуту ведёт к нему." and "&8ПКМ — импульс. Перезарядка 3 минуты."
+
+    else if {_id} is "dagger":
+        set {_i} to 1 of netherite sword
+        set custom model data of {_i} to 3002
+        set name of {_i} to "&8&lКинжал Теневого Шага"
+        set lore of {_i} to {_tag} and "&7Удар по человеку переносит за его спину" and "&7и растворяет на 3 секунды." and "&8Пять шагов — и клинок рассыпается."
+
+    else if {_id} is "hourglass":
+        set {_i} to 1 of clock
+        set custom model data of {_i} to 3003
+        set name of {_i} to "&e&lПесочные Часы Времени"
+        set lore of {_i} to {_tag} and "&a30 секунд: спешка II и скорость II." and "&cПотом 15 секунд расплаты." and "&8ПКМ — вскрыть печати. Перезарядка 3 минуты."
+
+    else if {_id} is "journal":
+        set {_i} to 1 of book
+        set custom model data of {_i} to 3004
+        set name of {_i} to "&4&lЖурнал Контрабандиста"
+        set lore of {_i} to {_tag} and "&7Открывает эндер-сундук где угодно," and "&7хоть посреди драки." and "&8ПКМ — открыть. В камере не работает."
+
+    else if {_id} is "mark":
+        set {_i} to 1 of coal
+        set custom model data of {_i} to 3005
+        set name of {_i} to "&0&lЧёрная Метка"
+        set lore of {_i} to {_tag} and "&cСвечение и слабость на 15 минут," and "&cкоординаты цели — всему серверу." and "&8ПКМ по человеку. Сгорает при этом."
+
+    else if {_id} is "mask":
+        set {_i} to 1 of carved pumpkin
+        set custom model data of {_i} to 3006
+        set name of {_i} to "&f&lМаска Безликого"
+        set lore of {_i} to {_tag} and "&7Надень на голову: чужой скин и псевдоним." and "&cВ воде смывается вместе с лицом." and "&8Ник над головой не прячет — TAB не умеет."
+
+    force {_i} to glint
+    return {_i}
+
+# ---------------------------------------------------------------------------
+# Реестр: кто занят, что свободно
+# ---------------------------------------------------------------------------
+
+function art_issued(id: text) :: number:
+    set {_n} to 0
+    loop integers from 1 to {@limit}:
+        if {art::holder::%{_id}%::%loop-number%} is set:
+            add 1 to {_n}
+    return {_n}
+
+# первый свободный номер, 0 если оба на руках
+function art_slot(id: text) :: number:
+    loop integers from 1 to {@limit}:
+        if {art::holder::%{_id}%::%loop-number%} is not set:
+            return loop-number
+    return 0
+
+function art_release(id: text, serial: number):
+    delete {art::holder::%{_id}%::%{_serial}%}
+    delete {art::given::%{_id}%::%{_serial}%}
+    delete {art::charges::%{_id}%::%{_serial}%}
+    delete {art::cd::%{_id}%::%{_serial}%}
+
+# ---------------------------------------------------------------------------
+# Кулдаун — по экземпляру, а не по игроку
+# ---------------------------------------------------------------------------
+#
+# Кулдаун на игроке обнулялся бы передачей предмета из рук в руки: двое
+# с одним кинжалом били бы вдвое чаще. Ключ — номер экземпляра.
+#
+# ⚠ Считаем голыми секундами через `unix timestamp of`: литерал времени
+# Skript собирает только из числа, записанного в самом скрипте, — ни
+# `{_sec} seconds`, ни `art_wait(...) seconds` не разбираются (та же
+# грабля, что в death_note.sk).
+
+function art_wait(id: text, serial: number, sec: number) :: number:
+    if {art::cd::%{_id}%::%{_serial}%} is not set:
+        return 0
+    set {_p} to (unix timestamp of now) - {art::cd::%{_id}%::%{_serial}%}
+    if {_p} >= {_sec}:
+        return 0
+    return {_sec} - {_p}
+
+function art_stamp(id: text, serial: number):
+    set {art::cd::%{_id}%::%{_serial}%} to unix timestamp of now
+
+function art_left(sec: number) :: text:
+    if {_sec} >= 60:
+        return "%round({_sec} / 60)% мин"
+    return "%round({_sec})% с"
+
+function art_jailed(p: player) :: boolean:
+    if {jail_remaining::%uuid of {_p}%} is set:
+        return true
+    return false
+
+# ---------------------------------------------------------------------------
+# Поиск экземпляра: у кого он и какой номер
+# ---------------------------------------------------------------------------
+
+# ⚠ До 36-го слота и ни слотом дальше: на 36-40 (броня, вторая рука) Skript
+# 2.16.2 строит EquipmentSlot по индексу и падает с NullPointerException.
+# Вторая рука проверяется отдельно, именованным выражением.
+function art_in_inv(inv: inventory, cmd: number) :: number:
+    set {_max} to amount of slots of {_inv}
+    if {_max} > 36:
+        set {_max} to 36
+    loop integers from 0 to ({_max} - 1):
+        set {_i} to slot loop-number of {_inv}
+        if art_cmd({_i}) is {_cmd}:
+            return art_serial({_i})
+    return 0
+
+function art_at(p: player, id: text) :: number:
+    set {_cmd} to art_cmd_of({_id})
+    set {_s} to art_in_inv({_p}'s inventory, {_cmd})
+    if {_s} > 0:
+        return {_s}
+    if art_cmd(off hand tool of {_p}) is {_cmd}:
+        return art_serial(off hand tool of {_p})
+    if art_cmd(helmet of {_p}) is {_cmd}:
+        return art_serial(helmet of {_p})
+    set {_s} to art_in_inv({_p}'s ender chest, {_cmd})
+    return {_s}
+
+# ---------------------------------------------------------------------------
+# 3001. Компас Охотника за Головами
+# ---------------------------------------------------------------------------
+
+# Сторона света без atan2: хватает сравнения длин. tan(22.5°) = 0.414 —
+# по нему восемь секторов делятся ровно.
+function art_dir(dx: number, dz: number) :: text:
+    set {_ns} to "юг"
+    if {_dx} > 0:
+        set {_ew} to "восток"
+    else:
+        set {_ew} to "запад"
+    if {_dz} < 0:
+        set {_ns} to "север"
+    if abs({_dx}) < (abs({_dz}) * 0.414):
+        return {_ns}
+    if abs({_dz}) < (abs({_dx}) * 0.414):
+        return {_ew}
+    return "%{_ns}%о-%{_ew}%"
+
+# Ближайшая цель в 500 блоках. Возвращается НИК, а не игрок: функция с
+# типом возврата `player` при пустом результате ругается в консоль.
+function art_prey(p: player) :: text:
+    set {_best} to 0
+    set {_name} to ""
+    loop all players:
+        if loop-player is not {_p}:
+            if world of loop-player is world of {_p}:
+                # SuperVanish помечает невидимых метаданными "vanished".
+                # Артефакт не должен выдавать Администрацию в ванише — иначе
+                # он становится детектором админов, а не охотничьим компасом.
+                if metadata value "vanished" of loop-player is not true:
+                    if {jail_remaining::%uuid of loop-player%} is not set:
+                        set {_d} to distance between loop-player and {_p}
+                        if {_d} <= 500:
+                            if {_best} is 0:
+                                set {_best} to {_d}
+                                set {_name} to "%loop-player%"
+                            else if {_d} < {_best}:
+                                set {_best} to {_d}
+                                set {_name} to "%loop-player%"
+    return {_name}
+
+# Расстояние округляется до 16 блоков: пеленг ведёт к человеку, но не
+# показывает, за каким он деревом.
+function art_bearing(p: player, t: player) :: text:
+    set {_lp} to location of {_p}
+    set {_lt} to location of {_t}
+    set {_dx} to (x coordinate of {_lt}) - (x coordinate of {_lp})
+    set {_dz} to (z coordinate of {_lt}) - (z coordinate of {_lp})
+    set {_d} to round((distance between {_lp} and {_lt}) / 16) * 16
+    return "&f%art_dir({_dx}, {_dz})%&7, около &f%{_d}%&7 блоков"
+
+# ---------------------------------------------------------------------------
+# Правый клик: Компас, Часы, Журнал
+# ---------------------------------------------------------------------------
+
+on right click:
+    set {_cmd} to art_cmd(player's tool)
+    set {_id} to art_id({_cmd})
+    if {_id} is "":
+        stop
+    if {_id} is "mask":
+        # Маску не перехватываем: правым кликом её надевает сама ваниль,
+        # а работать она начинает надетой.
+        stop
+    if {_id} is "mark":
+        # Метка срабатывает кликом ПО ЧЕЛОВЕКУ, отдельным событием ниже.
+        stop
+
+    cancel event
+    set {_s} to art_serial(player's tool)
+    if {_s} is 0:
+        send "{@prefix}&cЭто подделка без номера. Настоящий артефакт выдаёт Администрация."
+        stop
+
+    # -------- Компас --------
+    if {_id} is "compass":
+        set {_w} to art_wait("compass", {_s}, 180)
+        if {_w} > 0:
+            send "{@hunt}&cКомпас ещё перезаряжается: &f%art_left({_w})%"
+            stop
+        set {_name} to art_prey(player)
+        if {_name} is "":
+            send "{@hunt}&7Импульс ушёл в пустоту: в 500 блоках никого."
+            play sound "block.note_block.bass" with volume 0.7 to player
+            stop
+        set {_t} to {_name} parsed as player
+        if {_t} is not set:
+            send "{@hunt}&7Цель пропала, пока импульс шёл."
+            stop
+        art_stamp("compass", {_s})
+        set {art::hunt::%uuid of player%} to (unix timestamp of now) + 60
+        set {art::hunt::at::%uuid of player%} to {_name}
+        send "{@hunt}Импульс пошёл. Цель: %art_bearing(player, {_t})%&7."
+        send "{@hunt}&8Минуту компас держит её. Имени он не называет."
+        play sound "block.beacon.activate" with volume 0.7 to player
+        stop
+
+    # -------- Песочные Часы --------
+    if {_id} is "hourglass":
+        set {_w} to art_wait("hourglass", {_s}, 180)
+        if {_w} > 0:
+            send "{@clock}&cПесок ещё сыплется обратно: &f%art_left({_w})%"
+            stop
+        art_stamp("hourglass", {_s})
+        set {_p} to player
+        apply haste 2 to {_p} for 30 seconds
+        apply swiftness 2 to {_p} for 30 seconds
+        send "{@clock}&aВремя ускорилось. Тридцать секунд твои."
+        play sound "block.beacon.power_select" with volume 0.8 to {_p}
+        # Расплата отложена простым ожиданием, а не очередью с меткой
+        # времени, как в mail.sk. Разница принципиальная: там перезапуск
+        # сервера СЪЕЛ БЫ посылку, уже изъятую у отправителя, а здесь он
+        # всего лишь избавит игрока от дебафа. Терять нечего.
+        wait 30 seconds
+        if {_p} is online:
+            apply slowness 3 to {_p} for 15 seconds
+            apply nausea 1 to {_p} for 15 seconds
+            send "{@clock}&cРасплата. Время берёт своё обратно." to {_p}
+            play sound "block.beacon.deactivate" with volume 0.8 to {_p}
+        stop
+
+    # -------- Журнал Контрабандиста --------
+    if {_id} is "journal":
+        if art_jailed(player) is true:
+            send "{@vault}&cВ камере тайников нет."
+            stop
+        set {_w} to art_wait("journal", {_s}, 10)
+        if {_w} > 0:
+            send "{@vault}&cШифр ещё не сложился: &f%art_left({_w})%"
+            stop
+        art_stamp("journal", {_s})
+        open (ender chest of player) to player
+        send "{@vault}&7Доступ к тайному отсеку открыт."
+        play sound "block.ender_chest.open" with volume 0.8 to player
+        stop
+
+# ---------------------------------------------------------------------------
+# Импульс Компаса: строка над хотбаром, пока держится
+# ---------------------------------------------------------------------------
+
+every 2 seconds:
+    loop all players:
+        set {_k} to "%uuid of loop-player%"
+        if {art::hunt::%{_k}%} is set:
+            if (unix timestamp of now) > {art::hunt::%{_k}%}:
+                delete {art::hunt::%{_k}%}
+                delete {art::hunt::at::%{_k}%}
+                send "{@hunt}&7Импульс угас." to loop-player
+            else:
+                set {_t} to {art::hunt::at::%{_k}%} parsed as player
+                if {_t} is not set:
+                    delete {art::hunt::%{_k}%}
+                    delete {art::hunt::at::%{_k}%}
+                    send "{@hunt}&7Цель вышла из мира. Импульс погас." to loop-player
+                else:
+                    # Показываем, только пока компас в руке: убрал в рюкзак —
+                    # ведёшь по памяти.
+                    set {_hold} to false
+                    if art_cmd(loop-player's tool) is 3001:
+                        set {_hold} to true
+                    if art_cmd(off hand tool of loop-player) is 3001:
+                        set {_hold} to true
+                    if {_hold} is true:
+                        send action bar "&c● &7Цель: %art_bearing(loop-player, {_t})%" to loop-player
+
+# ---------------------------------------------------------------------------
+# 3002. Кинжал Теневого Шага
+# ---------------------------------------------------------------------------
+
+on damage:
+    if attacker is a player:
+        if victim is a player:
+            set {_a} to attacker
+            set {_v} to victim
+            if art_cmd({_a}'s tool) is 3002:
+                set {_s} to art_serial({_a}'s tool)
+                if {_s} is 0:
+                    send "{@blade}&cЭто подделка без номера." to {_a}
+                    stop
+                if art_jailed({_a}) is true:
+                    send "{@blade}&cИз камеры теневого шага нет." to {_a}
+                    stop
+                set {_w} to art_wait("dagger", {_s}, 15)
+                if {_w} > 0:
+                    send "{@blade}&cКинжал копит тень: &f%art_left({_w})%" to {_a}
+                    stop
+
+                set {_left} to {art::charges::dagger::%{_s}%}
+                if {_left} is not set:
+                    set {_left} to 5
+
+                # Точка за спиной: 1.2 блока назад от цели, её же рысканье —
+                # так нападающий смотрит жертве в затылок, а не в лицо.
+                set {_l} to the location 1.2 meters behind {_v}
+                set yaw of {_l} to yaw of {_v}
+                set pitch of {_l} to 0
+                set {_bad} to false
+                if block at {_l} is solid:
+                    set {_bad} to true
+                if block at (the location 1 meter above {_l}) is solid:
+                    set {_bad} to true
+                if {_bad} is true:
+                    send "{@blade}&cЗа спиной у цели стена — шагать некуда." to {_a}
+                    stop
+
+                art_stamp("dagger", {_s})
+                remove 1 from {_left}
+                set {art::charges::dagger::%{_s}%} to {_left}
+
+                teleport {_a} to {_l}
+                apply invisibility 1 to {_a} for 3 seconds
+                play sound "entity.enderman.teleport" with volume 0.9 at {_l}
+                send "{@blade}&fТы за её спиной. Осталось шагов: &c%{_left}%" to {_a}
+                send "{@blade}&8Кто-то прошёл сквозь тень у тебя за спиной." to {_v}
+
+                if {_left} <= 0:
+                    # Сел — рассыпается. Номер освобождается: третий кинжал
+                    # теперь выдать можно, и лимит не считает призраков.
+                    set {_a}'s tool to air
+                    art_release("dagger", {_s})
+                    play sound "entity.item.break" with volume 1 to {_a}
+                    send "{@blade}&cКлинок рассыпался пеплом." to {_a}
+                    send "[АРТЕФАКТ] кинжал №%{_s}% сточен у %{_a}%" to console
+
+# ---------------------------------------------------------------------------
+# 3005. Чёрная Метка
+# ---------------------------------------------------------------------------
+
+on right click on player:
+    set {_cmd} to art_cmd(player's tool)
+    if {_cmd} is not 3005:
+        stop
+    cancel event
+    set {_s} to art_serial(player's tool)
+    if {_s} is 0:
+        send "{@mark}&cЭто просто уголь."
+        stop
+    set {_t} to event-entity
+    # Сравнение по UUID, а не `{_t} is player`: второе Skript читает
+    # и как «это тот самый игрок», и как «это вообще игрок».
+    if "%uuid of {_t}%" is "%uuid of player%":
+        send "{@mark}&cНа себя печать не ставят."
+        stop
+    set {_k} to "%uuid of {_t}%"
+    if {art::mark::%{_k}%} is set:
+        send "{@mark}&cНа нём уже есть печать."
+        stop
+
+    set {art::mark::%{_k}%} to (unix timestamp of now) + 900
+    set {art::mark::by::%{_k}%} to "%player%"
+    apply glowing 1 to {_t} for 15 minutes
+    apply weakness 1 to {_t} for 15 minutes
+
+    # Сгорает ровно тот уголь, что в руке. `clear <ник> coal 1` из
+    # спецификации стёр бы первый попавшийся — и с равным успехом обычный.
+    set player's tool to air
+    art_release("mark", {_s})
+
+    broadcast "{@mark}&fИгрок &c%{_t}% &fполучил Печать Изгоя."
+    broadcast "{@mark}&7Пятнадцать минут его видно сквозь стены, и каждые"
+    broadcast "{@mark}&7три минуты сервер узнаёт, где он."
+    play sound "entity.wither.spawn" with volume 0.5 at {_t}
+    send "{@mark}&8Печать поставлена. Твоего имени в объявлении нет." to player
+    # Настоящий ник — в консоль, а оттуда в Discord Администрации: Суду
+    # нужен заказчик (та же схема, что в contracts.sk).
+    send "[АРТЕФАКТ] %player% поставил Чёрную Метку на %{_t}%" to console
+
+every 3 minutes:
+    loop all players:
+        set {_k} to "%uuid of loop-player%"
+        if {art::mark::%{_k}%} is set:
+            if (unix timestamp of now) > {art::mark::%{_k}%}:
+                delete {art::mark::%{_k}%}
+                delete {art::mark::by::%{_k}%}
+                broadcast "{@mark}&7Печать с &f%loop-player% &7сошла."
+            else:
+                set {_l} to location of loop-player
+                broadcast "{@mark}&fЦель &c%loop-player%&f: &7X %floor(x coordinate of {_l})%, Y %floor(y coordinate of {_l})%, Z %floor(z coordinate of {_l})%"
+
+# Эффекты держатся на клиенте, а не в переменной: перезаход снял бы и
+# свечение, и слабость, а печать по реестру продолжала бы висеть. Вешаем
+# заново на остаток срока.
+on join:
+    set {_k} to "%uuid of player%"
+    if {art::mark::%{_k}%} is set:
+        set {_left} to {art::mark::%{_k}%} - (unix timestamp of now)
+        if {_left} > 0:
+            wait 2 seconds
+            # ⚠ Вешаем НА ОСТАТОК срока, и именно поэтому командой, а не
+            # `apply … for`: литерал времени Skript собирает только из числа,
+            # записанного в самом скрипте (`{_left} seconds` не разбирается).
+            # С литералом перезаход продлевал бы эффекты до полных 15 минут,
+            # и они переживали бы саму печать.
+            set {_sec} to round({_left})
+            execute console command "effect give %player% minecraft:glowing %{_sec}% 0 true"
+            execute console command "effect give %player% minecraft:weakness %{_sec}% 0 true"
+            send "{@mark}&cПечать Изгоя ещё на тебе: &f%art_left({_left})%" to player
+        else:
+            delete {art::mark::%{_k}%}
+            delete {art::mark::by::%{_k}%}
+
+# ---------------------------------------------------------------------------
+# 3006. Маска Безликого
+# ---------------------------------------------------------------------------
+
+function art_mask_on(p: player):
+    set {_k} to "%uuid of {_p}%"
+    set {art::mask::%{_k}%} to true
+    # Флаг Личины ставим общий: shadow.sk снимает его при выходе и перезаходе,
+    # и две маскировки не начинают спорить, кто кого переодел.
+    set {shadow::on::%{_k}%} to true
+    set {_alias} to ct_alias("%{_p}%")
+    make {_p} execute command "skin set %sh_skin()%"
+    execute console command "tab player %{_p}% customtabname &8%{_alias}%"
+    execute console command "tab player %{_p}% tagprefix &8[%{_alias}%] "
+    send "{@mask}Маска прижилась. В списке ты — &8%{_alias}%&r." to {_p}
+    send "{@mask}&cНик над головой она не прячет: TAB этого не умеет," to {_p}
+    send "{@mask}&cа Суду нужна хоть одна ниточка." to {_p}
+    send "{@mask}&cИ в воду в ней не лезь — смоет." to {_p}
+
+function art_mask_off(p: player):
+    set {_k} to "%uuid of {_p}%"
+    delete {art::mask::%{_k}%}
+    delete {shadow::on::%{_k}%}
+    make {_p} execute command "skin clear"
+    execute console command "tab player %{_p}% customtabname"
+    execute console command "tab player %{_p}% tagprefix"
+
+every second:
+    loop all players:
+        set {_k} to "%uuid of loop-player%"
+        if art_cmd(helmet of loop-player) is 3006:
+            if {art::mask::%{_k}%} is not set:
+                art_mask_on(loop-player)
+            if loop-player is in water:
+                set {_s} to art_serial(helmet of loop-player)
+                # ⚠ Писать надо прямо в выражение: `set {_h} to helmet of ...`
+                # с последующим `set {_h} to air` поменяет только переменную.
+                set helmet of loop-player to air
+                art_mask_off(loop-player)
+                art_release("mask", {_s})
+                send "{@mask}&cМаска сползла и растворилась в воде." to loop-player
+                send "{@mask}&7Лицо вернулось. Всем, кто рядом, — тоже." to loop-player
+                play sound "entity.generic.extinguish_fire" with volume 1 to loop-player
+                send "[АРТЕФАКТ] маска №%{_s}% смыта у %loop-player%" to console
+        else:
+            if {art::mask::%{_k}%} is set:
+                art_mask_off(loop-player)
+                send "{@mask}&7Маска снята. Ты снова &f%loop-player%&7." to loop-player
+
+# ---------------------------------------------------------------------------
+# Запреты: артефакт не должен превращаться обратно в ванильный предмет
+# ---------------------------------------------------------------------------
+
+# Тыква ставится блоком, и поставленная теряет CustomModelData — экземпляр
+# просто исчез бы, а номер остался занят. Та же защита, что у конопли
+# (`sugar_cane` нельзя ставить) в nirvana.sk.
+on place of carved pumpkin:
+    if art_cmd(player's tool) is 3006:
+        cancel event
+        send "{@mask}&cМаску не ставят на грядку. Её носят."
+
+# Уголь Метки — топливо. Сгоревшая печь съела бы артефакт молча, и лимит
+# считал бы призрака до ручного /artifact release.
+on inventory click:
+    set {_t} to type of event-inventory
+    if {_t} is furnace inventory or blast furnace inventory or smoker inventory:
+        if art_cmd(event-item) is 3005:
+            cancel event
+            send "{@mark}&cПечать — не уголь. В топку она не пойдёт." to player
+
+# ---------------------------------------------------------------------------
+# Администрация
+# ---------------------------------------------------------------------------
+
+command /artifact [<text>] [<text>] [<text>]:
+    permission: {@admin}
+    permission message: &cАртефакты выдаёт главный администратор.
+    aliases: /арт
+    description: Выдача и учёт особых артефактов
+    usage: /artifact give <ник> <id> | list | find | release <id> <номер> | ids
+    trigger:
+        set {_a1} to arg-1
+        set {_a2} to arg-2
+        set {_a3} to arg-3
+
+        if {_a1} is "ids":
+            send "{@line}"
+            send "{@prefix}&eШесть артефактов"
+            send "&8 - &bcompass &8: &7Компас Охотника за Головами"
+            send "&8 - &bdagger &8: &7Кинжал Теневого Шага"
+            send "&8 - &bhourglass &8: &7Песочные Часы Времени"
+            send "&8 - &bjournal &8: &7Журнал Контрабандиста"
+            send "&8 - &bmark &8: &7Чёрная Метка"
+            send "&8 - &bmask &8: &7Маска Безликого"
+            send "{@line}"
+            stop
+
+        if {_a1} is "list":
+            send "{@line}"
+            send "{@prefix}&eРеестр артефактов &8(по {@limit} на мир)"
+            set {_ids::*} to "compass", "dagger", "hourglass", "journal", "mark" and "mask"
+            loop {_ids::*}:
+                set {_id} to loop-value
+                send "&7 %art_title({_id})% &8— выдано &f%art_issued({_id})%&8/{@limit}"
+                loop integers from 1 to {@limit}:
+                    if {art::holder::%{_id}%::%loop-number%} is set:
+                        send "&8   №%loop-number% &7у &f%{art::holder::%{_id}%::%loop-number%}%"
+            send "{@line}"
+            stop
+
+        if {_a1} is "find":
+            send "{@line}"
+            send "{@prefix}&eОбыск онлайна"
+            set {_ids::*} to "compass", "dagger", "hourglass", "journal", "mark" and "mask"
+            set {_lost} to 0
+            loop {_ids::*}:
+                set {_id} to loop-value
+                loop integers from 1 to {@limit}:
+                    set {_n} to loop-number
+                    if {art::holder::%{_id}%::%{_n}%} is set:
+                        set {_where} to ""
+                        loop all players:
+                            if art_at(loop-player, {_id}) is {_n}:
+                                set {_where} to "%loop-player%"
+                        if {_where} is "":
+                            add 1 to {_lost}
+                            send "{@prefix}&c%art_title({_id})% №%{_n}% &7— не видно ни у кого в сети."
+                            send "&8   числится за &f%{art::holder::%{_id}%::%{_n}%}%&8; если пропал совсем: &b/artifact release %{_id}% %{_n}%"
+                        else:
+                            set {art::holder::%{_id}%::%{_n}%} to {_where}
+                            send "{@prefix}&a%art_title({_id})% №%{_n}% &7— у &f%{_where}%"
+            if {_lost} is 0:
+                send "{@prefix}&7Все выданные экземпляры на месте."
+            else:
+                send "{@prefix}&7Не найдено: &c%{_lost}%&7. Сундуки и лава поиском не берутся."
+            send "{@line}"
+            stop
+
+        if {_a1} is "release":
+            if {_a2} is not set:
+                send "{@prefix}&cЧто освобождаем: &b/artifact release <id> <номер>"
+                stop
+            set {_n} to "%{_a3}%" parsed as number
+            if {_n} is not set:
+                send "{@prefix}&cНомер экземпляра — число от 1 до {@limit}."
+                stop
+            if art_cmd_of({_a2}) is 0:
+                send "{@prefix}&cНет такого артефакта: &f%{_a2}%&c. Список: &b/artifact ids"
+                stop
+            if {art::holder::%{_a2}%::%{_n}%} is not set:
+                send "{@prefix}&7Экземпляр №%{_n}% и так свободен."
+                stop
+            send "{@prefix}&aСписан: &f%art_title({_a2})% №%{_n}%&a, числился за &f%{art::holder::%{_a2}%::%{_n}%}%&a."
+            art_release({_a2}, {_n})
+            send "{@prefix}&7Теперь его можно выдать заново."
+            stop
+
+        if {_a1} is "give":
+            if {_a2} is not set:
+                send "{@prefix}&cКому: &b/artifact give <ник> <id>"
+                stop
+            set {_target} to {_a2} parsed as player
+            if {_target} is not set:
+                send "{@prefix}&cИгрок &f%{_a2}% &cне в сети. Артефакт кладут в руки."
+                stop
+            set {_id} to {_a3}
+            if art_cmd_of({_id}) is 0:
+                send "{@prefix}&cНет такого артефакта. Список: &b/artifact ids"
+                stop
+            set {_s} to art_slot({_id})
+            if {_s} is 0:
+                send "{@prefix}&cОба экземпляра &f%art_title({_id})% &cна руках."
+                send "{@prefix}&7Найди их: &b/artifact find&7, освободи: &b/artifact release %{_id}% <номер>"
+                stop
+            set {art::holder::%{_id}%::%{_s}%} to "%{_target}%"
+            set {art::given::%{_id}%::%{_s}%} to now
+            if {_id} is "dagger":
+                set {art::charges::dagger::%{_s}%} to 5
+            set {_it} to art_item({_id}, {_s})
+            give {_it} to {_target}
+            send "{@prefix}&a%art_title({_id})% №%{_s}% &aушёл к &f%{_target}%&a."
+            send "{@prefix}&5Тебе в руки лёг &f%art_title({_id})%&5. Таких на свете два." to {_target}
+            send "[АРТЕФАКТ] %art_title({_id})% №%{_s}% выдан игроку %{_target}%" to console
+            stop
+
+        send "{@line}"
+        send "{@prefix}&eАртефактов шесть, каждого — по два на мир"
+        send "&b/artifact give <ник> <id> &8- &7выдать"
+        send "&b/artifact list &8- &7кто чем владеет"
+        send "&b/artifact find &8- &7найти экземпляры у онлайна"
+        send "&b/artifact release <id> <номер> &8- &7списать пропавший"
+        send "&b/artifact ids &8- &7имена артефактов"
+        send "{@line}"

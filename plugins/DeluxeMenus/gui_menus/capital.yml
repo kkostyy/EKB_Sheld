@@ -1,0 +1,226 @@
+menu_title: '&8Житель Спавна (город САП)'
+open_command:
+  - capital
+  - спавн
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.capital
+      deny_commands:
+        - '[message] &cЭто меню жителей Спавна. Гражданство оформляется в Мэрии.'
+
+items:
+
+  'market':
+    material: EMERALD
+    slot: 13
+    display_name: '&a&lРыночная Площадь'
+    lore:
+      - '&7Единственное место, где разрешены лавки.'
+      - '&4Лавка за её пределами — снос и конфискация (УК 7.1).'
+      - '&4Цены ниже прайса — демпинг, штраф 64💎 (УК 7.3).'
+      - ''
+      - '&aЛКМ &8— Торговая Коллегия'
+    left_click_commands:
+      - '[openguimenu] ekb_market'
+
+  'mayor':
+    material: LECTERN
+    slot: 20
+    display_name: '&6&lМэрия'
+    lore:
+      - '&7Аренда точки 5x5 — &b10💎&7 в неделю.'
+      - '&7Статус беженца: сдать оружие и жить'
+      - '&7в нейтральной зоне (Конституция 5.6).'
+      - '&7Регистрация государства — Устав в Discord.'
+      - ''
+      - '&aЛКМ &8— мой срок аренды'
+      - '&aПКМ &8— казна Спавна'
+    left_click_commands:
+      - '[player] arenda'
+    right_click_commands:
+      - '[player] treasury'
+
+  'clinic':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmU3YTgxMGQyMTEyMjc1Y2MxODIxZGNjNmUyOWRhM2QyYjhmYzY1OWFmNzI5MGEzY2I3MGJlNTM2YWUyMDQwYSJ9fX0=
+    slot: 22
+    display_name: '&4&lКлиника'
+    lore:
+      - '&7Осмотр бесплатно, курс от одной зависимости 64-96💎,'
+      - '&7сразу от обеих 128-160💎, выезд врача +32💎.'
+      - '&7Зависимость сама не проходит: воздержание её не лечит,'
+      - '&7а только усиливает ломку.'
+      - ''
+      - '&aЛКМ &8— проверить себя'
+    left_click_commands:
+      - '[player] addiction'
+
+  'bar':
+    material: BREWING_STAND
+    slot: 24
+    display_name: '&6&lБар'
+    lore:
+      - '&7Стойка Спавна: 13 напитков по прайсу.'
+      - '&4Каждая бутылка — доза. С десятой начинается зависимость.'
+      - '&7Рассол &b8💎&7 трезвит и глушит ломку, но тягу не снимает.'
+      - ''
+      - '&aЛКМ &8— открыть стойку'
+    left_click_commands:
+      - '[openguimenu] ekb_barshop'
+
+  'post':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
+    slot: 30
+    display_name: '&f&lЛамповая Почта'
+    lore:
+      - '&7Письмо &b1💎&7, посылка вещью &b4💎&7.'
+      - '&7Курьер идёт 20 минут.'
+      - ''
+      - '&aЛКМ &8— открыть почту'
+    left_click_commands:
+      - '[openguimenu] ekb_pochta'
+
+  'court':
+    material: IRON_BARS
+    slot: 31
+    display_name: '&c&lСуд и тюрьма'
+    lore:
+      - '&7Суд заседает на Спавне, тюрьма тоже здесь.'
+      - '&7Срок считается в ОНЛАЙН-часах; в камере отбирают'
+      - '&7имущество, ломать и ставить блоки нельзя.'
+      - '&7Курить и пить переданное — можно.'
+      - ''
+      - '&aЛКМ &8— порядок в чат'
+    left_click_commands:
+      - '[message] &c&lСУД: &7иск подаётся в Discord командой &f/иск'
+      - '[message] &c&lСУД: &7показания по убийству — &f/report <ник> убийство'
+      - '[message] &8Освободился — выбери выход: &f/freedom'
+
+  'laws':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
+    slot: 32
+    display_name: '&e&lЗаконы'
+    lore:
+      - '&7Конституция, УК, правила, Прайс-лист.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_laws'
+
+  'header':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmVlZjdlNTZjZGU3NDA3NzJkZmI3NmRkZDJmNTg0YmU4OTA3Yjg1OTc2NjhlNDAyNjM0OTg2NDY5MjMwYWE0OSJ9fX0=
+    slot: 4
+    display_name: '&b&lСпавн, база САП'
+    lore:
+      - '&7Нейтральная зона: здесь не воюют,'
+      - '&7не грабят и не сводят счёты (Конституция 6.2).'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_main'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

@@ -1,0 +1,203 @@
+menu_title: '&8Крупье'
+open_command:
+  - dealer
+  - крупье
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.duty.dealer
+      deny_commands:
+        - '[message] &cЭто меню крупье.'
+
+items:
+
+  'cards':
+    material: PAPER
+    slot: 13
+    display_name: '&f&lКолода'
+    lore:
+      - '&aЛКМ &8— выдать себе'
+    left_click_commands:
+      - '[player] givetable card'
+
+  'chips':
+    material: PAPER
+    slot: 20
+    display_name: '&6&lФишки'
+    lore:
+      - '&aЛКМ &8— выдать себе'
+    left_click_commands:
+      - '[player] givetable chip'
+
+  'dice_item':
+    material: PAPER
+    slot: 22
+    display_name: '&f&lКубики'
+    lore:
+      - '&aЛКМ &8— выдать себе'
+    left_click_commands:
+      - '[player] givetable dice'
+
+  'board':
+    material: PAPER
+    slot: 24
+    display_name: '&e&lДоска и фигуры'
+    lore:
+      - '&aЛКМ &8— доска'
+      - '&aПКМ &8— шахматы'
+    left_click_commands:
+      - '[player] givetable board'
+    right_click_commands:
+      - '[player] givetable chess'
+
+  'domino':
+    material: PAPER
+    slot: 30
+    display_name: '&f&lДомино и нарды'
+    lore:
+      - '&aЛКМ &8— домино'
+      - '&aПКМ &8— нарды'
+    left_click_commands:
+      - '[player] givetable domino'
+    right_click_commands:
+      - '[player] givetable nardy'
+
+  'house':
+    material: DROPPER
+    slot: 31
+    display_name: '&c&lКости заведения'
+    lore:
+      - '&7Ставка &b2💎&7, выигрыш &b5💎&7 при 5 или 6.'
+      - '&7Деньги идут через Казну Спавна, не через тебя.'
+      - ''
+      - '&aЛКМ &8— бросить'
+    left_click_commands:
+      - '[player] dice'
+
+  'models':
+    material: BARRIER
+    slot: 32
+    display_name: '&4&lПочему всё бумажное'
+    lore:
+      - '&7Модели TablePlays (CMD 33000-33790) в наш'
+      - '&7ресурспак ещё не вмерджены, поэтому фишки'
+      - '&7и карты выглядят обычной бумагой.'
+      - '&8Долг записан в deploy_checklist §1d.'
+
+  'header':
+    material: OAK_PRESSURE_PLATE
+    slot: 4
+    display_name: '&d&lКрупье'
+    lore:
+      - '&7Держит стол: карты, фишки, кости.'
+      - '&7Ставки между игроками — их дело, не плагина.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_duty'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

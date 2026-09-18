@@ -1,0 +1,233 @@
+menu_title: '&8Гражданин государства'
+open_command:
+  - citizen
+  - гражданин
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.citizen
+      deny_commands:
+        - '[message] &cЭто меню граждан государств. Вступи в государство или основай своё.'
+
+items:
+  'state':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjI1YjI3Y2U2MmNhODg3NDM4NDBhOTVkMWMzOTg2OGY0M2NhNjA2OTZhODRmNTY0ZmJkN2RkYTI1OWJlMDBmZSJ9fX0=
+    slot: 10
+    display_name: '&a&lТвоё государство'
+    lore:
+      - '&7Государство — это Лидер, от 3 граждан,'
+      - '&7территория и Устав, зарегистрированный'
+      - '&7в Discord.'
+      - ''
+      - '&8Конституция 2.1–2.3'
+
+  'territory':
+    material: OAK_FENCE
+    slot: 11
+    display_name: '&6&lЗемля и границы'
+    lore:
+      - '&7Государству положено до &f8×8 чанков'
+      - '&7(128×128 блоков).'
+      - '&7Границы размечаются столбами, заборами,'
+      - '&7флагами — и отмечаются на веб-карте.'
+      - ''
+      - '&7Расширяться можно только на смежные'
+      - '&7нейтральные чанки.'
+      - ''
+      - '&4Приватов на сервере нет: твою землю'
+      - '&4защищает Суд и CoreProtect, а не плагин.'
+      - '&8Конституция 4.1–4.3'
+
+  'war':
+    material: IRON_SWORD
+    slot: 12
+    display_name: '&c&lВойна и нейтралитет'
+    lore:
+      - '&7Война объявляется в Discord, в канале'
+      - '&f#военный-трибунал&7, за &f24 часа&7 до атак.'
+      - '&7В объявлении: причина, цели, условия мира.'
+      - ''
+      - '&7До истечения суток любая агрессия запрещена.'
+      - '&7Читы, ТНТ-гриф и слив лавы запрещены и'
+      - '&7во время войны тоже.'
+      - ''
+      - '&7Объявил нейтралитет до конфликта — тебя'
+      - '&7не имеют права атаковать.'
+      - '&8Конституция 5.1–5.5'
+
+  'inactive':
+    material: CLOCK
+    slot: 13
+    display_name: '&e&lНеактивность'
+    lore:
+      - '&7Лидер пропал на &f7 дней &7— граждане вправе'
+      - '&7провести референдум о переизбрании.'
+      - '&7Государство молчит &f14 дней &7— Администрация'
+      - '&7объявляет земли нейтральными.'
+      - ''
+      - '&8Конституция 3.1–3.2'
+
+  'court':
+    material: LECTERN
+    slot: 14
+    display_name: '&6&lЗащита в Суде'
+    lore:
+      - '&7Украли, сожгли, разграбили — иск в Discord'
+      - '&7командой &f/иск&7 с указанием статьи УК.'
+      - '&7Доказательства не нужны: CoreProtect помнит'
+      - '&7каждое действие, судья поднимет логи сам.'
+      - ''
+      - '&aЛКМ &8— статьи УК'
+    left_click_commands:
+      - '[openguimenu] ekb_laws'
+
+  'market':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
+    slot: 15
+    display_name: '&b&lТорговля'
+    lore:
+      - '&7Лавки ChestShop ставятся только на'
+      - '&7Рыночной Площади Спавна.'
+      - '&4Лавка в своём городе — снос и конфискация'
+      - '&4товара в Казну (УК 6.1).'
+      - '&4Демпинг ниже Прайс-листа — изъятие'
+      - '&4товара и штраф 64💎 (УК 6.3).'
+
+  'mail':
+    material: PAPER
+    slot: 16
+    display_name: '&f&lСвязь с другими'
+    lore:
+      - '&7Телепортов нет — гонца заменяет почта.'
+      - ''
+      - '&8/mailsend <ник> <текст> &7— письмо'
+      - '&8/mailclear &7— очистить свою почту'
+    left_click_commands:
+      - '[close]'
+      - '[message] &f&lПочта: &7/mailsend <ник> <текст>'
+
+  'status':
+    material: GLASS_BOTTLE
+    slot: 22
+    display_name: '&d&lМоё состояние'
+    lore:
+      - '&7Зависимость от алкоголя и травы.'
+      - ''
+      - '&aЛКМ &8— /addiction'
+    left_click_commands:
+      - '[close]'
+      - '[player] addiction'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_profile'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_4':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 4
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

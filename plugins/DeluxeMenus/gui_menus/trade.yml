@@ -1,0 +1,250 @@
+menu_title: '&8Торговля'
+open_command:
+  - trade
+  - торговля
+  - shops
+size: 54
+
+items:
+
+  'myshops':
+    material: VILLAGER_SPAWN_EGG
+    slot: 13
+    display_name: '&e&lМои лавки'
+    lore:
+      - '&7До 3 лавок на игрока.'
+      - ''
+      - '&aЛКМ &8— список моих лавок'
+    left_click_commands:
+      - '[player] shopkeeper list'
+
+  'shopegg':
+    material: VILLAGER_SPAWN_EGG
+    slot: 20
+    display_name: '&a&lКупить яйцо торговца'
+    lore:
+      - '&7Без него лавку не открыть: этим яйцом'
+      - '&7кликают по сундуку с товаром.'
+      - '&b16💎 &7россыпью, уходят в Казну Спавна.'
+      - '&8Выдаёт сам плагин — у его яйца своя метка.'
+      - ''
+      - '&aЛКМ &8— купить'
+    left_click_commands:
+      - '[player] shopegg'
+
+  'howto':
+    material: CHEST
+    slot: 22
+    display_name: '&a&lОткрыть ларёк'
+    lore:
+      - '&aЛКМ &8— инструкция в чат'
+    left_click_commands:
+      - '[message] &a&lЛАРЁК: &71) сундук на Рынке &8→ &72) товар внутрь'
+      - '[message] &73) яйцо торговца кликом по сундуку &8→ &74) продавец рядом (до 15 блоков)'
+      - '[message] &75) ПКМ по продавцу — цены. Торгует только тем, что в сундуке.'
+
+  'currency':
+    material: DIAMOND
+    slot: 24
+    display_name: '&b&lВалюта'
+    lore:
+      - '&7Алмаз — монета, алмазный блок — 9.'
+      - '&7Блоки идут в ход от 20 алмазов.'
+
+  'heads':
+    material: PLAYER_HEAD
+    slot: 28
+    display_name: '&6&lКаталог голов'
+    lore:
+      - '&7100 000 голов для декора.'
+      - '&4Взять нельзя — только смотреть и искать.'
+      - ''
+      - '&aЛКМ &8— открыть каталог'
+    left_click_commands:
+      - '[player] headdb'
+
+  'collegium':
+    material: HOPPER
+    slot: 29
+    display_name: '&a&lТорговая Коллегия'
+    lore:
+      - '&7Скупщик, аренда палатки, доска лотов.'
+      - '&7Всё считается через Казну Спавна.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_market'
+
+  'blackmarket':
+    material: NETHER_STAR
+    slot: 30
+    display_name: '&4&lТеневой Рынок'
+    lore:
+      - '&7Там, где белый рынок заканчивается.'
+      - '&8Видно только Теневому Сообществу.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.shadow.member
+    left_click_commands:
+      - '[openguimenu] ekb_blackmarket'
+
+  'post':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
+    slot: 31
+    display_name: '&f&lЛамповая Почта'
+    lore:
+      - '&7Письмо — 1💎, посылка вещью — 4💎.'
+      - '&7Курьер идёт 20 минут.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_pochta'
+
+  'bar':
+    material: POTION
+    slot: 32
+    display_name: '&d&lБар и кости'
+    lore:
+      - '&7Стойка Спавна и азартный уголок Бармена.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_casino'
+
+  'prices':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
+    slot: 33
+    display_name: '&f&lПрайс-лист'
+    lore:
+      - '&aЛКМ &8— цены и законы'
+    left_click_commands:
+      - '[openguimenu] ekb_laws'
+
+  'rules':
+    material: BARRIER
+    slot: 34
+    display_name: '&c&lЗапреты рынка'
+    lore:
+      - '&4Лавка вне Рынка — снос и конфискация (УК 7.1).'
+      - '&4Неуплата аренды — закрытие точки (УК 7.2).'
+      - '&4Цены ниже прайса — демпинг, штраф 64💎 (УК 7.3).'
+
+  'header':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
+    slot: 4
+    display_name: '&e&lТорговля'
+    lore:
+      - '&7Ничего не берётся из воздуха:'
+      - '&7любая лавка — чей-то сундук.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_main'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

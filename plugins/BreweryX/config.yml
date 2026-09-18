@@ -1,0 +1,456 @@
+# !!! IMPORTANT: BreweryX configuration files do NOT support external comments! If you add any comments, they will be overwritten !!!
+# Our proper config guide can be found at: https://brewery.lumamc.net/en/guide/edit_config/
+# Still have questions? Join our Discord: https://discord.gg/ZTGCzeKg45
+
+# Какой файл локализации использовать [en]
+# Доступные типы: en (Английский), de (Немецкий), es (Испанский), fr (Французский), it (Итальянский), ru (Русский), zh (Китайский), uk (Украинский), pl (Польский)
+language: ru
+
+# Проверять ли обновления. Укажите, какой сервис хотите для этого использовать, или отключите.
+# Доступные варианты: GitHub, Snapshots, Spigot, None [GitHub]
+resolveUpdatesFrom: GITHUB
+
+# Период автосохранения данных (в минутах) [10]
+autosave: 10
+
+# Префикс плагина, используемый в сообщениях.
+# Как и большинство текстов плагина, поддерживает HEX-цвета (пример: & FFFFFF - белый цвет) ['&2[BreweryX]&f ']
+pluginPrefix: '&2[BreweryX]&f '
+
+# Отображать ли отладочные сообщения в логах и в консоли [false]
+debug: false
+
+# -- Хранение данных --
+storage:
+  # Определяет, какой метод хранения данных использовать [FlatFile]
+  # Возможные варианты: FlatFile, MySQL, SQLite, MongoDB
+  # Подробнее о вариантах - в гайде по ссылке вверху файла
+  type: SQLITE
+  # Название базы данных. Если база данных - файл, то таким будет название этого файла [brewery-data]
+  database: brewery-data
+  tablePrefix: brewery_
+  address: localhost
+  username: root
+  password: password
+
+# Должен ли игрок просыпаться на своей точке дома при заходе на сервер после сильной пьянки [true]
+enableHome: true
+
+# Тип телепортации домой
+# bed = Игрок просто появится у своей кровати-спавнпоинта
+# 'cmd: home' = /home будет выполнено от имени игрока. Необходимы соответствующие разрешения у игрока, а также отсутствие задержки у команды!
+# 'cmd: spawn' = /spawn будет выполнено от имени игрока.
+# 'cmd: choUgodno' = /choUgodno будет выполнено от имени игрока.
+# Дефолтное значение: ['cmd: home']
+homeType: 'cmd: home'
+
+# Должен ли игрок просыпаться в одной из "точек пробуждения" при заходе на сервер после пьянки (точки пробуждения настраиваются админом через '/brew Wakeup add') [true]
+# Из всех точек пробуждения выбираются две случайные, после чего игрок появляется на ближайшей из них
+enableWake: true
+
+# Должен ли игрок несколько раз пытаться залогиниться, если он пьян [true]
+enableLoginDisallow: true
+
+# Должен ли игрок терять сознание (кикаться с сервера), если достиг максимума опьянения [false]
+enableKickOnOverdrink: false
+
+# Должен ли игрок блевать при высоком опьянении (выбрасываемые предметы указываются ниже) [true]
+# Выблёвываемый предмет не может быть собран и остается на земле, пока не задеспавнится
+# (В целом импакт на производительность очень низкий)
+enablePuke: true
+
+# Какими предметами должен блевать игрок [Soul_Sand]
+# Можно ввести несколько предметов, например: [Sould_sand, Slime_block, Dirt]
+pukeItem:
+- SOUL_SAND
+
+# Время, в секундах, после которого исчезает блевотина [60]
+# Если время деспавна выброшенных предметов (ванильно  300с) изменится в spigot.yml, то pukeDespawntime тоже изменится!
+# Прим.пер.: Для крупных (100+ онлайна) серверов советую уменьшить значение до 30,
+# Иначе большое количество предметов может вызвать падение FPS у игроков
+pukeDespawntime: 60
+
+# Насколько сильно игрока шатает (в процентах) в зависимости от того, сколько он выпил. Значения выше 100, или же ноль, тоже допустимы [100]
+stumblePercent: 100
+
+# Отображать ли игроку его опьянение после того, как он выпьет, или съест drainItem [true]
+showStatusOnDrink: true
+
+# Список отрезвляющей пищи и то, сколько процентов опьянения она снимает. [Предмет/Количество]
+drainItems:
+- BREAD/4
+- MILK_BUCKET/25
+- HONEY_BOTTLE/15
+
+# Отображать ли частицы над котлом, если в нем что-то варится [true]
+# Изменяемый цвет частиц (настраивается ниже) может быть полезной подсказкой для тайминга рецептов.
+enableCauldronParticles: true
+
+# Нужно ли минимизировать количество частиц над котлом [false]
+minimalParticles: false
+
+# Включены ли крафт и использование стола для запечатывания (2 бутылки поверх 4 досок в верстаке) [true, true]
+# Запечатывание используется, чтобы заблокировать дальнейшее настаивание или дистилляцию для напитка,
+# благодаря чему его можно будет безопасно хранить в бочках
+craftSealingTable: true
+enableSealingTable: true
+
+# Обычно в качестве стола для запечатывания используется модифицированный блок Коптильной печи, но вы можете это изменить
+# ВАЖНО: Блок должен быть контейнером, то есть блоком, способным держать в себе предметы (например, SMOKER, CHEST, BLAST_FURNACE).
+sealingTableBlock: SMOKER
+
+# Всегда ли отображать 1-5 звезд, в зависимости от качества, в описании напитка.
+# Если false, то звезды будут видны только при настаивании или дистилляции [true]
+alwaysShowQuality: true
+
+# Всегда ли отображать процент алкоголя в напитке. Если false, то алкогольность будет отображаться только в зельеварке [false]
+# Запечатанные напитки не будут отображать процент алкоголя вне зависимости от этой настройки
+alwaysShowAlc: false
+
+# Предупреждать ли о том, что напиток алкогольный, добавляя в описание предмета надпись "Алкогольное" [true]
+# Запечатанные напитки тоже будут иметь эту надпись, но не будут отображать процент алкоголя
+alwaysShowAlcIndicator: true
+
+# Показывать ли подсказки в описании неудавшихся напитков [false]
+# К примеру:
+# - "Слишком долго варилось..."
+# - "Один из ингредиентов по вкусу не тот..."
+# Учтите, что подсказки основаны на ближайшем, исходя из ингредиентов, правильном рецепте и поэтому могут быть неточными.
+showRuinedBrewHints: false
+
+# Отображать ли имя того, кто сварил напиток. [false]
+showBrewer: false
+
+# Обязательно ли на табличке наличие слова barrel (или бочка), чтобы бочка могла быть создана [true]
+requireKeywordOnSigns: true
+
+# Включено ли настаивание в ванильных майнкрафтовских бочках [true], и сколько бутылок можно в них положить [6]
+ageInMCBarrels: true
+maxBrewsInMCBarrels: 6
+
+# Сколько длится 1 год (в минутах) во время настаивания напитков. 1 игровой день = 20 минут [20]
+agingYearDuration: 20
+
+# Использовать ли новый алгоритм для высчитывания качества типа дерева и смены типа дерева, если напиток настаивался в нескольких разных бочках. [False]
+# False - старое поведение Brewery(X).
+# True - группирует похожие типы бочек (напр., дуб и бледный дуб) более интуитивно, справедливо влияя на качество.
+newBarrelTypeAlgorithm: false
+
+# Синонимы для основной команды '/breweryx'. Для принятия изменений требуется полный рестарт сервера (Список) [brewery, brew]
+commandAliases:
+- brewery
+- brew
+
+# Использованные ингредиенты и прочие данные сохраняются прямо в напиток посредством custom_data в предмете.
+# Чтобы защитить эти данные от читеров, их можно зашифровать.
+# Это быстрый процесс, который не позволит игрокам узнать, какой у напитка рецепт, как только этот напиток попадет к ним в руки.
+
+# Важно: для использования тех же предметов-напитков/мира на другом сервере, в его конфиге должен быть указан такой же encodeKey.
+# Если используете напитки на нескольких серверах (BungeeCord, Velocity, прочее), укажите общую базу данных внизу, в 'storage'
+
+# Включайте это, если хотите не позволить читерить рецепты. Но тогда не делитесь напитками посредством скачивания карты/схематик построек с напитками [false]
+enableEncode: false
+encodeKey: -1332259059464494870
+
+# -- Совместимость --
+
+# Должны ли бочки учитывать приваты разных плагинов [true]
+useWorldGuard: true
+useLWC: true
+useGriefPrevention: true
+useTowny: true
+useLands: true
+useBlockLocker: true
+useGMInventories: true
+
+# Использовать ли "виртуальный сундук" при открывании бочек.
+# Могут возникнуть проблемы при использовании античита.
+# Используйте с плагином 'Residence' и прочими плагинами, которые не просчитывают все варианты в playerInteractEvent
+useVirtualChestPerms: false
+
+# Логгировать ли бочки в LogBlock [true]
+useLogBlock: true
+
+# Можно ли добавлять в котел также вещи из второй руки [false]
+useOffhandForCauldron: false
+
+# Эта опция больше не используется и в будущих версиях будет удалена.
+# Сейчас BreweryX всегда загружает данные асинхронно, за исключением запуска и остановки сервера.
+loadDataAsync: true
+
+# Количество дней, в течение которых данные об опьянении игрока остаются в памяти после его выхода, чтобы при заходе наложить похмелье, тпшнуть его домой, и пр. [7]
+hangoverDays: 7
+
+# Разрешить ли класть в бочки только бутылки с напитками [false]
+onlyAllowBrewsInBarrels: false
+exemptVanillaBarrels: true
+
+# Окрашивать ли информацию об этапах приготовления, в зависимости от качества, внутри бочек и зельеварок [true, true]
+colorInBarrels: true
+colorInBrewer: true
+
+# Можно ли открыть большую бочку нажатием на любой ее блок, а не только табличку/забор, чтобы открыть ее. Всегда включено для маленьких бочек [true]
+openLargeBarrelEverywhere: true
+
+# Сколько рядов должно быть в инвентаре каждого типа бочек [3,1]
+# Должно быть целым числом от 1 до 6 (ограничение Minecraft / GUI)
+# (Для применения изменений требуется перезапуск сервера)
+barrelInvSizeLarge: 3
+barrelInvSizeSmall: 1
+
+# Можно ли опустошить бутылку с напитком нажатием ею по воронке [true]
+brewHopperDump: true
+
+# -- Коверкание чата --
+
+# Включить ли коверкание сообщений пьяных игроков в чате.
+# Степень искажения зависит от того, насколько пьян игрок
+# Ниже есть настройки того, как именно и что именно и с каким шансом искажать.
+enableChatDistortion: true
+
+# Сохранять ли в логи сервера оригинальные сообщения игрока, до того как они были изменены [false]
+logRealChat: false
+
+# Текст после данных команд будет исковеркан, но сами команды - нет (список) [- /gl]
+distortCommands:
+- /gl
+- /global
+- /fl
+- /s
+- /letter
+- /g
+- /l
+- /lokal
+- /local
+- /mail send
+- /m
+- /msg
+- /w
+- /whisper
+- /reply
+- /r
+- /t
+- /tell
+
+# Искажать ли текст, написанный на табличках во время опьянения [false]
+distortSignText: false
+
+# Если сообщение "обёрнуто" в приведенные ниже знаки, то оно не будет исковеркано (разделяйте начальный и конечный знаки при помощи запятой) (список) [- '[,]']
+#   Пример:| Vutka1: *маты-перематы*
+#   Такое сообщение не будет исковеркано.
+distortBypass:
+- '*,*'
+- '[,]'
+
+# words: Слова и буквы, которые будут заменены во время пьяного письма.
+# Этот список обрабатывается в порядке от начала до конца. Написанные сообщения коверкаются так же.
+
+# replace: Слово/буква/выражение, которое будет заменено
+#   (особые варианты: "-space": заменить пробел, "-random": вписать в случайном месте, "-all": заменить сообщение целиком, "-start": добавить в начало сообщения, "-end": добавить в конец сообщения)
+# to: на что заменить вышеуказанное слово/букву/выражение
+# pre: какие слова/буквы/выражения должны быть перед указанным в 'replace:', чтобы можно было заменить на 'to:' (разделять при помощи ",")
+# match:  true = одно из слов в 'pre:' должно быть перед целевым словом, чтобы коверкание сработало,  false = наоборот, т.е. слов из 'pre:' быть не должно, чтобы коверкание сработало.
+# alcohol: 1-100 минимальное опьянение, необходимое для того, чтобы данное коверкание сработало
+# percentage: шанс того, что данное коверкание произойдет
+words:
+- replace: s
+  to: sh
+  alcohol: 30
+  percentage: 90
+- replace: ch
+  to: sh
+  pre: u,s,o,a
+  match: false
+  alcohol: 10
+  percentage: 70
+- replace: h
+  to: hh
+  pre: sch,h,t
+  match: false
+  alcohol: 20
+  percentage: 60
+- replace: th
+  to: thl
+  alcohol: 30
+  percentage: 40
+- replace: sch
+  to: shk
+  alcohol: 40
+  percentage: 60
+- replace: u
+  to: uuh
+  percentage: 20
+- replace: y
+  to: yy
+  alcohol: 15
+  percentage: 60
+- replace: e
+  to: ee
+  alcohol: 15
+  percentage: 40
+- replace: you
+  to: u
+  percentage: 40
+- replace: u
+  to: uo
+  pre: u
+  match: false
+  percentage: 60
+- replace: that
+  to: taht
+  alcohol: 40
+  percentage: 20
+- replace: p
+  to: b
+  percentage: 30
+- replace: p
+  to: b
+  alcohol: 60
+  percentage: 70
+- replace: up
+  to: ubb
+  alcohol: 25
+  percentage: 80
+- replace: o
+  to: oh
+  percentage: 20
+- replace: ei
+  to: i
+  alcohol: 15
+  percentage: 30
+- replace: b
+  to: bb
+  alcohol: 40
+  percentage: 80
+- replace: '!!!'
+  to: '!!!111!!!eleven!1!'
+  pre: '!'
+  match: false
+  alcohol: 70
+  percentage: 20
+- replace: '!'
+  to: '!!'
+  pre: '!'
+  match: false
+  percentage: 90
+- replace: drunk
+  to: dhrkunn
+  pre: are
+  match: false
+  alcohol: 65
+  percentage: 70
+- replace: walk
+  to: whhealhk
+  pre: you can, you can still, you can not
+  match: false
+  alcohol: 30
+  percentage: 80
+- replace: wtf
+  to: wft
+  alcohol: 40
+  percentage: 20
+- replace: lol
+  to: loool
+  alcohol: 10
+  percentage: 80
+- replace: afk
+  to: aafkayyy
+  alcohol: 30
+  percentage: 30
+- replace: write
+  to: wreitt
+  pre: you can,you can still,you can not
+  match: false
+  alcohol: 50
+  percentage: 80
+- replace: drink
+  to: booze
+  alcohol: 70
+  percentage: 80
+- replace: '?'
+  to: ????
+  pre: '?'
+  match: false
+  alcohol: 40
+  percentage: 80
+- replace: -space
+  to: ''
+  pre: h,g,w
+  match: true
+  alcohol: 10
+- replace: -space
+  to: ''
+  alcohol: 35
+  percentage: 30
+- replace: -space
+  to: ''
+  percentage: 10
+- replace: -start
+  to: dho
+  alcohol: 50
+  percentage: 15
+- replace: -start
+  to: hhn
+  alcohol: 50
+  percentage: 10
+- replace: -random
+  to: lu
+  percentage: 10
+- replace: -random
+  to: lug
+  alcohol: 50
+  percentage: 10
+- replace: -random
+  to: blub
+  alcohol: 80
+  percentage: 20
+- replace: -random
+  to: lerg
+  alcohol: 85
+  percentage: 40
+- replace: -random
+  to: gul
+  alcohol: 80
+  percentage: 40
+- replace: -random
+  to: ' '
+  alcohol: 70
+  percentage: 100
+- replace: -random
+  to: ' '
+  alcohol: 40
+  percentage: 60
+- replace: -random
+  to: ' '
+  alcohol: 30
+  percentage: 50
+- replace: -end
+  to: '!'
+  alcohol: 30
+  percentage: 40
+- replace: -random
+  to: ' *hic* '
+  alcohol: 70
+  percentage: 80
+- replace: -random
+  to: ' *hic* '
+  alcohol: 40
+  percentage: 15
+- replace: -space
+  to: ' *hic* '
+  alcohol: 20
+  percentage: 5
+- replace: -end
+  to: ' *hic*'
+  alcohol: 50
+  percentage: 70
+- replace: -all
+  to: '*burp*'
+  alcohol: 60
+  percentage: 3
+- replace: -all
+  to: '*burp*'
+  alcohol: 80
+  percentage: 6
+
+# Yep, that's it! The end of config.yml! I had so much fun! And you?...

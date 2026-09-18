@@ -1,0 +1,18 @@
+# EKB SHIELD — DecentHolograms config.yml
+
+settings:
+  update-interval: 20        # тиков между обновлением текста (1 сек)
+  click-cooldown: 500        # мс между кликами по голограмме
+  max-render-distance: 48    # блоков, дальше голограмма скрывается
+  down-origin: false
+  enabled-per-world: []      # пусто = включено во всех мирах
+
+placeholders:
+  register-plugin-expansion: true
+
+# Шаблон голограммы над торговой лавкой (создаётся динамически через
+# скрипт market_holograms.sk при установке ChestShop, см. docs/)
+default-market-hologram-lines:
+  - "&6&l%item_name%"
+  - "&7Цена: &b%price%♢"
+  - "&8В наличии: &f%stock% шт."

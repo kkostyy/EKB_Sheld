@@ -1,0 +1,164 @@
+# EKB SHIELD — evidence.sk
+# Криминалистическая экспертиза: место убийства -> имя убийцы для Суда.
+# Требует docs/treasury.sk — процедура оплачивается в Казну Спавна.
+#
+# Что переделано против присланной спецификации.
+#
+# 1. В спецификации кнопка списывала 20💎 и печатала «(50% Шанс) Данные
+#    отправлены в Суд Спавна» — никакого шанса там не было и никаких данных
+#    тоже: сообщение просто врало. Здесь бросок настоящий, и раскрывать
+#    экспертизе есть что: скрипт ведёт реестр убийств.
+#
+# 2. Экспертиза работает ПО МЕСТУ, а не по воздуху. Следователь приходит
+#    туда, где лежало тело, и платит за осмотр этого места. Без привязки к
+#    координате это была бы кнопка «узнать любого убийцу за 20💎».
+#
+# 3. Результат уходит не только игроку, но и в консоль (оттуда в Discord
+#    Администрации): экспертиза — это доказательство для Суда, а не сплетня.
+#    Само обвинение всё равно подаёт человек — /report или /иск в Discord.
+#
+# Как это сцеплено с остальным.
+#   contracts.sk при каждом убийстве уже рассылает свидетелям в радиусе
+#   48 блоков готовую команду /report. Свидетелей может не быть — тогда дела
+#   нет вовсе (молчание свидетеля по УК ненаказуемо). Экспертиза — второй
+#   путь к тому же: место преступления помнит убийцу трое суток.
+#
+# Хранилище:
+#   {ev::id}                — счётчик происшествий
+#   {ev::killer::<id>}      — ник убийцы
+#   {ev::victim::<id>}      — ник жертвы
+#   {ev::loc::<id>}         — координата тела
+#   {ev::when::<id>}        — unix-время
+#   {ev::solved::<id>}      — экспертиза уже проводилась
+#
+# Команды:
+#   /expertise        — осмотреть место, где стоишь (20💎)
+#   /crimescenes      — открытые происшествия (Суд и Администрация)
+
+options:
+    prefix: &9&l[ЭКСПЕРТИЗА] &r
+    admin: coreprotect.rollback
+    detective: ekb.duty.detective
+    price: 20
+    radius: 12           # блоков от тела, где ещё есть что осматривать
+    keep_hours: 72       # через трое суток след остывает
+    chance: 50           # процент успеха
+
+# ---------------------------------------------------------------------------
+# Реестр убийств
+# ---------------------------------------------------------------------------
+
+# Отдельное `on death of player` в другом скрипте конфликта не даёт: Skript
+# зовёт все обработчики события. contracts.sk на том же событии считает
+# выполнение контракта, здесь — только следы.
+#
+# Записываем ТОЛЬКО убийство игроком. Смерть от падения, мобов и лавы
+# экспертизе не интересна: судить некого.
+on death of player:
+    attacker is a player
+    victim is a player
+    if attacker is victim:
+        stop
+    add 1 to {ev::id}
+    set {_id} to "%{ev::id}%"
+    set {ev::killer::%{_id}%} to "%attacker%"
+    set {ev::victim::%{_id}%} to "%victim%"
+    set {ev::loc::%{_id}%} to location of victim
+    set {ev::when::%{_id}%} to unix timestamp of now
+
+function ev_fresh(id: text) :: boolean:
+    if {ev::killer::%{_id}%} is not set:
+        return false
+    if {ev::solved::%{_id}%} is true:
+        return false
+    if ((unix timestamp of now) - {ev::when::%{_id}%}) > ({@keep_hours} * 3600):
+        return false
+    return true
+
+# ---------------------------------------------------------------------------
+# Осмотр места
+# ---------------------------------------------------------------------------
+
+command /expertise:
+    description: Криминалистический осмотр места, где ты стоишь (20 алмазов)
+    aliases: /экспертиза
+    executable by: players
+    trigger:
+        # Сначала ищем, есть ли что осматривать. Брать деньги за осмотр
+        # чистого поля — это не «шанс 50%», это обман.
+        set {_best} to ""
+        set {_bestwhen} to 0
+        loop {ev::killer::*}:
+            set {_id} to loop-index
+            if ev_fresh({_id}) is true:
+                set {_l} to {ev::loc::%{_id}%}
+                if world of {_l} is world of player:
+                    if distance between {_l} and location of player <= {@radius}:
+                        if {ev::when::%{_id}%} > {_bestwhen}:
+                            set {_bestwhen} to {ev::when::%{_id}%}
+                            set {_best} to {_id}
+
+        if {_best} is "":
+            send "{@prefix}&7Здесь ничего нет: в радиусе {@radius} блоков никто не погибал от чужой руки"
+            send "{@prefix}&7за последние {@keep_hours} часа, либо место уже осматривали."
+            send "{@prefix}&8Деньги за пустой осмотр не берут."
+            stop
+
+        set {_r} to tr_pay(player, {@price})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%"
+            send "{@prefix}&7Процедура стоит &b{@price}💎&7 и идёт в Казну Спавна."
+            stop
+
+        # Место осмотрено в любом случае — и при удаче, и при провале.
+        # Иначе экспертизу крутили бы по кругу, пока не выпадет успех.
+        set {ev::solved::%{_best}%} to true
+        set {_victim} to {ev::victim::%{_best}%}
+        set {_killer} to {ev::killer::%{_best}%}
+        set {_ago} to floor(((unix timestamp of now) - {ev::when::%{_best}%}) / 3600)
+
+        send "{@prefix}&7Осмотр места... жертва: &f%{_victim}%&7, примерно &f%{_ago}%&7 ч. назад."
+        play sound "block.brewing_stand.brew" with volume 0.8 to player
+        wait 2 seconds
+
+        if (random integer between 1 and 100) <= {@chance}:
+            send "{@prefix}&a&lСЛЕД ВЗЯТ. &fУбийца: &c%{_killer}%"
+            send "{@prefix}&7Заключение передано Суду. Обвинение подаёшь ты:"
+            send "{@prefix}&b/report %{_killer}% убийство %{_victim}%&7 или иск в Discord."
+            send "[ЭКСПЕРТИЗА] %player% установил: %{_killer}% убил %{_victim}% (дело %{_best}%)" to console
+        else:
+            send "{@prefix}&cСлед потерян. &7Следы затоптаны, заключение пустое."
+            send "{@prefix}&7Место осмотрено и повторно ничего не даст. &b{@price}💎&7 ушли в Казну."
+            send "[ЭКСПЕРТИЗА] %player% осмотрел место гибели %{_victim}% — безрезультатно (дело %{_best}%)" to console
+
+command /crimescenes:
+    description: Открытые происшествия, которые ещё можно осмотреть
+    aliases: /происшествия
+    trigger:
+        # Список открытых дел — рабочий инструмент следователя, а не
+        # админская диагностика. Убийца в нём всё равно не показан.
+        set {_ok} to false
+        if sender has permission "{@admin}":
+            set {_ok} to true
+        if sender has permission "{@detective}":
+            set {_ok} to true
+        if {_ok} is false:
+            send "{@prefix}&cСписок происшествий ведут Суд и следователь." to sender
+            stop
+        set {_n} to 0
+        send "{@prefix}&7Открытые происшествия (след живёт {@keep_hours} ч.):"
+        # Перебор по реестру убийц: у ветки {ev::<id>} собственного значения
+        # нет, и `loop {ev::*}` вернул бы пусто — та же грабля, из-за которой
+        # /jailitems list рапортовал о пустом ящике.
+        loop {ev::killer::*}:
+            set {_id} to loop-index
+            if ev_fresh({_id}) is true:
+                add 1 to {_n}
+                set {_l} to {ev::loc::%{_id}%}
+                set {_ago} to floor(((unix timestamp of now) - {ev::when::%{_id}%}) / 3600)
+                send "&8 №&f%{_id}%&8 · жертва &f%{ev::victim::%{_id}%}%&8 · %{_ago}% ч. назад · &7%floor(x coordinate of {_l})%, %floor(y coordinate of {_l})%, %floor(z coordinate of {_l})%"
+        if {_n} <= 0:
+            send "&7Открытых происшествий нет."
+        else:
+            send "&8Убийца в списке не показан намеренно: его должна назвать экспертиза,"
+            send "&8иначе Суд получал бы готовые ответы в обход процедуры."
