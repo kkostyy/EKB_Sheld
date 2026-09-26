@@ -9,9 +9,10 @@ open_requirement:
         - '[message] &cЭто меню Администрации.'
 
 items:
+
   'inspect':
     material: WOODEN_AXE
-    slot: 11
+    slot: 13
     display_name: '&6&lИнспектор CoreProtect'
     lore:
       - '&7ЛКМ/ПКМ по блоку показывает его историю.'
@@ -24,20 +25,22 @@ items:
 
   'lookup':
     material: BOOK
-    slot: 12
+    slot: 20
     display_name: '&e&lПоиск по логам'
     lore:
       - '&8/co lookup u:<ник> t:<время> r:<радиус>'
       - '&8/co lookup u:Вася t:3h r:20'
       - ''
       - '&7Время: &fm &7минуты, &fh &7часы, &fd &7дни.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока и срок'
     left_click_commands:
       - '[close]'
-      - '[message] &e&lПоиск: &7/co lookup u:<ник> t:3h r:20'
+      - '[player] ekbdo colookup'
 
   'courtlog':
     material: WRITABLE_BOOK
-    slot: 13
+    slot: 22
     display_name: '&b&lВыгрузка в Discord'
     lore:
       - '&8/courtlog <игрок> <минуты> <радиус> <дело>'
@@ -45,13 +48,15 @@ items:
       - '&7Плагин CourtBridge тянет логи CoreProtect'
       - '&7и шлёт embed в канал &f#суд&7.'
       - '&7Номер дела берётся из Discord-бота.'
+      - ''
+      - '&aЛКМ &8— собрать выгрузку по шагам'
     left_click_commands:
       - '[close]'
-      - '[message] &b&lCourtBridge: &7/courtlog <игрок> <минут> <радиус> <номер_дела>'
+      - '[player] ekbdo courtlog'
 
   'rollback':
     material: TNT
-    slot: 14
+    slot: 24
     display_name: '&c&lОткат'
     lore:
       - '&8/co rollback u:<ник> t:<время> r:<радиус>'
@@ -59,13 +64,19 @@ items:
       - ''
       - '&4Только по решению Суда.'
       - '&8Помощник админа этого права не имеет.'
+      - ''
+      - '&aЛКМ &8— собрать откат по шагам'
+      - '&aПКМ &8— вернуть откат обратно'
     left_click_commands:
       - '[close]'
-      - '[message] &c&lОткат: &7/co rollback u:<ник> t:<время> r:<радиус>'
+      - '[player] ekbdo corollback'
+    right_click_commands:
+      - '[close]'
+      - '[player] ekbdo corestore'
 
   'discord':
     material: LAPIS_LAZULI
-    slot: 15
+    slot: 31
     display_name: '&9&lДела в Discord'
     lore:
       - '&8/иск &7— подача (игроки)'
@@ -75,6 +86,11 @@ items:
       - '&7Номера дел живут в боте, а не на сервере:'
       - '&7CoreProtect держит базу локально и по сети'
       - '&7её не отдаёт. Связка — номер дела.'
+
+  'header':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
+    slot: 4
+    display_name: '&c&lСуд и логи'
 
   'back':
     material: ARROW
@@ -90,7 +106,7 @@ items:
     left_click_commands:
       - '[close]'
 
-  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  # рамка ставится генератором, руками её не правят
   'frame_0':
     material: GRAY_STAINED_GLASS_PANE
     slot: 0
@@ -106,10 +122,6 @@ items:
   'frame_3':
     material: GRAY_STAINED_GLASS_PANE
     slot: 3
-    display_name: ' '
-  'frame_4':
-    material: GRAY_STAINED_GLASS_PANE
-    slot: 4
     display_name: ' '
   'frame_5':
     material: GRAY_STAINED_GLASS_PANE

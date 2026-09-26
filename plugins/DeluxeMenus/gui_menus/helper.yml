@@ -11,13 +11,11 @@ open_requirement:
       deny_commands:
         - '[message] &cЭто меню помощника администратора.'
 
-# Принцип группы restricted_admin: смотреть можно, менять — нет.
-# Всё, что закрыто, показано серым и с объяснением, почему.
-
 items:
+
   'inspect':
     material: WOODEN_AXE
-    slot: 10
+    slot: 13
     display_name: '&6&lИнспектор CoreProtect'
     lore:
       - '&7ЛКМ/ПКМ по блоку — история изменений.'
@@ -29,20 +27,22 @@ items:
 
   'lookup':
     material: BOOK
-    slot: 11
+    slot: 20
     display_name: '&e&lПоиск по логам'
     lore:
       - '&8/co lookup u:<ник> t:3h r:20'
       - ''
       - '&7Смотреть можно всё — это и есть'
       - '&7твоя главная работа.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока и срок'
     left_click_commands:
       - '[close]'
-      - '[message] &e&lПоиск: &7/co lookup u:<ник> t:3h r:20'
+      - '[player] ekbdo colookup'
 
   'openinv':
     material: ENDER_CHEST
-    slot: 12
+    slot: 22
     display_name: '&5&lЗаглянуть в инвентарь'
     lore:
       - '&8/oi <ник> &7— инвентарь'
@@ -52,14 +52,32 @@ items:
       - '&4— только по решению Суда.'
       - ''
       - '&aЛКМ &8— инвентарь &8· &aПКМ &8— эндер-сундук'
+      - '&aПКМ &8— выполнить'
     left_click_commands:
       - '[player] ekbmenu inv'
     right_click_commands:
       - '[player] ekbmenu ender'
 
+  'spawnbuild':
+    material: BRICKS
+    slot: 24
+    display_name: '&6&lПраво стройки в городе'
+    lore:
+      - '&7Главный город закрыт для стройки всем,'
+      - '&7кроме Администрации. Нанятым рабочим'
+      - '&7право выдаётся поимённо — кликом по голове.'
+      - ''
+      - '&7Бессрочно, пока не заберёшь тем же кликом.'
+      - '&8Вне города разрешение не нужно вовсе.'
+      - ''
+      - '&aЛКМ &8— открыть список'
+    left_click_commands:
+      - '[close]'
+      - '[player] spawnbuild'
+
   'vanish':
     material: POTION
-    slot: 13
+    slot: 28
     display_name: '&8&lВаниш'
     lore:
       - '&7Стать невидимым для игроков.'
@@ -74,7 +92,7 @@ items:
 
   'tp':
     material: ENDER_PEARL
-    slot: 14
+    slot: 29
     display_name: '&b&lСлужебные телепорты'
     lore:
       - '&8/tp <ник> &8· &8/tphere <ник> &8· &8/tppos'
@@ -83,13 +101,19 @@ items:
       - '&7выезд по иску, разбор жалоб.'
       - '&4Использовать в личной RP-игре запрещено'
       - '&4— Конституция 1.1.2, это злоупотребление.'
+      - ''
+      - '&aЛКМ &8— телепорт к игроку'
+      - '&aПКМ &8— призвать к себе'
     left_click_commands:
       - '[close]'
-      - '[message] &b&lТелепорт: &7/tp <ник> &8· &7/tphere <ник>'
+      - '[player] ekbdo tpto'
+    right_click_commands:
+      - '[close]'
+      - '[player] ekbdo tphere'
 
   'tps':
     material: CLOCK
-    slot: 15
+    slot: 30
     display_name: '&a&lTPS сервера'
     lore:
       - '&7Нагрузка и тики.'
@@ -103,20 +127,40 @@ items:
 
   'brewery':
     material: POTION
-    slot: 16
+    slot: 31
     display_name: '&6&lБар'
     lore:
       - '&8/brew set <ник> 0 &7— протрезвить'
       - '&8/brew create <рецепт> <качество>'
       - ''
       - '&7Право brewery.admin у тебя есть.'
+      - ''
+      - '&aЛКМ &8— протрезвить игрока'
     left_click_commands:
       - '[close]'
-      - '[message] &6&lBrewery: &7/brew set <ник> 0'
+      - '[player] ekbdo brewset'
+
+  'gamemode':
+    material: GRASS_BLOCK
+    slot: 32
+    display_name: '&a&lРежим игры'
+    lore:
+      - '&7Творческий — строить и проверять,'
+      - '&7наблюдатель — смотреть, не вмешиваясь.'
+      - '&8Права essentials.gamemode.* у группы есть.'
+      - ''
+      - '&eПКМ &8— выживание'
+      - ''
+      - '&aЛКМ &8— творческий'
+      - '&aПКМ &8— выполнить'
+    left_click_commands:
+      - '[player] gmc'
+    right_click_commands:
+      - '[player] gms'
 
   'denied':
     material: BARRIER
-    slot: 22
+    slot: 33
     display_name: '&4&lЧто тебе закрыто'
     lore:
       - '&8coreprotect.rollback &7— откаты, а с ними'
@@ -129,40 +173,26 @@ items:
       - ''
       - '&7Это не ошибка прав, а устройство группы.'
 
-  'gamemode':
-    material: GRASS_BLOCK
-    slot: 21
-    display_name: '&a&lРежим игры'
-    lore:
-      - '&7Творческий — строить и проверять,'
-      - '&7наблюдатель — смотреть, не вмешиваясь.'
-      - '&8Права essentials.gamemode.* у группы есть.'
-      - ''
-      - '&aЛКМ &8— творческий'
-      - '&eПКМ &8— выживание'
-    left_click_commands:
-      - '[player] gmc'
-    right_click_commands:
-      - '[player] gms'
-
   'spectator':
     material: ENDER_EYE
-    slot: 23
+    slot: 34
     display_name: '&b&lНаблюдатель'
     lore:
       - '&7Пройти сквозь стены и посмотреть,'
       - '&7что там строят.'
       - ''
-      - '&aЛКМ &8— наблюдатель'
       - '&eПКМ &8— вернуться в выживание'
+      - ''
+      - '&aЛКМ &8— наблюдатель'
+      - '&aПКМ &8— выполнить'
     left_click_commands:
       - '[player] gmsp'
     right_click_commands:
       - '[player] gms'
 
   'roles':
-    material: PLAYER_HEAD
-    slot: 24
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
+    slot: 40
     display_name: '&d&lРоли и права'
     lore:
       - '&7Выбираешь голову игрока и щёлкаешь'
@@ -172,6 +202,11 @@ items:
       - '&aЛКМ &8— открыть раздачу ролей'
     left_click_commands:
       - '[player] ekbroles'
+
+  'header':
+    material: PLAYER_HEAD
+    slot: 4
+    display_name: '&b&lПомощник администратора'
 
   'back':
     material: ARROW
@@ -187,7 +222,7 @@ items:
     left_click_commands:
       - '[close]'
 
-  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  # рамка ставится генератором, руками её не правят
   'frame_0':
     material: GRAY_STAINED_GLASS_PANE
     slot: 0
@@ -203,10 +238,6 @@ items:
   'frame_3':
     material: GRAY_STAINED_GLASS_PANE
     slot: 3
-    display_name: ' '
-  'frame_4':
-    material: GRAY_STAINED_GLASS_PANE
-    slot: 4
     display_name: ' '
   'frame_5':
     material: GRAY_STAINED_GLASS_PANE

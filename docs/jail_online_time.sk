@@ -109,30 +109,99 @@ function jail_free(p: player) :: number:
 # Приговор и освобождение
 # ---------------------------------------------------------------------------
 
-command /sentence <offlineplayer> <number>:
+# Статьи УК — короткое имя по номеру (docs/criminal_code.md).
+#
+# Зачем справочник в скрипте. Статья приговора до 24.09.2026 не
+# записывалась НИГДЕ: в Discord-боте у `/иск` опция `статья` есть, а в игре
+# `/sentence` брал только ник и минуты. Дело заводилось по статье, а срок
+# давался «просто так», и связать одно с другим мог только человек,
+# помнящий оба разговора.
+#
+# ⚠ Неизвестный номер не отбрасывается, а проходит как есть: Суд вправе
+# сослаться на пункт, которого нет в этом списке, и терять текст приговора
+# из-за опечатки в номере нельзя.
+function jl_article(code: text) :: text:
+    if {_code} is "1.1":
+        return "Кража"
+    if {_code} is "1.2":
+        return "Крупная кража"
+    if {_code} is "2.1":
+        return "Грабёж и разбой"
+    if {_code} is "3.1":
+        return "Вредительство и поджог"
+    if {_code} is "4.2":
+        return "Самосуд"
+    if {_code} is "5.2и":
+        return "Контракт: исполнитель"
+    if {_code} is "5.2з":
+        return "Контракт: заказчик"
+    if {_code} is "5.4":
+        return "Заказ на сотрудника САП"
+    if {_code} is "7.1":
+        return "Лавка вне Рынка"
+    if {_code} is "7.3":
+        return "Демпинг"
+    if {_code} is "7.4":
+        return "Скупка краденого"
+    if {_code} is "8.1":
+        return "Побег и уклонение"
+    return "статья %{_code}%"
+
+command /sentence <offlineplayer> <number> [<text>]:
     permission: coreprotect.rollback
     description: Посадить игрока на N минут ОНЛАЙН-времени (не реального)
+    usage: /sentence <ник> <минут> [статья УК]
     trigger:
         if {jail-location} is not set:
             send "{@prefix}&cТочка тюрьмы не задана — сначала /setjailpoint." to sender
             stop
         set {_k} to "%uuid of arg-1%"
         set {_n} to "%arg-1%"
+        set {_code} to arg-3
+        if {_code} is not set:
+            set {_code} to ""
+        set {_art} to ""
+        if {_code} is not "":
+            set {_art} to " по статье %{_code}% (%jl_article({_code})%)"
         set {jail_name::%{_k}%} to {_n}
         set {jail_remaining::%{_k}%} to arg-2 * 60
         set {jail_active::%{_k}%} to true
-        broadcast "{@prefix}Игрок %{_n}% приговорён к %arg-2% минутам ОНЛАЙН-заключения."
+
+        # История приговоров: по ней видно рецидив, а УК его прямо
+        # учитывает («при повторном — срок удваивается», ст. 4.2).
+        add 1 to {jail_case::%{_k}%}
+        set {_c} to "%{jail_case::%{_k}%}%"
+        set {jail_hist::%{_k}%::%{_c}%} to "%arg-2% мин%{_art}% — %sender%, %now%"
+
+        broadcast "{@prefix}Игрок %{_n}% приговорён к %arg-2% минутам ОНЛАЙН-заключения%{_art}%."
         if arg-1 is online:
             set {_p} to {_n} parsed as player
             teleport {_p} to {jail-location}
             set {_c} to jail_seize({_p})
-            send "{@prefix}Ты заключён в тюрьму на %arg-2% минут ОНЛАЙН-времени." to {_p}
+            send "{@prefix}Ты заключён в тюрьму на %arg-2% минут ОНЛАЙН-времени%{_art}%." to {_p}
             send "{@prefix}&7Имущество (&f%{_c}%&7 предметов) изъято и передано Суду." to {_p}
             send "{@prefix}&7В камере нельзя ничего ломать и ставить. Есть, пить и курить — можно." to {_p}
             send "{@prefix}&7Изъято у %{_n}%: &f%{_c}%&7 предметов. Вернуть: &b/jailitems give %{_n}%" to sender
         else:
             set {jail_pending::%{_k}%} to true
             send "{@prefix}&7Игрок оффлайн — имущество будет изъято при входе." to sender
+        al_add("%sender%", "приговор %arg-2% мин%{_art}%", {_n})
+
+command /jailhistory <offlineplayer>:
+    permission: coreprotect.rollback
+    description: История приговоров игрока (рецидив)
+    usage: /jailhistory <ник>
+    aliases: /судимости
+    trigger:
+        set {_k} to "%uuid of arg-1%"
+        set {_n} to "%arg-1%"
+        if {jail_case::%{_k}%} is not set:
+            send "{@prefix}&7У %{_n}% приговоров нет." to sender
+            stop
+        send "{@prefix}&7Приговоры &f%{_n}%&7 — всего &f%{jail_case::%{_k}%}%&7:" to sender
+        loop {jail_hist::%{_k}%::*}:
+            send "&8 №%loop-index%: &7%loop-value%" to sender
+        send "&8 УК 4.2: при повторном самосуде срок удваивается." to sender
 
 command /freeearly <offlineplayer>:
     permission: coreprotect.rollback
@@ -144,6 +213,7 @@ command /freeearly <offlineplayer>:
         delete {jail_remaining::%{_k}%}
         delete {jail_pending::%{_k}%}
         broadcast "{@prefix}Игрок %{_n}% освобождён досрочно решением Судьи."
+        al_add("%sender%", "освободил досрочно", {_n})
         if arg-1 is online:
             set {_p} to {_n} parsed as player
             jail_release_menu({_p})
@@ -391,9 +461,27 @@ command /jailitems [<text>] [<offlineplayer>]:
             if {jail_confirm::%{_judge}%} is {_k}:
                 delete {jail_confirm::%{_judge}%}
                 set {_cnt} to size of {jail_seized::%{_k}%::*}
-                delete {jail_seized::%{_k}%::*}
-                delete {jail_seized_at::%{_k}%}
-                broadcast "{@prefix}Имущество %{_n}% (&f%{_cnt}%&r предметов) конфисковано в Казну решением Суда."
+                # ⚠️ Раньше здесь стояло просто `delete` — вещи исчезали, а
+                # объявление говорило «конфисковано в Казну». Казна её и не
+                # видела: изъятое у осуждённого нигде не оседало, и Суд не мог
+                # ни вернуть его по апелляции, ни показать, куда оно делось.
+                # Теперь каждая вещь честно уезжает в Казну через tr_put();
+                # что не влезло — остаётся в ящике, а не пропадает.
+                set {_put} to 0
+                set {_left} to 0
+                loop {jail_seized::%{_k}%::*}:
+                    if tr_put("Суд: конфискат %{_n}%", loop-value) is true:
+                        add 1 to {_put}
+                        delete {jail_seized::%{_k}%::%loop-index%}
+                    else:
+                        add 1 to {_left}
+                if {_left} is 0:
+                    delete {jail_seized::%{_k}%::*}
+                    delete {jail_seized_at::%{_k}%}
+                broadcast "{@prefix}Имущество %{_n}% (&f%{_put}%&r предметов) конфисковано в Казну решением Суда."
+                if {_left} > 0:
+                    send "{@prefix}&c%{_left}% предметов не влезло в Казну — они остались в ящике." to sender
+                    send "{@prefix}&7Добавь сундук (&b/addtreasury&7) и повтори." to sender
                 stop
             set {jail_confirm::%{_judge}%} to {_k}
             set {_cnt} to size of {jail_seized::%{_k}%::*}
@@ -441,7 +529,13 @@ command /jailinfo:
             if {_cnt} > 0:
                 send "&7- &f%loop-value%&7: в судейском ящике %{_cnt}% предметов" to sender
 
-# Напоминание при загрузке скрипта: без точки тюрьмы приговоры телепортируют в никуда
+# Напоминание при загрузке скрипта: без точки тюрьмы приговоры телепортируют в никуда.
+# ⚠ Не broadcast: это техническая ошибка Администрации, а не новость сервера.
+# При старте в сети вообще никого нет, так что настоящий адресат — консоль
+# (а значит, Discord-канал Администрации); онлайну сообщается на /sk reload.
 on load:
     if {jail-location} is not set:
-        broadcast "{@prefix}&cТочка тюрьмы НЕ задана — выполни /setjailpoint на месте тюрьмы."
+        send "[ТЮРЬМА] точка тюрьмы НЕ задана — выполни /setjailpoint" to console
+        loop all players:
+            if loop-player has permission "coreprotect.rollback":
+                send "{@prefix}&cТочка тюрьмы НЕ задана — выполни /setjailpoint на месте тюрьмы." to loop-player

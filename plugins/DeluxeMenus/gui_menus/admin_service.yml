@@ -9,9 +9,25 @@ open_requirement:
         - '[message] &cЭто меню Администрации.'
 
 items:
+
+  'near':
+    material: RECOVERY_COMPASS
+    slot: 13
+    display_name: '&b&lКто рядом'
+    lore:
+      - '&7Игроки вокруг тебя с дистанцией и координатами.'
+      - '&7Инструмент расследования: телепортов и карты нет.'
+      - ''
+      - '&8Радиус по умолчанию 64, максимум 512.'
+      - ''
+      - '&aЛКМ &8— показать (радиус 64)'
+    left_click_commands:
+      - '[close]'
+      - '[player] near'
+
   'tps':
     material: CLOCK
-    slot: 10
+    slot: 20
     display_name: '&a&lTPS и здоровье сервера'
     lore:
       - '&7Нагрузка, тики, память.'
@@ -25,7 +41,7 @@ items:
 
   'save':
     material: ENDER_CHEST
-    slot: 11
+    slot: 22
     display_name: '&b&lСохранить мир'
     lore:
       - '&7Сбрасывает изменения на диск.'
@@ -34,11 +50,10 @@ items:
       - '&aЛКМ &8— /save-all'
     left_click_commands:
       - '[close]'
-      - '[console] save-all'
 
   'luckperms':
     material: NAME_TAG
-    slot: 12
+    slot: 24
     display_name: '&d&lПрава (LuckPerms)'
     lore:
       - '&8/lp editor &7— веб-редактор прав'
@@ -48,13 +63,15 @@ items:
       - '&4и у главного админа: явная нода бьёт'
       - '&4wildcard. Добавил минус в default —'
       - '&4добавь зеркальный плюс в admin.'
+      - ''
+      - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[close]'
       - '[player] lp editor'
 
   'skript':
     material: PAPER
-    slot: 13
+    slot: 30
     display_name: '&6&lСкрипты (Skript)'
     lore:
       - '&8/sk reload all &7— перечитать все'
@@ -62,13 +79,15 @@ items:
       - ''
       - '&7Сейчас работают: тюрьма, тетрадь, конопля,'
       - '&7зависимость, почта, голограммы, /ahelp.'
+      - ''
+      - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[close]'
       - '[message] &6&lSkript: &7/sk reload all'
 
   'menus':
     material: ITEM_FRAME
-    slot: 14
+    slot: 31
     display_name: '&e&lМеню (DeluxeMenus)'
     lore:
       - '&7Перечитать конфиги меню после правок.'
@@ -80,7 +99,7 @@ items:
 
   'host':
     material: COMMAND_BLOCK
-    slot: 15
+    slot: 32
     display_name: '&c&lС консоли хоста'
     lore:
       - '&7Это не игровые команды — они запускаются'
@@ -90,6 +109,11 @@ items:
       - '&8.\backup.ps1 &7— бэкап миров с ротацией'
       - '&8.\expand_border.ps1 <1..5> &7— стадия границы'
       - '&8start.bat &7— запуск, &8stop &7— остановка'
+
+  'header':
+    material: REDSTONE_TORCH
+    slot: 4
+    display_name: '&e&lСервис сервера'
 
   'back':
     material: ARROW
@@ -105,7 +129,7 @@ items:
     left_click_commands:
       - '[close]'
 
-  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  # рамка ставится генератором, руками её не правят
   'frame_0':
     material: GRAY_STAINED_GLASS_PANE
     slot: 0
@@ -121,10 +145,6 @@ items:
   'frame_3':
     material: GRAY_STAINED_GLASS_PANE
     slot: 3
-    display_name: ' '
-  'frame_4':
-    material: GRAY_STAINED_GLASS_PANE
-    slot: 4
     display_name: ' '
   'frame_5':
     material: GRAY_STAINED_GLASS_PANE

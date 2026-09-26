@@ -130,20 +130,27 @@ function ctm_board(p: player):
     set {_n} to 0
     loop {ct::target::*}:
         set {_id} to loop-index
-        if {_n} < 28:
-            add 1 to {_n}
-            set {_h} to 1 of player head
-            set skull owner of {_h} to loop-value parsed as offline player
-            set custom model data of {_h} to 7405
-            set {_price} to {ct::price::%{_id}%}
-            if {ct::taker::%{_id}%} is set:
-                set {_alias} to ct_alias({ct::taker::%{_id}%})
-                set name of {_h} to "&8№%{_id}% &7%loop-value%"
-                set lore of {_h} to "&7Награда: &b%{_price}%💎" and "&8Взят: %{_alias}%" and "&8Свободных исполнителей нет"
-            else:
-                set name of {_h} to "&c№%{_id}% &f%loop-value%"
-                set lore of {_h} to "&7Награда: &b%{_price}%💎" and "&aКлик — взять исполнение" and "&8Ты останешься под псевдонимом"
-            set slot ({_slots::%{_n}%}) of {_inv} to {_h}
+        # ⚠ Своей головы на доске цель не видит — тот же запрет, что в
+        # `/contract board`. Голова жертвы висит в окне открытым портретом,
+        # так что без этой проверки достаточно было открыть доску, чтобы
+        # узнать о заказе на себя.
+        if loop-value is "%{_p}%":
+            set {_id} to ""
+        if {_id} is not "":
+            if {_n} < 28:
+                add 1 to {_n}
+                set {_h} to 1 of player head
+                set skull owner of {_h} to loop-value parsed as offline player
+                set custom model data of {_h} to 7405
+                set {_price} to {ct::price::%{_id}%}
+                if {ct::taker::%{_id}%} is set:
+                    set {_alias} to ct_alias({ct::taker::%{_id}%})
+                    set name of {_h} to "&8№%{_id}% &7%loop-value%"
+                    set lore of {_h} to "&7Награда: &b%{_price}%💎" and "&8Взят: %{_alias}%" and "&8Свободных исполнителей нет"
+                else:
+                    set name of {_h} to "&c№%{_id}% &f%loop-value%"
+                    set lore of {_h} to "&7Награда: &b%{_price}%💎" and "&aКлик — взять исполнение" and "&8Ты останешься под псевдонимом"
+                set slot ({_slots::%{_n}%}) of {_inv} to {_h}
     if {_n} is 0:
         set slot 22 of {_inv} to ctm_button(1 of barrier, 7403, "&7Контрактов нет", "&8Доска пуста.")
     set slot 45 of {_inv} to ctm_button(1 of arrow, 7404, "&7Назад", "&8В меню контрактов")

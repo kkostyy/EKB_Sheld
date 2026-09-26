@@ -1,0 +1,271 @@
+menu_title: '&8Голосовая связь'
+open_command:
+  - voice
+  - голос
+  - рация
+size: 54
+
+items:
+
+  'basics':
+    material: JUKEBOX
+    slot: 13
+    display_name: '&f&lКак это работает'
+    lore:
+      - '&7Голос идёт по расстоянию: 8, 16 или 32 блока'
+      - '&7— дальность выбирается в настройках мода.'
+      - ''
+      - '&7Клавиши и громкость — там же, в меню'
+      - '&7Plasmo Voice (по умолчанию &fV&7).'
+      - '&8Мода нет — тебя просто не слышно, кик за это не будет.'
+
+  'whisper':
+    material: FEATHER
+    slot: 20
+    display_name: '&7&lШёпот'
+    lore:
+      - '&7Тихий голос на пару блоков — для тех,'
+      - '&7кто стоит вплотную.'
+      - ''
+      - '&7Это КЛАВИША, а не команда: назначь её'
+      - '&7в настройках мода, раздел «Активации».'
+      - '&8Прямое продолжение локального чата:'
+      - '&8расстояние значит и для голоса.'
+
+  'groups':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDA0NTY1MWMwODNiOTg3MzM4NmFjYzA3YjY2Yzc4MGQ3ZGJjODMxOWRkZWJhYjFkMTM4Y2VhZjA5ZjQ5N2UyNyJ9fX0=
+    slot: 22
+    display_name: '&b&lГруппы (рация)'
+    lore:
+      - '&7Своя частота на отряд: слышно только своих,'
+      - '&7на любом расстоянии.'
+      - ''
+      - '&b/groups create <имя>  &8— завести'
+      - '&b/groups invite <ник>  &8— позвать'
+      - '&b/groups leave        &8— выйти'
+      - '&8Договориться на расстоянии как-то надо,'
+      - '&8а телепортов на сервере нет.'
+      - ''
+      - '&aЛКМ &8— мои группы'
+    left_click_commands:
+      - '[close]'
+      - '[player] groups'
+
+  'sculk':
+    material: SCULK_SENSOR
+    slot: 24
+    display_name: '&3&lДатчик скалка слышит голос'
+    lore:
+      - '&7Скалковые датчики и вардены реагируют'
+      - '&7на живой голос так же, как на шаги.'
+      - ''
+      - '&4В Глубоком Тёмном молчи.'
+
+  'discs':
+    material: MUSIC_DISC_CAT
+    slot: 29
+    display_name: '&6&lМузыкальные пластинки'
+    lore:
+      - '&7На пластинку можно записать звук и слушать'
+      - '&7его из проигрывателя всем вокруг.'
+      - ''
+      - '&b/disc burn <ссылка> &8— записать'
+      - '&b/disc erase &8— стереть'
+      - ''
+      - '&4Запись — право Администрации: что играет'
+      - '&4в баре, слышно всем, и отвечает за это'
+      - '&4тот, кто записал.'
+      - ''
+      - '&aЛКМ &8— помощь по пластинкам'
+    left_click_commands:
+      - '[close]'
+      - '[player] disc'
+
+  'broadcast':
+    material: BELL
+    slot: 30
+    display_name: '&c&lОбъявление голосом'
+    lore:
+      - '&7Голос поверх всего, слышно всему миру.'
+      - ''
+      - '&b/vbroadcast world &8— всему миру'
+      - '&b/vbroadcast range <блоков> &8— в радиусе'
+      - ''
+      - '&7Сбор на заседание Суда, эвакуация,'
+      - '&7разгон драки на Спавне.'
+      - ''
+      - '&aЛКМ &8— объявить'
+    view_requirement:
+      minimum_requirements: 1
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.admin
+        perm2:
+          type: has permission
+          permission: ekb.menu.helper
+    left_click_commands:
+      - '[close]'
+      - '[player] vbroadcast'
+
+  'priority':
+    material: GOAT_HORN
+    slot: 31
+    display_name: '&6&lПриоритетный голос'
+    lore:
+      - '&7Твой голос приглушает остальные,'
+      - '&7пока ты говоришь.'
+      - ''
+      - '&7Тоже клавиша, назначается в настройках мода.'
+      - '&8Служебное: чтобы дежурного было слышно в толпе.'
+    view_requirement:
+      minimum_requirements: 1
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.admin
+        perm2:
+          type: has permission
+          permission: ekb.menu.helper
+
+  'spectator':
+    material: ENDER_EYE
+    slot: 32
+    display_name: '&5&lСлух в спектаторе'
+    lore:
+      - '&7В режиме наблюдателя голос слышно оттуда,'
+      - '&7куда смотришь, а не откуда тело.'
+      - ''
+      - '&8Работает вместе с /ekbmenu spec.'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.admin
+
+  'mods':
+    material: WRITABLE_BOOK
+    slot: 33
+    display_name: '&e&lЧего не хватает'
+    lore:
+      - '&7Всё это работает только с модом'
+      - '&7Plasmo Voice — он есть в модпаке сервера.'
+      - ''
+      - '&8Без мода ты слышишь и говоришь в обычный чат,'
+      - '&8и ничего больше не ломается.'
+
+  'header':
+    material: NOTE_BLOCK
+    slot: 4
+    display_name: '&d&lГолосовая связь'
+    lore:
+      - '&7Голос слышно по расстоянию, как и чат.'
+      - '&7Телепортов нет — далеко услышат не тебя, а рацию.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_profile'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

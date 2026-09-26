@@ -6,9 +6,21 @@ size: 54
 
 items:
 
+  'voice':
+    material: NOTE_BLOCK
+    slot: 10
+    display_name: '&d&lГолосовая связь'
+    lore:
+      - '&7Шёпот, группы, музыка, объявления.'
+      - '&8Нужен мод Plasmo Voice из модпака.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_voice'
+
   'skins':
-    material: PLAYER_HEAD
-    slot: 13
+    material: texture-%skinsrestorer_texture_id_or_steve%
+    slot: 11
     display_name: '&f&lСкины'
     lore:
       - '&7Сервер в offline-режиме: скин задаёт плагин.'
@@ -20,18 +32,30 @@ items:
     right_click_commands:
       - '[player] skin clear'
 
+  'skincolor':
+    material: WHITE_WOOL
+    slot: 12
+    display_name: '&f&lСкины по цвету'
+    lore:
+      - '&7Все скины сервера, разложенные по цвету одежды.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_skinscolor'
+
   'skinname':
     material: ARMOR_STAND
-    slot: 20
+    slot: 13
     display_name: '&b&lСкин по нику'
     lore:
       - '&aЛКМ &8— как взять чужой скин'
     left_click_commands:
-      - '[message] &8&lСкин: &7/skin set <ник>'
+      - '[close]'
+      - '[player] ekbdo skinset'
 
   'freedom':
     material: IRON_DOOR
-    slot: 22
+    slot: 14
     display_name: '&a&lКуда выйти из тюрьмы'
     lore:
       - '&7Кровать, спавн или крыльцо Суда.'
@@ -43,7 +67,7 @@ items:
 
   'status':
     material: GLASS_BOTTLE
-    slot: 24
+    slot: 15
     display_name: '&d&lСостояние'
     lore:
       - '&7Зависимость, ломка, время без дозы.'
@@ -54,7 +78,7 @@ items:
 
   'mail':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
-    slot: 28
+    slot: 16
     display_name: '&f&lПочта'
     lore:
       - '&aЛКМ &8— как отправить'
@@ -66,7 +90,7 @@ items:
 
   'contracts':
     material: IRON_SWORD
-    slot: 29
+    slot: 19
     display_name: '&4&lКонтракты'
     lore:
       - '&7Тёмная сторона: заказы на устранение.'
@@ -78,7 +102,7 @@ items:
 
   'masks':
     material: CARVED_PUMPKIN
-    slot: 30
+    slot: 20
     display_name: '&8&lЛичина'
     lore:
       - '&7Чужой скин и псевдоним вместо ника'
@@ -90,7 +114,7 @@ items:
 
   'shadow':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
-    slot: 31
+    slot: 21
     display_name: '&4&lТеневое Сообщество'
     lore:
       - '&7Место сбора, Личина, доска контрактов.'
@@ -107,7 +131,7 @@ items:
 
   'onair':
     material: REDSTONE_TORCH
-    slot: 32
+    slot: 22
     display_name: '&d&lАнонс эфира'
     lore:
       - '&7Стрим или ролик — на весь сервер.'
@@ -125,11 +149,12 @@ items:
           type: has permission
           permission: ekb.media.youtuber
     left_click_commands:
-      - '[message] &d&lЭФИР: &f/onair <текст или ссылка>'
+      - '[close]'
+      - '[player] ekbdo onair'
 
   'pose':
     material: OAK_STAIRS
-    slot: 33
+    slot: 23
     display_name: '&a&lПоза'
     lore:
       - '&7Сесть на месте или лечь.'
@@ -144,7 +169,7 @@ items:
 
   'carry':
     material: LEAD
-    slot: 34
+    slot: 24
     display_name: '&6&lНести на руках'
     lore:
       - '&7Взять человека на плечи — раненого до Клиники'
@@ -154,12 +179,12 @@ items:
       - ''
       - '&aЛКМ &8— как это работает'
     left_click_commands:
-      - '[message] &6&lНЕСТИ: &7/cargar <ник> &8— запрос человеку'
-      - '[message] &8Принять: &7/aceptar &8· Отказать: &7/rechazar &8· Отпустить: &7/soltar'
+      - '[close]'
+      - '[player] ekbdo carry'
 
   'bugreport':
     material: REDSTONE
-    slot: 37
+    slot: 25
     display_name: '&c&lСообщить о баге'
     lore:
       - '&7Не жалоба на игрока, а поломка механики.'
@@ -167,11 +192,12 @@ items:
       - ''
       - '&aЛКМ &8— как сообщить'
     left_click_commands:
-      - '[message] &c&lБАГ: &7/bugreport <что сломалось>'
+      - '[close]'
+      - '[player] bugreport'
 
   'reports':
     material: BOOK
-    slot: 38
+    slot: 29
     display_name: '&e&lМои жалобы'
     lore:
       - '&aЛКМ &8— что я отправлял'
@@ -183,18 +209,19 @@ items:
 
   'ignore':
     material: BARRIER
-    slot: 39
+    slot: 30
     display_name: '&c&lЧёрный список'
     lore:
       - '&7Игнор не отменяет УК: оскорбления — в Суд.'
       - ''
       - '&aЛКМ &8— как скрыть игрока'
     left_click_commands:
-      - '[message] &8&lИгнор: &7/ignore <ник> &8· &7/unignore <ник>'
+      - '[close]'
+      - '[player] ekbdo ignore'
 
   'citizen':
     material: SHIELD
-    slot: 40
+    slot: 31
     display_name: '&a&lГражданство'
     lore:
       - '&7Права и обязанности гражданина.'
@@ -210,7 +237,7 @@ items:
 
   'capital':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmVlZjdlNTZjZGU3NDA3NzJkZmI3NmRkZDJmNTg0YmU4OTA3Yjg1OTc2NjhlNDAyNjM0OTg2NDY5MjMwYWE0OSJ9fX0=
-    slot: 41
+    slot: 32
     display_name: '&b&lЖитель Спавна'
     lore:
       - '&7Мэрия, Клиника, Рынок, Почта.'
@@ -226,7 +253,7 @@ items:
 
   'nomad':
     material: LEATHER_BOOTS
-    slot: 42
+    slot: 33
     display_name: '&7&lКочевник'
     lore:
       - '&7Как получить гражданство и где заработать.'

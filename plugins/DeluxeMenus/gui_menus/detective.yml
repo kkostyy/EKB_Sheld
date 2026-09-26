@@ -59,8 +59,8 @@ items:
       - ''
       - '&aЛКМ &8— как подать'
     left_click_commands:
-      - '[message] &c&lОБВИНЕНИЕ: &f/report <ник> убийство <жертва>'
-      - '[message] &8Или иск в Discord: &f/иск'
+      - '[close]'
+      - '[player] ekbdo report'
 
   'full':
     material: CHEST

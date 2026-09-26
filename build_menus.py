@@ -129,7 +129,16 @@ def render(name, spec, page=1, pages=1):
         for row in spec['hint']:
             lines.append("      - '%s'" % esc(row))
 
-    if spec.get('back'):
+    # «Назад» ведёт НА ОДНУ СТРАНИЦУ назад, а не сразу к родителю: на 2-й
+    # странице каталога она возвращает на 1-ю, и только с 1-й — в родительский
+    # раздел. Так «Назад» всегда шаг назад, а не прыжок наружу.
+    if page > 1:
+        lines += ['', "  'back':", '    material: ARROW', '    slot: %d' % BACK,
+                  "    display_name: '&7Назад'",
+                  '    lore:', "      - '&7На страницу %d'" % (page - 1),
+                  '    left_click_commands:',
+                  "      - '[openguimenu] ekb_%s'" % page_id(name, page - 1)]
+    elif spec.get('back'):
         lines += ['', "  'back':", '    material: ARROW', '    slot: %d' % BACK,
                   "    display_name: '&7Назад'", '    left_click_commands:',
                   "      - '[openguimenu] %s'" % spec['back']]
@@ -184,7 +193,7 @@ def button(btn, slot):
            "    display_name: '%s'" % esc(btn['name'])]
     lore = list(btn.get('lore', []))
     tips = []
-    if btn.get('run') or btn.get('open') or btn.get('say'):
+    if btn.get('run') or btn.get('open') or btn.get('say') or btn.get('close'):
         tips.append('&aЛКМ &8— %s' % btn.get('tip', 'выполнить'))
     if btn.get('right'):
         tips.append('&aПКМ &8— %s' % btn['right'].get('tip', 'выполнить'))
@@ -229,6 +238,11 @@ def button(btn, slot):
 
 def actions(btn):
     out = []
+    if btn.get('close'):
+        # ⚠ Порядок важен: [close] идёт ПЕРЕД командой. Иначе игрок
+        # останется с открытым меню поверх того, что команда ему показала —
+        # именно так сделаны ручные меню, оттуда и взято.
+        out.append("'[close]'")
     if btn.get('open'):
         out.append("'[openguimenu] %s'" % btn['open'])
     if btn.get('run'):

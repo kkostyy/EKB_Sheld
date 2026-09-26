@@ -1,0 +1,155 @@
+menu_title: '&8Скины: оранжевые'
+size: 54
+
+items:
+
+  's000':
+    material: texture-4955fef980f3aea7146d96f0ece4a808cff31e8c682923c747065bd71234b368
+    slot: 13
+    display_name: '&6&lкот в сапогах'
+    lore:
+      - '&8/skin кот_в_сапогах'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin кот_в_сапогах'
+
+  's001':
+    material: texture-391a7049119ec93ce23f852dd11f14221a86f489810c18f60d8b141377a40a41
+    slot: 20
+    display_name: '&6&lлучадор'
+    lore:
+      - '&8/skin лучадор'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin лучадор'
+
+  's002':
+    material: texture-59987e8c78301f7d8ba16c6fb575b8c292926e29afaaf3879642baa59071a6aa
+    slot: 22
+    display_name: '&6&lпопугай'
+    lore:
+      - '&8/skin попугай'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin попугай'
+
+  'header':
+    material: ORANGE_WOOL
+    slot: 4
+    display_name: '&6&lОранжевые'
+    lore:
+      - '&7Клик по голове — надеть скин.'
+      - '&7Снять — «Скины» в Профиле, ПКМ.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_skinscolor'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

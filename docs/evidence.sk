@@ -30,10 +30,13 @@
 #   {ev::loc::<id>}         — координата тела
 #   {ev::when::<id>}        — unix-время
 #   {ev::solved::<id>}      — экспертиза уже проводилась
+#   {ev::wit::<id>::*}      — кто был в радиусе в момент убийства
+#   {ev::seen::<uuid>}      — последнее происшествие, которое видел игрок
 #
 # Команды:
 #   /expertise        — осмотреть место, где стоишь (20💎)
 #   /crimescenes      — открытые происшествия (Суд и Администрация)
+#   /witness          — дать показания головами по тому, что видел
 
 options:
     prefix: &9&l[ЭКСПЕРТИЗА] &r
@@ -43,6 +46,7 @@ options:
     radius: 12           # блоков от тела, где ещё есть что осматривать
     keep_hours: 72       # через трое суток след остывает
     chance: 50           # процент успеха
+    witness: 48          # радиус свидетелей — тот же, что в contracts.sk
 
 # ---------------------------------------------------------------------------
 # Реестр убийств
@@ -65,6 +69,124 @@ on death of player:
     set {ev::victim::%{_id}%} to "%victim%"
     set {ev::loc::%{_id}%} to location of victim
     set {ev::when::%{_id}%} to unix timestamp of now
+
+    # Список свидетелей снимается ПРЯМО СЕЙЧАС: через минуту все разойдутся,
+    # и восстановить, кто стоял рядом, будет уже нечем. contracts.sk на том
+    # же событии рассылает им уведомление с готовым /report — здесь тот же
+    # круг людей запоминается, чтобы показания можно было дать кликом.
+    set {_dead} to "%victim%"
+    set {_kname} to "%attacker%"
+    loop players in radius {@witness} around victim:
+        if "%loop-player%" is not {_dead}:
+            if "%loop-player%" is not {_kname}:
+                add "%loop-player%" to {ev::wit::%{_id}%::*}
+                set {ev::seen::%uuid of loop-player%} to {_id}
+
+# ---------------------------------------------------------------------------
+# Показания головами
+# ---------------------------------------------------------------------------
+#
+# Зачем окно. До 24.09.2026 свидетель получал в чат строку «Показания в Суд:
+# /report <ник>» и должен был набрать ник руками — а ники на этом сервере
+# бывают такие, что с первого раза не наберёшь. Здесь тот же круг людей,
+# но головами: клик = показание.
+#
+# ⚠ Окно открывает ТОЛЬКО тот, кто действительно был на месте: происшествие
+# берётся из {ev::seen::<uuid>}, куда игрок попал в момент убийства. Иначе
+# это был бы список всех убийств на сервере, то есть готовая сводка для
+# того, кто хочет знать, где и кого убивают.
+#
+# ⚠ Показание не обвиняет автоматически: /report у AdvancedReports только
+# открывает своё окно и спрашивает причину. Молчание свидетеля по УК 5.3
+# ненаказуемо, поэтому в окне есть «промолчать».
+#
+# CMD 7920-7922 — свободный диапазон (7900 у найма, 7910 у стройки).
+function ev_cmd(i: item) :: number:
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function ev_witness(p: player):
+    set {_u} to "%uuid of {_p}%"
+    set {_id} to {ev::seen::%{_u}%}
+    if {_id} is not set:
+        send "{@prefix}&7Ты ничего не видел — показания давать не о чем." to {_p}
+    else if ev_fresh({_id}) is false:
+        send "{@prefix}&7След по тому делу остыл: прошло больше {@keep_hours} ч." to {_p}
+        delete {ev::seen::%{_u}%}
+    else:
+        set {_inv} to a chest inventory with 3 rows named "&8Показания по делу №%{_id}%"
+        set {_f} to 1 of gray stained glass pane
+        set custom model data of {_f} to 7920
+        set name of {_f} to " "
+        loop 0, 1, 2, 3, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25 and 26:
+            set slot loop-value of {_inv} to {_f}
+
+        set {_l} to {ev::loc::%{_id}%}
+        set {_v} to 1 of player head
+        set skull owner of {_v} to {ev::victim::%{_id}%} parsed as offline player
+        set custom model data of {_v} to 7920
+        set name of {_v} to "&c&lУбит: %{ev::victim::%{_id}%}%"
+        set lore of {_v} to "&7X %floor(x coordinate of {_l})%, Y %floor(y coordinate of {_l})%, Z %floor(z coordinate of {_l})%" and "&8Дело №%{_id}%"
+        set slot 4 of {_inv} to {_v}
+
+        # Первым — тот, кого ты видел с оружием. Остальные свидетели рядом:
+        # свидетель мог ошибиться, и обвинить он вправе любого из бывших там.
+        set {_names::*} to {ev::killer::%{_id}%}
+        loop {ev::wit::%{_id}%::*}:
+            if loop-value is not "%{_p}%":
+                add loop-value to {_names::*}
+        set {_slots::*} to 10, 11, 12, 13, 14, 15 and 16
+        set {_n} to 0
+        loop {_names::*}:
+            if {_n} < 7:
+                add 1 to {_n}
+                set {_h} to 1 of player head
+                set skull owner of {_h} to loop-value parsed as offline player
+                set custom model data of {_h} to 7921
+                if {_n} is 1:
+                    set name of {_h} to "&c%loop-value%"
+                    set lore of {_h} to "&7Его ты видел с оружием." and "&aКлик — подать показания"
+                else:
+                    set name of {_h} to "&7%loop-value%"
+                    set lore of {_h} to "&8Тоже был рядом." and "&aКлик — подать показания"
+                set slot ({_slots::%{_n}%}) of {_inv} to {_h}
+
+        set {_q} to 1 of barrier
+        set custom model data of {_q} to 7922
+        set name of {_q} to "&8&lПромолчать"
+        set lore of {_q} to "&7Молчание свидетеля ненаказуемо." and "&8УК 5.3"
+        set slot 22 of {_inv} to {_q}
+        open {_inv} to {_p}
+
+on inventory click:
+    event-item is not air
+    set {_c} to ev_cmd(event-item)
+    if {_c} is between 7920 and 7922:
+        cancel event
+        set {_nick} to uncoloured (name of event-item)
+        set {_me} to player
+        set {_u} to "%uuid of player%"
+        if {_c} is 7922:
+            close player's inventory
+            delete {ev::seen::%{_u}%}
+            send "{@prefix}&7Ты промолчал. Это право свидетеля (УК 5.3)." to {_me}
+        else if {_c} is 7921:
+            close player's inventory
+            delete {ev::seen::%{_u}%}
+            # Причину спросит своим окном сам AdvancedReports: команда берёт
+            # только ник, второй аргумент плагин выбрасывает молча.
+            make {_me} execute command "report %{_nick}%"
+            send "{@prefix}&7Показания по &f%{_nick}%&7 поданы." to {_me}
+            send "[ЭКСПЕРТИЗА] %{_me}% дал показания на %{_nick}%" to console
+
+command /witness:
+    description: Дать показания по убийству, которое ты видел
+    usage: /witness
+    aliases: /показания
+    executable by: players
+    trigger:
+        ev_witness(player)
 
 function ev_fresh(id: text) :: boolean:
     if {ev::killer::%{_id}%} is not set:
@@ -124,7 +246,8 @@ command /expertise:
         if (random integer between 1 and 100) <= {@chance}:
             send "{@prefix}&a&lСЛЕД ВЗЯТ. &fУбийца: &c%{_killer}%"
             send "{@prefix}&7Заключение передано Суду. Обвинение подаёшь ты:"
-            send "{@prefix}&b/report %{_killer}% убийство %{_victim}%&7 или иск в Discord."
+            send "{@prefix}&b/report %{_killer}%&7 или иск в Discord."
+            send "&7 Причину и подробности спросит окно жалобы."
             send "[ЭКСПЕРТИЗА] %player% установил: %{_killer}% убил %{_victim}% (дело %{_best}%)" to console
         else:
             send "{@prefix}&cСлед потерян. &7Следы затоптаны, заключение пустое."

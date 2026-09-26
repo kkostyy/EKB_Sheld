@@ -1,0 +1,262 @@
+# EKB SHIELD — spawn_build.sk
+# Право стройки в Главном городе — головами.
+#
+# Зачем. Главный город (регион `spawn`, 384x384 вокруг −1750/75/4000) закрыт
+# флагом `build: deny`: строят только owners и members. Owners — группа
+# `admin`, members — `restricted_admin`, и это правильно. Но когда Мэрия
+# нанимает рабочих, им надо дать строить ТОЧЕЧНО и без выдачи админских прав.
+# Руками это `/rg addmember spawn <ник> -w world` — команда, которую админ
+# набирает по памяти, а помощник не наберёт вовсе.
+#
+# Здесь то же самое головами: `/spawnbuild` открывает окно с онлайном, клик
+# по голове переключает право. Выдавать может и админ, и его помощник —
+# у обоих есть `ekb.build.grant`.
+#
+# ⚠ Источник правды — сам WorldGuard, а не своя переменная. Состояние
+# читается условием `is a member of the region "spawn"`, поэтому выданное
+# руками через `/rg addmember` и выданное кнопкой — одно и то же, и окно не
+# может разойтись с действительностью. Своя переменная хранит ТОЛЬКО журнал
+# (кто выдал и когда) — то, чего у WorldGuard нет.
+#
+# ⚠ Право по должности снять нельзя, и окно это говорит прямо. У админа и
+# помощника доступ идёт от ГРУППЫ (`owners.groups`, `members.groups`), а
+# `/rg removemember <ник>` удаляет поимённую запись — то есть на группу не
+# подействует вообще. Кнопка, которая молча ничего не делает, хуже
+# отсутствующей кнопки.
+#
+# ⚠ WorldGuard применяет addmember АСИНХРОННО: он идёт в ProfileService за
+# UUID и правит регион уже в другом потоке. Поэтому окно перерисовывается
+# через паузу, а не сразу — тот же приём, что с LuckPerms в `menu_roles.sk`.
+#
+# За пределами Главного города разрешений не нужно: приватов на сервере нет,
+# и стройка в нейтральных землях — дело Суда, а не белого списка.
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &6&l[СТРОЙКА] &r
+    line: &8&m----------------------------------------
+    per_page: 28        # голов на страницу: слоты 10-16, 19-25, 28-34, 37-43
+    region: spawn
+    world: world
+    gate: ekb.build.grant
+
+# CMD-метки окна (7910-7916 — свободный диапазон, соседи расписаны в hire.sk):
+#   7910 — рамка и подписи
+#   7911 — голова игрока
+#   7912 — закрыть
+#   7913 — следующая страница
+#   7914 — предыдущая страница
+
+# Хранилище — только журнал, состояние живёт в WorldGuard:
+#   {sb::by::<ник>}   — кто выдал право
+#   {sb::at::<ник>}   — когда выдал (unix)
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+function sb_cmd(i: item) :: number:
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+# Может ли игрок раздавать право стройки. Гейт свой, а не coreprotect.rollback:
+# тот снят у помощника, а по замыслу помощник выдавать умеет.
+function sb_may(p: player) :: boolean:
+    if {_p} has permission "{@gate}":
+        return true
+    return false
+
+# Право по должности: у админа и помощника оно от группы и поимённо не
+# снимается.
+function sb_staff(p: player) :: boolean:
+    if {_p} has permission "{@gate}":
+        return true
+    return false
+
+# Состояние читается прямо из WorldGuard. Owner и member проверяются
+# отдельно: у региона `spawn` владелец — группа admin, участник —
+# restricted_admin, и условие `is a member` про владельца не знает.
+function sb_allowed(t: player) :: boolean:
+    if {_t} is a member of the region "{@region}":
+        return true
+    if {_t} is the owner of the region "{@region}":
+        return true
+    return false
+
+function sb_button(i: item, cmd: number, name: text, lore: text) :: item:
+    set {_it} to {_i}
+    set custom model data of {_it} to {_cmd}
+    set name of {_it} to {_name}
+    set lore of {_it} to {_lore}
+    return {_it}
+
+function sb_frame(inv: inventory):
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7910
+    set name of {_f} to " "
+    loop 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 46, 47, 51, 52 and 53:
+        set slot loop-value of {_inv} to {_f}
+
+# ---------------------------------------------------------------------------
+# Окно
+# ---------------------------------------------------------------------------
+
+function sb_pick(p: player, page: number):
+    set {_pg} to {_page}
+    if {_pg} < 1:
+        set {_pg} to 1
+    set {sb::page::%uuid of {_p}%} to {_pg}
+
+    set {_inv} to a chest inventory with 6 rows named "&8Право стройки в Главном городе"
+    sb_frame({_inv})
+    set {_slots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+
+    set {_first} to (({_pg} - 1) * {@per_page}) + 1
+    set {_n} to 0
+    set {_shown} to 0
+    loop all players:
+        add 1 to {_n}
+        if {_n} >= {_first}:
+            if {_shown} < {@per_page}:
+                add 1 to {_shown}
+                set {_h} to 1 of player head
+                set skull owner of {_h} to loop-player
+                set custom model data of {_h} to 7911
+                set {_nick} to "%loop-player%"
+                if sb_staff(loop-player) is true:
+                    set name of {_h} to "&6%loop-player%"
+                    set lore of {_h} to "&6Строит по должности." and "&8Право от группы — кнопкой не снять."
+                else if sb_allowed(loop-player) is true:
+                    set {_who} to {sb::by::%{_nick}%}
+                    if {_who} is not set:
+                        set {_who} to "неизвестно кем"
+                    set name of {_h} to "&a%loop-player%"
+                    set lore of {_h} to "&aМожет строить." and "&8Выдал: %{_who}%" and "&cКлик — забрать право"
+                else:
+                    set name of {_h} to "&7%loop-player%"
+                    set lore of {_h} to "&7Строить не может." and "&aКлик — выдать право"
+                set slot ({_slots::%{_shown}%}) of {_inv} to {_h}
+
+    if {_shown} is 0:
+        set slot 22 of {_inv} to sb_button(1 of barrier, 7912, "&7Никого нет", "&8В сети пусто.")
+
+    set slot 45 of {_inv} to sb_button(1 of arrow, 7912, "&7Закрыть", "&8Ничего не делать")
+    set {_prev} to {_pg} - 1
+    set {_next} to {_pg} + 1
+    if {_pg} > 1:
+        set slot 48 of {_inv} to sb_button(1 of spectral arrow, 7914, "&e< Предыдущая", "&8Страница %{_prev}%")
+    set {_last} to {_first} + {@per_page} - 1
+    if {_n} > {_last}:
+        set slot 50 of {_inv} to sb_button(1 of spectral arrow, 7913, "&eСледующая >", "&8Страница %{_next}%")
+    set slot 49 of {_inv} to sb_button(1 of bricks, 7910, "&fГлавный город", "&7Право бессрочное, пока не заберёшь.")
+
+    open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Выдача и отзыв
+# ---------------------------------------------------------------------------
+
+function sb_grant(by: player, target: text):
+    make console execute command "rg addmember -w {@world} {@region} %{_target}%"
+    set {sb::by::%{_target}%} to "%{_by}%"
+    set {sb::at::%{_target}%} to unix timestamp of now
+    send "{@prefix}&aПраво стройки выдано: &f%{_target}%&a." to {_by}
+    send "&8 Бессрочно, пока не заберёшь тем же кликом." to {_by}
+    set {_t} to {_target} parsed as player
+    if {_t} is set:
+        send "{@prefix}&aТебе разрешили строить в Главном городе." to {_t}
+        send "&7 Выдал: &f%{_by}%&7. Право бессрочное." to {_t}
+        send "&8 За пределами города разрешение и не требовалось." to {_t}
+    send "[СТРОЙКА] %{_by}% выдал право стройки на Спавне: %{_target}%" to console
+    al_add("%{_by}%", "выдал право стройки", {_target})
+
+function sb_revoke(by: player, target: text):
+    make console execute command "rg removemember -w {@world} {@region} %{_target}%"
+    delete {sb::by::%{_target}%}
+    delete {sb::at::%{_target}%}
+    send "{@prefix}&cПраво стройки снято: &f%{_target}%&c." to {_by}
+    set {_t} to {_target} parsed as player
+    if {_t} is set:
+        send "{@prefix}&cТвоё право строить в Главном городе снято." to {_t}
+        send "&7 Снял: &f%{_by}%&7. Вне города строй как прежде." to {_t}
+    send "[СТРОЙКА] %{_by}% снял право стройки на Спавне: %{_target}%" to console
+    al_add("%{_by}%", "снял право стройки", {_target})
+
+# ---------------------------------------------------------------------------
+# Клики
+# ---------------------------------------------------------------------------
+
+on inventory click:
+    event-item is not air
+    set {_c} to sb_cmd(event-item)
+    if {_c} is between 7910 and 7914:
+        cancel event
+        # имя снимается ДО паузы: после неё данные события уже не читаются
+        set {_label} to uncoloured (name of event-item)
+        set {_me} to player
+        set {_page} to {sb::page::%uuid of player%}
+        if {_page} is not set:
+            set {_page} to 1
+
+        if sb_may({_me}) is false:
+            close player's inventory
+            send "{@prefix}&cЭто инструмент Администрации." to {_me}
+        else if {_c} is 7912:
+            close player's inventory
+        else if {_c} is 7913:
+            wait 1 tick
+            sb_pick({_me}, {_page} + 1)
+        else if {_c} is 7914:
+            wait 1 tick
+            sb_pick({_me}, {_page} - 1)
+        else if {_c} is 7911:
+            set {_t} to {_label} parsed as player
+            if {_t} is not set:
+                send "{@prefix}&cОн уже вышел." to {_me}
+            else if sb_staff({_t}) is true:
+                send "{@prefix}&7У &f%{_label}%&7 право от должности — кнопкой не снять." to {_me}
+            else if sb_allowed({_t}) is true:
+                sb_revoke({_me}, {_label})
+                # WorldGuard правит регион в другом потоке — рисуем позже
+                wait 20 ticks
+                sb_pick({_me}, {_page})
+            else:
+                sb_grant({_me}, {_label})
+                wait 20 ticks
+                sb_pick({_me}, {_page})
+
+# ---------------------------------------------------------------------------
+# Команда
+# ---------------------------------------------------------------------------
+
+command /spawnbuild [<text>]:
+    description: Право стройки в Главном городе (Администрация)
+    usage: /spawnbuild | list
+    aliases: /стройка
+    executable by: players
+    trigger:
+        if sb_may(player) is false:
+            send "{@prefix}&cЭто инструмент Администрации." to player
+            stop
+
+        if arg-1 is "list":
+            set {_n} to 0
+            send "{@prefix}&7Право стройки в Главном городе:" to player
+            loop all players:
+                if sb_staff(loop-player) is false:
+                    if sb_allowed(loop-player) is true:
+                        add 1 to {_n}
+                        set {_nick} to "%loop-player%"
+                        set {_who} to {sb::by::%{_nick}%}
+                        if {_who} is not set:
+                            set {_who} to "неизвестно кем"
+                        send "&7 • &f%loop-player%&7 — выдал %{_who}%" to player
+            if {_n} is 0:
+                send "&7 Никому из тех, кто в сети, право не выдано." to player
+            send "&8 Оффлайн-игроков в списке нет: право читается у WorldGuard," to player
+            send "&8 а он отвечает только про тех, кого видно." to player
+            stop
+
+        sb_pick(player, 1)

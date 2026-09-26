@@ -10,7 +10,10 @@
 #   — заказчик платит вперёд: алмазы списываются из инвентаря и лежат
 #     в депозите, пока контракт открыт (иначе «заказы» были бы бесплатными
 #     и доска утонула бы в мусоре);
-#   — исполнитель берёт контракт и получает депозит после гибели цели;
+#   — исполнитель берёт контракт; после гибели цели он получает не алмазы,
+#     а ГОЛОВУ жертвы (доказательство) и несёт её заказчику. Депозит
+#     переходит исполнителю только в руки заказчика — так у сделки есть
+#     физический след, а не «умер где-то — деньги упали с неба»;
 #   — заказчик может отозвать контракт и забрать алмазы, пока его никто
 #     не выполнил;
 #   — у убийства всегда есть свидетели: все, кто был в радиусе {@witness}
@@ -24,6 +27,9 @@ options:
     witness: 48         # радиус, в котором убийство считается замеченным
     minprice: 16        # минимальная награда, алмазов
     expire: 604800      # контракт живёт неделю реального времени
+    head_cmd: 7810      # метка «головы-доказательства» (CustomModelData)
+    deliver_radius: 6   # на каком расстоянии можно передать голову заказчику
+    admin: coreprotect.rollback
 
 # Хранилище:
 #   {ct::id}                  — счётчик
@@ -32,6 +38,7 @@ options:
 #   {ct::price::%id%}         — алмазов в депозите
 #   {ct::taker::%id%}         — кто взял
 #   {ct::made::%id%}          — когда создан (unix)
+#   {ct::done::%id%}          — цель мертва, ждёт передачи головы (ник исполнителя)
 
 # ---------------------------------------------------------------------------
 # Служебное
@@ -41,6 +48,24 @@ function ct_open(id: text) :: boolean:
     if {ct::target::%{_id}%} is not set:
         return false
     return true
+
+# Есть ли на игроке ХОТЯ БЫ один незакрытый заказ.
+#
+# Единая точка правды на весь проект: на неё завязаны и наём кочевников
+# (`hire.sk` — нанять человека под заказом нельзя, иначе наём за 16💎 снимал
+# бы контракт на 256💎), и PvP Главного города (`spawn_pvp.sk` — в безопасной
+# зоне бьют только того, на кого есть заказ).
+#
+# ⚠ Контракт со снятой головой (`ct::done`) уже исполнен: цель мертва, идёт
+# расчёт. Считать его активным значит держать человека мишенью после того,
+# как по нему отработали.
+function ct_wanted(name: text) :: boolean:
+    set {_w} to false
+    loop {ct::target::*}:
+        if loop-value is {_name}:
+            if {ct::done::%loop-index%} is not set:
+                set {_w} to true
+    return {_w}
 
 # Сколько алмазов у игрока в рюкзаке
 function ct_diamonds(p: player) :: number:
@@ -58,6 +83,63 @@ function ct_alias(name: text) :: text:
         set {ct::alias::%{_name}%} to "%{_w}%-%{_n}%"
     return {ct::alias::%{_name}%}
 
+# Голова-доказательство: голова жертвы с номером контракта в первой строке
+# лора. Номер читается обратно (line 1 of lore, как у артефактов), поэтому
+# подделать выплату чужой головой нельзя — при передаче сверяются и номер, и
+# исполнитель, и заказчик.
+# Репутация псевдонима.
+#
+# В УК 5.6 и в комментарии к ct_alias написано «репутация копится
+# у псевдонима, ответственность остаётся на человеке» — но копить было
+# нечему: счётчиков не существовало, и «Ворон-42» ничем не отличался от
+# «Пепел-13». Теперь считаются две вещи: сколько контрактов ВЗЯТО и сколько
+# ДОВЕДЕНО до расчёта.
+#
+# ⚠ Счётчики лежат на НИКЕ, а показываются под псевдонимом. Иначе репутацию
+# нельзя было бы вести вообще: псевдоним по замыслу постоянный, но выдаётся
+# функцией, а не хранится игроком.
+#
+# ⚠ Отозванный заказчиком и аннулированный Судом контракт в «исполнено»
+# не идут: засчитывается только расчёт головой или решение Суда о выплате
+# исполнителю.
+function ct_rep_taken(name: text) :: number:
+    if {ct::rep::taken::%{_name}%} is not set:
+        return 0
+    return {ct::rep::taken::%{_name}%}
+
+function ct_rep_done(name: text) :: number:
+    if {ct::rep::done::%{_name}%} is not set:
+        return 0
+    return {ct::rep::done::%{_name}%}
+
+# Короткая подпись исполнителя для доски: «Ворон-42 · 5 из 7».
+function ct_rep_tag(name: text) :: text:
+    set {_d} to ct_rep_done({_name})
+    set {_t} to ct_rep_taken({_name})
+    if {_t} is 0:
+        return "%ct_alias({_name})% &8· новичок"
+    return "%ct_alias({_name})% &8· %{_d}% из %{_t}%"
+
+function ct_head(id: text, victim: text) :: item:
+    set {_i} to 1 of player head
+    set skull owner of {_i} to {_victim} parsed as offline player
+    set custom model data of {_i} to {@head_cmd}
+    set name of {_i} to "&4&lГолова: %{_victim}%"
+    set lore of {_i} to "&8Контракт №%{_id}%" and "&7Доказательство исполнения." and "&7Отдай заказчику: встань рядом и ПКМ по нему." and "&8Без заказчика — просто трофей."
+    return {_i}
+
+function ct_head_id(i: item) :: text:
+    if {_i} is air:
+        return ""
+    if custom model data of {_i} is not {@head_cmd}:
+        return ""
+    set {_line} to uncoloured (line 1 of lore of {_i})
+    # строка вида «Контракт №7» -> «7»
+    set {_parts::*} to {_line} split at "№"
+    if {_parts::2} is set:
+        return {_parts::2}
+    return ""
+
 # ---------------------------------------------------------------------------
 # Команды
 # ---------------------------------------------------------------------------
@@ -72,6 +154,12 @@ command /contract [<text>] [<text>] [<integer>]:
             send "{@prefix}&7/contract take <id> &8— взять исполнение" to player
             send "{@prefix}&7/contract drop <id> &8— отозвать свой заказ" to player
             send "{@prefix}&7/contract mine &8— мои заказы и взятые" to player
+            send "{@prefix}&7/contract rep &8— репутация псевдонимов подполья" to player
+            send "{@prefix}&8Награда приходит не за смерть, а за ГОЛОВУ:" to player
+            send "{@prefix}&8исполнитель несёт голову заказчику и ПКМ по нему." to player
+            if player has permission "{@admin}":
+                send "{@prefix}&c/contract settle <id> &8— выдать награду исполнителю (голова потеряна)" to player
+                send "{@prefix}&c/contract void <id> &8— вернуть депозит заказчику (спор Суда)" to player
             send "{@prefix}&4Убийство вне контракта — статья УК 1.4." to player
             stop
 
@@ -81,14 +169,23 @@ command /contract [<text>] [<text>] [<integer>]:
                 set {_id} to loop-index
                 set {_t} to loop-value
                 set {_p} to {ct::price::%{_id}%}
-                if {ct::taker::%{_id}%} is not set:
-                    add 1 to {_n}
-                    send "&7 №&f%{_id}%&7: цель &c%{_t}%&7, награда &b%{_p}%💎 &8— свободен" to player
-                    send "&8   взять: &b/contract take %{_id}%" to player
-                else:
-                    add 1 to {_n}
-                    set {_who} to ct_alias({ct::taker::%{_id}%})
-                    send "&8 №%{_id}%: цель %{_t}%, награда %{_p}%💎 — взят: %{_who}%" to player
+                # ⚠ Заказ невидим для самой цели. Анонимны все трое: заказчик
+                # не показан никому, исполнитель идёт под псевдонимом, а
+                # жертва вообще не знает, что заказ есть. Предупреждённая
+                # цель не выйдет из города, и доска превратилась бы в систему
+                # оповещения об опасности.
+                if {_t} is not "%player%":
+                    if {ct::taker::%{_id}%} is not set:
+                        add 1 to {_n}
+                        send "&7 №&f%{_id}%&7: цель &c%{_t}%&7, награда &b%{_p}%💎 &8— свободен" to player
+                        send "&8   взять: &b/contract take %{_id}%" to player
+                    else if {ct::done::%{_id}%} is set:
+                        add 1 to {_n}
+                        send "&8 №%{_id}%: цель %{_t}% мёртв — ждёт передачи головы заказчику" to player
+                    else:
+                        add 1 to {_n}
+                        set {_who} to ct_rep_tag({ct::taker::%{_id}%})
+                        send "&8 №%{_id}%: цель %{_t}%, награда %{_p}%💎 — взят: %{_who}%" to player
             if {_n} is 0:
                 send "{@prefix}&7Открытых контрактов нет." to player
             else:
@@ -138,10 +235,14 @@ command /contract [<text>] [<text>] [<integer>]:
             if {ct::owner::%arg-2%} is "%player%":
                 send "{@prefix}&cСвой заказ исполнять нельзя." to player
                 stop
+            # ⚠ Цели отвечаем ровно тем же, что и на несуществующий номер.
+            # Прежняя строка «Это контракт на тебя. Беги.» была готовым
+            # детектором: перебрав номера, любой узнавал, заказан ли он.
             if {ct::target::%arg-2%} is "%player%":
-                send "{@prefix}&cЭто контракт на тебя. Беги." to player
+                send "{@prefix}&cТакого контракта нет." to player
                 stop
             set {ct::taker::%arg-2%} to "%player%"
+            add 1 to {ct::rep::taken::%player%}
             set {_alias} to ct_alias("%player%")
             send "{@prefix}&cКонтракт №&f%arg-2%&c твой. Цель: &f%{ct::target::%arg-2%}%&c." to player
             send "{@prefix}&7Награда придёт, когда цель погибнет от твоей руки." to player
@@ -177,15 +278,100 @@ command /contract [<text>] [<text>] [<integer>]:
                 set {_id} to loop-index
                 if {ct::owner::%{_id}%} is "%player%":
                     add 1 to {_n}
-                    send "&7 №&f%{_id}%&7 мой заказ: цель &c%loop-value%&7, депозит &b%{ct::price::%{_id}%}%💎" to player
+                    if {ct::done::%{_id}%} is set:
+                        send "&7 №&f%{_id}%&7 мой заказ: цель &c%loop-value%&7 мёртв — жди голову от исполнителя" to player
+                    else:
+                        send "&7 №&f%{_id}%&7 мой заказ: цель &c%loop-value%&7, депозит &b%{ct::price::%{_id}%}%💎" to player
                 else if {ct::taker::%{_id}%} is "%player%":
                     add 1 to {_n}
-                    send "&7 №&f%{_id}%&7 взят мной: цель &c%loop-value%&7, награда &b%{ct::price::%{_id}%}%💎" to player
+                    if {ct::done::%{_id}%} is set:
+                        send "&7 №&f%{_id}%&7 взят мной: цель &c%loop-value%&7 мёртв — отнеси голову заказчику" to player
+                    else:
+                        send "&7 №&f%{_id}%&7 взят мной: цель &c%loop-value%&7, награда &b%{ct::price::%{_id}%}%💎" to player
             if {_n} is 0:
                 send "{@prefix}&7Ни заказов, ни взятых контрактов." to player
             else:
-                set {_alias} to ct_alias("%player%")
+                set {_me} to "%player%"
+                set {_alias} to ct_alias({_me})
+                # ⚠ Вызов функции с вложенным %player% внутри строки Skript
+                # не разбирает: он отдаёт всю строку выражению региона и
+                # падает с «Region ... could not be found» (та же грабля, что
+                # в spear_no_cooldown.sk). Считаем заранее в переменные.
+                set {_rt} to ct_rep_taken({_me})
+                set {_rd} to ct_rep_done({_me})
                 send "{@prefix}&8Твой псевдоним в этих делах: &f%{_alias}%" to player
+                send "&8 Репутация: взято &f%{_rt}%&8, исполнено &f%{_rd}%" to player
+            stop
+
+        # Доска репутации: только псевдонимы. Смысл ровно в том, чтобы имя
+        # исполнителя что-то значило, а личность при этом не раскрывалась —
+        # УК 5.6. Перебор идёт по {ct::rep::taken::*}: у ветки без
+        # собственного значения loop ничего не вернул бы.
+        if arg-1 is "rep":
+            set {_n} to 0
+            send "{@prefix}&7Репутация подполья:" to player
+            loop {ct::rep::taken::*}:
+                add 1 to {_n}
+                set {_who} to loop-index
+                send "&8 %ct_alias({_who})%&8: взято &7%loop-value%&8, исполнено &7%ct_rep_done({_who})%" to player
+            if {_n} is 0:
+                send "&7 Пока никто не брал контрактов." to player
+            else:
+                send "&8 Настоящие имена знает только Суд (УК 5.6)." to player
+            stop
+
+        # Аварийный расчёт Суда, когда голова потеряна (исполнитель погиб с
+        # ней, она сгорела). Без этого депозит завис бы в эскроу навсегда:
+        # settle отдаёт награду исполнителю, void возвращает депозит заказчику.
+        # Кто прав — решает Суд по логам, отсюда право coreprotect.rollback.
+        if arg-1 is "settle":
+            if player does not have permission "{@admin}":
+                send "{@prefix}&cЭто команда Суда." to player
+                stop
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи номер контракта." to player
+                stop
+            if ct_open(arg-2) is false:
+                send "{@prefix}&cТакого контракта нет." to player
+                stop
+            if {ct::done::%arg-2%} is not set:
+                send "{@prefix}&cЦель по этому контракту ещё жива — расчёта нет." to player
+                stop
+            set {_taker} to {ct::done::%arg-2%} parsed as player
+            set {_price} to {ct::price::%arg-2%}
+            if {_taker} is set:
+                give {_price} of diamond to {_taker}
+                add 1 to {ct::rep::done::%{_taker}%}
+                send "{@prefix}&aСуд закрыл контракт №&f%arg-2%&a: награда &b%{_price}%💎&a выдана." to {_taker}
+            else:
+                send "{@prefix}&cИсполнитель не в сети — награду выдать некому. Дождись его." to player
+                stop
+            send "{@prefix}&aКонтракт №&f%arg-2%&a закрыт Судом (голова потеряна)." to player
+            send "[КОНТРАКТ] №%arg-2% закрыт Судом (settle) администратором %player%" to console
+            ct_close(arg-2)
+            stop
+
+        if arg-1 is "void":
+            if player does not have permission "{@admin}":
+                send "{@prefix}&cЭто команда Суда." to player
+                stop
+            if arg-2 is not set:
+                send "{@prefix}&cУкажи номер контракта." to player
+                stop
+            if ct_open(arg-2) is false:
+                send "{@prefix}&cТакого контракта нет." to player
+                stop
+            set {_owner} to {ct::owner::%arg-2%} parsed as player
+            set {_price} to {ct::price::%arg-2%}
+            if {_owner} is set:
+                give {_price} of diamond to {_owner}
+                send "{@prefix}&aСуд аннулировал контракт: депозит &b%{_price}%💎&a возвращён." to {_owner}
+            else:
+                send "{@prefix}&cЗаказчик не в сети — депозит вернуть некому. Дождись его." to player
+                stop
+            send "{@prefix}&aКонтракт №&f%arg-2%&a аннулирован Судом." to player
+            send "[КОНТРАКТ] №%arg-2% аннулирован Судом (void) администратором %player%" to console
+            ct_close(arg-2)
             stop
 
         send "{@prefix}&cНеизвестное действие. Смотри &b/contract" to player
@@ -196,6 +382,7 @@ function ct_close(id: text):
     delete {ct::price::%{_id}%}
     delete {ct::taker::%{_id}%}
     delete {ct::made::%{_id}%}
+    delete {ct::done::%{_id}%}
 
 # ---------------------------------------------------------------------------
 # Смерть: расчёт по контракту и свидетели
@@ -208,22 +395,26 @@ on death of player:
         set {_kname} to "%{_killer}%"
         set {_paid} to false
 
-        # закрываем контракт, если он был на погибшего и взят этим игроком
+        # Цель убита исполнителем: контракт НЕ закрывается и деньги НЕ
+        # выдаются. Исполнитель получает голову-доказательство и несёт её
+        # заказчику — выплата ждёт передачи (см. `on right click on player`).
         loop {ct::target::*}:
             set {_id} to loop-index
             if loop-value is {_dead}:
                 if {ct::taker::%{_id}%} is {_kname}:
-                    set {_price} to {ct::price::%{_id}%}
-                    give {_price} of diamond to {_killer}
-                    send "{@prefix}&aКонтракт №&f%{_id}%&a исполнен. Награда: &b%{_price}%💎&a." to {_killer}
-                    set {_owner} to {ct::owner::%{_id}%} parsed as player
-                    if {_owner} is set:
-                        set {_alias} to ct_alias({_kname})
-                        send "{@prefix}&7Контракт №&f%{_id}%&7 исполнен: &c%{_dead}%&7 мёртв." to {_owner}
-                        send "{@prefix}&8Исполнитель: &f%{_alias}%&8. Кто он — знает только Суд." to {_owner}
-                    send "[КОНТРАКТ] №%{_id}% исполнен: %{_kname}% убил %{_dead}%" to console
-                    ct_close({_id})
-                    set {_paid} to true
+                    if {ct::done::%{_id}%} is not set:
+                        set {ct::done::%{_id}%} to {_kname}
+                        give ct_head({_id}, {_dead}) to {_killer}
+                        send "{@prefix}&cЦель по контракту №&f%{_id}%&c мертва." to {_killer}
+                        send "{@prefix}&7Награда &b%{ct::price::%{_id}%}%💎&7 ждёт передачи головы." to {_killer}
+                        send "{@prefix}&7Найди заказчика, встань рядом и ПКМ по нему с головой в руке." to {_killer}
+                        set {_owner} to {ct::owner::%{_id}%} parsed as player
+                        if {_owner} is set:
+                            set {_alias} to ct_alias({_kname})
+                            send "{@prefix}&7Контракт №&f%{_id}%&7 исполнен: &c%{_dead}%&7 мёртв." to {_owner}
+                            send "{@prefix}&8Исполнитель &f%{_alias}%&8 принесёт голову — тогда депозит уйдёт ему." to {_owner}
+                        send "[КОНТРАКТ] №%{_id}% исполнен (голова выдана): %{_kname}% убил %{_dead}%" to console
+                        set {_paid} to true
 
         # свидетели: все, кто был рядом и это не убийца с жертвой
         set {_seen} to 0
@@ -234,7 +425,11 @@ on death of player:
                     send "{@line}" to loop-player
                     send "{@prefix}&cТы видел убийство." to loop-player
                     send "&7%{_kname}% &7убил &f%{_dead}%&7." to loop-player
-                    send "&7Показания в Суд: &b/report %{_kname}% убийство" to loop-player
+                    # ⚠ Причину в команде писать бессмысленно: AdvancedReports
+                    # берёт только ник, остальное спрашивает своим окном.
+                    send "&7Показания в Суд: &b/report %{_kname}%" to loop-player
+                    send "&8   или головами, без набора ника: &b/witness" to loop-player
+                    send "&8   Причину и подробности спросит окно жалобы." to loop-player
                     send "&8   Молчание — твоё право, но и соучастие бывает разным." to loop-player
                     send "{@line}" to loop-player
         if {_paid} is true:
@@ -245,3 +440,54 @@ on death of player:
         else:
             if {_seen} > 0:
                 send "{@prefix}&4Убийство вне контракта, свидетелей: &f%{_seen}%&4. Статья УК 1.4." to {_killer}
+
+# ---------------------------------------------------------------------------
+# Передача головы заказчику — расчёт по контракту
+# ---------------------------------------------------------------------------
+#
+# Исполнитель встаёт рядом с заказчиком и ПКМ по нему с головой в руке.
+# Только здесь депозит переходит из «эскроу» в руки исполнителя.
+#
+# ⚠ Сверяются три вещи: номер контракта из головы, что кликнувший — тот
+# самый исполнитель, и что цель клика — тот самый заказчик. Голова, украденная
+# или переданная третьему, выплату не откроет: чужой держатель не пройдёт
+# проверку исполнителя, а Суд поднимет по логу, кто на самом деле убивал.
+on right click on player:
+    set {_id} to ct_head_id(player's tool)
+    if {_id} is not "":
+        cancel event
+        set {_target} to clicked entity
+        if ct_open({_id}) is false:
+            send "{@prefix}&cЭтот контракт уже закрыт. Голова — просто трофей." to player
+            stop
+        if {ct::done::%{_id}%} is not "%player%":
+            send "{@prefix}&cЭто не твоя голова по контракту." to player
+            stop
+        if {ct::owner::%{_id}%} is not "%{_target}%":
+            send "{@prefix}&7Это не заказчик контракта №&f%{_id}%&7." to player
+            send "&8   Голову ждёт тот, кто оформил заказ." to player
+            stop
+        # заказчик подтверждён — расчёт
+        set {_price} to {ct::price::%{_id}%}
+        remove 1 of player's tool from player
+        give {_price} of diamond to player
+        add 1 to {ct::rep::done::%player%}
+        send "{@prefix}&aГолова принята. Контракт №&f%{_id}%&a закрыт." to player
+        send "{@prefix}&aНаграда: &b%{_price}%💎&a." to player
+        send "{@prefix}&7Ты получил голову &c%{ct::target::%{_id}%}%&7. Дело сделано." to {_target}
+        send "{@prefix}&8Депозит &b%{_price}%💎&8 ушёл исполнителю." to {_target}
+        send "[КОНТРАКТ] №%{_id}% оплачен: %player% передал голову заказчику %{_target}%" to console
+        ct_close({_id})
+
+# ---------------------------------------------------------------------------
+# Голова-доказательство теряет силу вместе с CustomModelData
+# ---------------------------------------------------------------------------
+#
+# Поставленная на землю голова становится ванильным блоком и теряет метку —
+# то есть перестаёт быть доказательством. Ставить её запрещаем: иначе
+# исполнитель «положил и поднял», а выплата зависла бы навсегда (та же
+# логика, что запрет ставить sugar_cane в nirvana.sk).
+on place of player head:
+    if ct_head_id(player's tool) is not "":
+        cancel event
+        send "{@prefix}&cГолову-доказательство не ставят — отнеси её заказчику." to player

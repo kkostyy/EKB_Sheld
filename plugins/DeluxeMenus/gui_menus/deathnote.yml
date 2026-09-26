@@ -25,7 +25,7 @@ items:
       - '[player] givenote'
 
   'pick':
-    material: PLAYER_HEAD
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
     slot: 20
     display_name: '&e&lВыдать игроку'
     lore:
@@ -102,7 +102,8 @@ items:
       - ''
       - '&aЛКМ &8— как изменить'
     left_click_commands:
-      - '[message] &8&lКулдаун: &7/deathnote cooldown <часы>'
+      - '[close]'
+      - '[player] ekbdo dncooldown'
 
   'count':
     material: PAPER
@@ -113,7 +114,8 @@ items:
       - ''
       - '&aЛКМ &8— как поправить'
     left_click_commands:
-      - '[message] &8&lСчётчик: &7/deathnote setcount <число>'
+      - '[close]'
+      - '[player] ekbdo dncount'
 
   'header':
     material: WRITABLE_BOOK

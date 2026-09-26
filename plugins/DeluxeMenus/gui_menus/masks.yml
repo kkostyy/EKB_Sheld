@@ -20,7 +20,7 @@ items:
       - '[player] disguise'
 
   'truth':
-    material: PLAYER_HEAD
+    material: BARRIER
     slot: 20
     display_name: '&e&lЧего Личина НЕ даёт'
     lore:

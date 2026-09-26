@@ -46,8 +46,8 @@ items:
       - ''
       - '&aЛКМ &8— как подать'
     left_click_commands:
-      - '[message] &c&lОБВИНЕНИЕ: &f/report <ник> убийство <жертва>'
-      - '[message] &8Или иск в Discord: &f/иск'
+      - '[close]'
+      - '[player] ekbdo report'
 
   'logs':
     material: CLOCK
@@ -57,13 +57,18 @@ items:
       - '&7Блоки и сундуки — отдельный источник улик.'
       - ''
       - '&aЛКМ &8— команды в чат'
+      - '&aПКМ &8— поиск по логам'
     view_requirement:
       requirements:
         perm1:
           type: has permission
           permission: coreprotect.lookup
     left_click_commands:
-      - '[message] &6&lЛОГИ: &f/co inspect &8· &f/co lookup u:<ник> t:1d r:10'
+      - '[close]'
+      - '[player] co i'
+    right_click_commands:
+      - '[close]'
+      - '[player] ekbdo colookup'
 
   'header':
     material: SPYGLASS

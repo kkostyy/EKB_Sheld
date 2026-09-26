@@ -61,14 +61,44 @@ MIN_Y, MAX_Y = -64, 319
 # не пишется и остаётся на усмотрение WorldGuard.
 FLAGS = [
     # --- Конституция 6.2: полностью нейтральная безопасная зона ---
-    ('pvp', 'deny', 'бой на Спавне запрещён Конституцией 6.2'),
+    #
+    # ⚠️ pvp НАМЕРЕННО allow, а запрет ведёт docs/spawn_pvp.sk.
+    #
+    # Правило Главного города — «драться нельзя, КРОМЕ случая, когда на
+    # жертву есть активный заказ». Флаг WorldGuard исключений не знает
+    # вообще: `deny` отменяет урон безусловно и раньше любого скрипта, то
+    # есть заказ в городе не сработал бы никогда. Поэтому зону держит
+    # Skript — он единственный, кто видит доску контрактов.
+    #
+    # Вернёшь сюда 'deny' — PvP в городе закроется целиком, вместе с
+    # исключением, и выглядеть это будет как сломавшийся скрипт.
+    ('pvp', 'allow', 'запрет ведёт docs/spawn_pvp.sk — ему нужны исключения'),
     ('mob-damage', 'deny', 'мобы не бьют — зона безопасная и для беженцев (5.6)'),
     ('mob-spawning', 'deny', 'и не спавнятся: иначе «безопасная» держится на факелах'),
 
     # --- Застройка ---
-    ('build', 'deny', 'строят только owners/members (Администрация и бригада)'),
-    ('block-break', 'deny', None),
-    ('block-place', 'deny', None),
+    #
+    # ⚠️ ЗДЕСЬ НАМЕРЕННО НЕТ ФЛАГА build (и block-break/block-place).
+    #
+    # Регион WorldGuard и так защищает себя: в границах региона строить
+    # может только owner или member, всем остальным отказ приходит сам,
+    # без единого флага. Это базовое поведение плагина, а не настройка.
+    #
+    # Флаг build поверх этого работает НЕ как «разрешить только своим», а
+    # как «запретить всем»: явно выставленное значение перебивает проверку
+    # членства, и отказ получает даже owner. Спасало только то, что у
+    # оператора есть worldguard.region.bypass.<мир> — то есть главный админ
+    # ходил сквозь запрет и ничего не замечал.
+    #
+    # Поймано 24.09.2026 по скриншоту: помощник администратора
+    # (restricted_admin, он в members.groups) не мог сломать ни блока —
+    # «Sorry, but you can't break that block here» шло пачкой. Проверено,
+    # что дело не в чтении групп: Skript-условие `is the owner of the
+    # region "spawn"` для админа отвечало true, то есть WEPIF группы
+    # резолвит верно.
+    #
+    # Вернёшь сюда ('build', 'deny', ...) — вместе со стройкой отвалится
+    # и весь /spawnbuild: добавление в members перестанет что-либо значить.
 
     # --- Взрывы и огонь. Гриф Спавна — отдельная статья УК, но чинить
     #     кратер после каждого криперa никто не должен.
@@ -166,7 +196,45 @@ def spawn_from_level_dat(path):
     return int(pos[0]), int(pos[2])
 
 
-def render(cx, cz, radius, source):
+def keep_people(path):
+    """Поимённые owners/members из УСТАНОВЛЕННОГО regions.yml.
+
+    WorldGuard хранит регионы в своём формате (flow-стиль, `/rg save`
+    переписывает файл целиком), поэтому читаем его YAML-ом, а не разбором
+    нашего шаблона. Нет файла или нет региона — возвращаем пусто: это
+    первая сборка.
+
+    Возвращает {'owners': {'players': [...], 'unique-ids': [...]},
+                'members': {...}} — ровно то, что дописывается в шаблон.
+    """
+    empty = {'owners': {'players': [], 'unique-ids': []},
+             'members': {'players': [], 'unique-ids': []}}
+    if not os.path.exists(path):
+        return empty
+    try:
+        import yaml
+    except ImportError:
+        print('⚠ PyYAML не установлен — поимённые строители НЕ перенесены.')
+        print('  Проверь /rg info spawn -w world после установки.')
+        return empty
+    try:
+        data = yaml.safe_load(io.open(path, encoding='utf-8').read()) or {}
+    except Exception as exc:
+        print('⚠ %s прочитать не удалось (%s) — строители не перенесены.'
+              % (os.path.basename(path), exc))
+        return empty
+    region = ((data.get('regions') or {}).get('spawn')) or {}
+    out = {}
+    for side in ('owners', 'members'):
+        block = region.get(side) or {}
+        out[side] = {
+            'players': list(block.get('players') or []),
+            'unique-ids': list(block.get('unique-ids') or []),
+        }
+    return out
+
+
+def render(cx, cz, radius, source, keep=None):
     lines = [
         '# EKB SHIELD — WorldGuard, регион привата Спавна.',
         '#',
@@ -179,18 +247,20 @@ def render(cx, cz, radius, source):
         '# Радиус %d блоков -> квадрат %dx%d, на всю высоту мира (%d..%d).' % (
             radius, radius * 2, radius * 2, MIN_Y, MAX_Y),
         '#',
-        '# Кто может строить:',
+        '# Кто может строить (флага build НЕТ — его ставить нельзя, см.',
+        '# разбор в build_spawn_region.py; защищает само членство в регионе):',
         '#   owners  — группы %s' % ', '.join(OWNER_GROUPS),
         '#   members — группы %s' % ', '.join(MEMBER_GROUPS),
         '# Группа здесь — это право group.<имя> у LuckPerms, так WorldGuard',
         '# сопоставляет свои g:-записи с чужими группами.',
         '#',
-        '# Строительная бригада живёт на праве ekb.duty.builder, а не в группе,',
-        '# поэтому её добавляют поимённо и на сервере, а не здесь:',
-        '#       /rg addmember spawn <ник> -w world',
-        '# Такая запись ложится в members.unique-ids и переживёт пересборку',
-        '# только если после неё сделать /rg save и скопировать файл обратно',
-        '# в репозиторий. Проще — сначала собрать регион, потом добавлять людей.',
+        '# Поимённые строители (нанятые Мэрией рабочие) выдаются в игре:',
+        '#       /spawnbuild   — окно с головами, docs/spawn_build.sk',
+        '#       /rg addmember spawn <ник> -w world   — то же самое руками',
+        '# Их UUID ложатся в members.unique-ids, и генератор ПЕРЕНОСИТ их',
+        '# при пересборке: читает установленный на сервере regions.yml и',
+        '# дописывает найденных людей обратно. Иначе первая же пересборка',
+        '# молча лишала бы права всю строительную бригаду.',
         '',
         'regions:',
         '  __global__:',
@@ -227,19 +297,30 @@ def render(cx, cz, radius, source):
         '      groups:',
     ]
     lines += ['      - %s' % g for g in OWNER_GROUPS]
+    lines += domain_lines(keep, 'owners')
     lines += [
-        '      players: []',
-        '      unique-ids: []',
         '    members:',
         '      groups:',
     ]
     lines += ['      - %s' % g for g in MEMBER_GROUPS]
-    lines += [
-        '      players: []',
-        '      unique-ids: []',
-        '',
-    ]
+    lines += domain_lines(keep, 'members')
+    lines += ['']
     return '\n'.join(lines)
+
+
+def domain_lines(keep, side):
+    """Строки players/unique-ids: пустые на первой сборке, перенесённые —
+    на последующих."""
+    block = (keep or {}).get(side) or {}
+    out = []
+    for key in ('players', 'unique-ids'):
+        items = block.get(key) or []
+        if not items:
+            out.append('      %s: []' % key)
+        else:
+            out.append('      %s:' % key)
+            out += ['      - %s' % v for v in items]
+    return out
 
 
 def main():
@@ -280,7 +361,11 @@ def main():
     if args.radius < 16:
         sys.exit('радиус меньше 16 блоков бессмысленен')
 
-    text = render(cx, cz, args.radius, source)
+    keep = keep_people(SERVER)
+    carried = sum(len(keep[s][k]) for s in keep for k in keep[s])
+    if carried:
+        print('перенесено поимённых записей из регион-файла сервера: %d' % carried)
+    text = render(cx, cz, args.radius, source, keep)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     io.open(OUT, 'w', encoding='utf-8', newline='\n').write(text)
     print('%s — регион spawn, %dx%d блоков, %d флагов'
@@ -303,7 +388,9 @@ def main():
     print('  1. server.properties: spawn-protection=0 (иначе ванильная защита')
     print('     33x33 перебьёт WorldGuard для всех, кроме операторов)')
     print('  2. на сервере: /rg load  и  /rg info spawn -w world')
-    print('  3. строителей — поимённо: /rg addmember spawn <ник> -w world')
+    print('  3. строителей выдавать в игре: /spawnbuild (окно с головами)')
+    print('  4. PvP в городе ведёт docs/spawn_pvp.sk, а не флаг pvp —')
+    print('     без этого скрипта Главный город останется без защиты')
 
 
 if __name__ == '__main__':

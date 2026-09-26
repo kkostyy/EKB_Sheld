@@ -13,9 +13,22 @@ open_requirement:
 
 items:
 
+  'depot':
+    material: BRICKS
+    slot: 13
+    display_name: '&6&lСклад стройматериалов'
+    lore:
+      - '&7Запас сырья на застройку Спавна.'
+      - '&7Полный склад — сданное начинает списываться,'
+      - '&7так что разгружать его твоя работа.'
+      - ''
+      - '&aЛКМ &8— что на складе'
+    left_click_commands:
+      - '[player] depot'
+
   'treasury':
     material: DIAMOND
-    slot: 13
+    slot: 20
     display_name: '&b&lКазна Спавна'
     lore:
       - '&7Сколько у города денег прямо сейчас'
@@ -31,7 +44,7 @@ items:
 
   'rent':
     material: EMERALD
-    slot: 20
+    slot: 22
     display_name: '&e&lАрендаторы'
     lore:
       - '&7Кто держит палатку и сколько ему осталось.'
@@ -45,18 +58,21 @@ items:
 
   'buyer':
     material: HOPPER
-    slot: 22
+    slot: 24
     display_name: '&a&lСкупщик'
     lore:
       - '&7Половина прайса, платит Казна.'
       - ''
-      - '&aЛКМ &8— оценить груз'
+      - '&aЛКМ &8— открыть окно'
+      - '&aПКМ &8— список и цены'
     left_click_commands:
       - '[player] skupka'
+    right_click_commands:
+      - '[player] skupka прайс'
 
   'lots':
     material: OAK_SIGN
-    slot: 24
+    slot: 30
     display_name: '&6&lДоска лотов'
     lore:
       - '&aЛКМ &8— что на доске'
@@ -65,7 +81,7 @@ items:
 
   'calls':
     material: BELL
-    slot: 30
+    slot: 31
     display_name: '&e&lЗаявки в Мэрию'
     lore:
       - '&aЛКМ &8— открытые заявки'
@@ -74,7 +90,7 @@ items:
 
   'market':
     material: CHEST
-    slot: 31
+    slot: 32
     display_name: '&f&lТорговая Коллегия'
     lore:
       - '&7Весь раздел целиком.'

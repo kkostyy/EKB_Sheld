@@ -182,7 +182,7 @@ WorldGuard — оба у нас стоят, `api-version: 1.18`. Гаранти�
 | `styled-chat` | Fabric-мод, Purpur Fabric не грузит. Чат у нас CarbonChat |
 | `fsit` | Fabric-мод; сидение уже даёт GSit 3.5.1 |
 | `lmd` (Let Me Despawn) | под 26.1.2 только Fabric-сборка. И по сути противоречит §1b: плагин ускоряет деспавн предметов, а дроп на этом сервере — улики и чужое имущество |
-| `tooltrims` | сборок нет выше 1.21.6 |
+| `tooltrims` | это ПЛАГИН под Paper/Purpur, и он застрял на 1.21.6 (перепроверено 19.09.2026). Замена под 26.1.2 есть — датапак `tool-trims` 3.0.7 (modrinth.com/datapack/tool-trims): один zip, внутри и `data/` (4 шаблона ковки, рецепты), и `assets/` с папкой `assets-26-1` под нашу версию. Датапак кладётся в `server/world/datapacks/`, ассеты мерджатся в `shield_resourcepack`, а дальше по обычному кругу: пересборка пака, заливка на mc-packs.net, новый `resource-pack-sha1`. Не поставлено — ждёт решения |
 | `displaytags` | останавливается на 1.21.11 |
 | `watut-plugin` | останавливается на 1.21.5 |
 | `erebus-god-pickaxe` | останавливается на 1.21.11 |

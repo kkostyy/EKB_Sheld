@@ -1,0 +1,94 @@
+# EKB SHIELD — near.sk
+# «Кто рядом»: админ и помощник видят игроков вокруг с дистанцией.
+#
+# Зачем. На сервере без телепортов и без миникарты (Конституция 1.1) у
+# Администрации нет быстрого способа понять, кто орудует рядом с точкой
+# происшествия. `/near` собирает игроков в радиусе, сортирует по дистанции и
+# показывает список — это инструмент расследования, а не радар для игроков,
+# поэтому он закрыт правом.
+#
+# ⚠ Ваниш SuperVanish команда НЕ учитывает: в чистом Skript 2.16.2 состояние
+# ваниша не прочитать (нужен аддон), а выдумывать переменную плагина — значит
+# писать мёртвый код. Ванишнутый оператор в списке появится; для помощника
+# это осознанный компромисс, а не дыра — главный админ и так виден лишь тем,
+# у кого нет `-sv.see`.
+#
+# ⚠ Право — админ ИЛИ помощник, а поле `permission:` у Skript-команды
+# принимает одну ноду. Поэтому проверка внутри trigger по двум нодам, как в
+# `/givetable` (menu_give.sk): роль-«или» одним `permission:` не выразить.
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &b&l[РЯДОМ] &r
+    line: &8&m----------------------------------------
+    default_radius: 64
+    max_radius: 512
+
+command /near [<number>]:
+    description: Показать игроков рядом с дистанцией (Администрация)
+    usage: /near [радиус]
+    executable by: players
+    trigger:
+        # Гейт: главный админ или помощник. У обоих есть своя menu-нода.
+        set {_ok} to false
+        if player has permission "ekb.menu.admin":
+            set {_ok} to true
+        if player has permission "ekb.menu.helper":
+            set {_ok} to true
+        if {_ok} is false:
+            send "{@prefix}&cЭто инструмент Администрации."
+            stop
+
+        set {_r} to arg-1
+        if {_r} is not set:
+            set {_r} to {@default_radius}
+        if {_r} < 1:
+            set {_r} to 1
+        if {_r} > {@max_radius}:
+            set {_r} to {@max_radius}
+
+        # Собираем всех в радиусе, кроме себя, вместе с дистанцией. Ключ
+        # словаря — дистанция округлённая (для сортировки), значение — строка
+        # уже с ником и координатами. Каждая строка под своим индексом
+        # {_n}, поэтому одинаковые дистанции не затирают друг друга.
+        delete {_dist::*}
+        delete {_rows::*}
+        set {_n} to 0
+        loop all players in radius {_r} around player:
+            if loop-player is not player:
+                add 1 to {_n}
+                set {_d} to distance between player and loop-player
+                set {_di} to round({_d})
+                set {_l} to location of loop-player
+                set {_dist::%{_n}%} to {_di}
+                set {_rows::%{_n}%} to "&f%loop-player% &7— &b%{_di}%&7 бл. &8(&7%round(x of {_l})% %round(y of {_l})% %round(z of {_l})%&8, %world of loop-player%)"
+
+        send "{@line}" to player
+        if {_n} is 0:
+            send "{@prefix}&7В радиусе &f%{_r}%&7 бл. никого нет." to player
+            send "{@line}" to player
+            stop
+
+        send "{@prefix}&7Игроков рядом: &f%size of {_rows::*}%&7 (радиус &f%{_r}%&7 бл.)" to player
+        # Сортируем строки по дистанции. `sorted` сортирует значения, поэтому
+        # собираем пары «дистанция + строка» и режем префикс при выводе.
+        delete {_pairs::*}
+        loop {_rows::*}:
+            set {_idx} to loop-index
+            set {_di} to {_dist::%{_idx}%}
+            # Ключ с ведущими нулями — чтобы текстовая сортировка шла как
+            # числовая (10 не оказывалось раньше 2).
+            set {_key} to "%{_di}%"
+            loop 4 times:
+                if length of {_key} < 4:
+                    set {_key} to "0%{_key}%"
+            add "%{_key}%|%{_rows::%{_idx}%}%" to {_pairs::*}
+        loop sorted {_pairs::*}:
+            set {_txt} to "%loop-value%"
+            # split возвращает СПИСОК — переменная обязана быть {_cut::*},
+            # иначе «can only be set to one class Object, not more».
+            set {_cut::*} to "%{_txt}%" split at "|"
+            send "&8 • %{_cut::2}%" to player
+        send "{@line}" to player
+        send "[РЯДОМ] %player% смотрел, кто в радиусе %{_r}% бл." to console

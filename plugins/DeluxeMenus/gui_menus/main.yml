@@ -7,7 +7,7 @@ size: 54
 items:
 
   'profile':
-    material: PLAYER_HEAD
+    material: texture-%skinsrestorer_texture_id_or_steve%
     slot: 13
     display_name: '&b&lПрофиль'
     lore:
@@ -125,11 +125,12 @@ items:
       - '&7Заявка уходит с твоими координатами.'
       - ''
       - '&aЛКМ &8— открыть'
-      - '&aПКМ &8— пожаловаться'
+      - '&aПКМ &8— пожаловаться на игрока'
     left_click_commands:
       - '[openguimenu] ekb_calls'
     right_click_commands:
-      - '[message] &8&lЖалоба: &7/report <ник> <причина>'
+      - '[close]'
+      - '[player] ekbdo report'
 
   'header':
     material: NETHER_STAR

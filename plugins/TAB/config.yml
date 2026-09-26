@@ -7,7 +7,7 @@ header-footer:
         - "&8&m                                        "
         - "&6&lEKB SHIELD"
         - "&7Хардкорный RP без телепортов и приватов"
-        - "&8Онлайн: &f%online%&8/&f%maxplayers%   &8TPS: &f%tps%"
+        - "&8Онлайн: &f%online%&8/&f%server_max_players%   &8TPS: &f%tps%"
         - ""
       footer:
         - ""
@@ -69,7 +69,7 @@ bossbar:
       style: "PROGRESS"
       color: "YELLOW"
       progress: "100"
-      text: "&6&lEKB SHIELD &8| &7Роль: &f%group% &8| &7Онлайн: &f%online%&8/&f%maxplayers% &8| &7TPS: &f%tps%"
+      text: "&6&lEKB SHIELD &8| &7Роль: &f%group% &8| &7Онлайн: &f%online%&8/&f%server_max_players% &8| &7TPS: &f%tps%"
 
 # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Scoreboard
 scoreboard:
@@ -89,7 +89,7 @@ scoreboard:
         - ""
         - "&7Мир"
         - "&8» &7Измерение: &f%world%"
-        - "&8» &7Онлайн: &f%online%&7/&f%maxplayers%"
+        - "&8» &7Онлайн: &f%online%&7/&f%server_max_players%"
         - "&8» &7Пинг: &f%ping%&8ms"
         - ""
         - "&7Сервер"

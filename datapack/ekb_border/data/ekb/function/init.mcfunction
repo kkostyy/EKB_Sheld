@@ -34,3 +34,15 @@ execute unless score #auto ekb matches -2147483648..2147483647 run scoreboard pl
 # переименовано иначе), а players_sleeping_percentage отвечает.
 execute unless score #rules ekb matches 1.. run gamerule players_sleeping_percentage 25
 execute unless score #rules ekb matches 1.. run scoreboard players set #rules ekb 1
+
+# locator_bar: полоса локатора над хотбаром, появилась в 1.21.9 и включена
+# по умолчанию. Она показывает НАПРАВЛЕНИЕ на каждого игрока рядом цветной
+# точкой — то есть выдаёт чужое расположение сквозь стены и рельеф, бесплатно
+# и всем. На сервере без телепортов и миникарт (Конституция 1.1) это ломает
+# и разведку, и засады, и всю анонимность контрактов: по точке видно, кто
+# идёт следом. Выключено.
+#
+# ⚠ Клиентский мод No Locator Bar для этого не нужен: правило серверное,
+# и выключенная полоса гаснет у всех сразу, включая тех, кто без модпака.
+execute unless score #rules ekb matches 2.. run gamerule locator_bar false
+execute unless score #rules ekb matches 2.. run scoreboard players set #rules ekb 2

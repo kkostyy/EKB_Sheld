@@ -1,0 +1,611 @@
+# EKB SHIELD — hire.sk
+# Наём кочевников: работа вместо войны.
+#
+# Зачем. Кочевник — состояние по умолчанию: ни государства, ни присяги,
+# ни защиты. Заработать ему можно было только на Строительной бирже, то есть
+# через Мэрию. Наём даёт прямой договор между двумя игроками: город зовёт
+# кочевника таскать, копать, сопровождать — и платит из своего кармана, а не
+# из Казны. Печати валюты нет: алмазы уходят у нанимателя и приходят
+# кочевнику, общее число алмазов в мире не меняется.
+#
+# Почему нанятый неприкосновенен. «На кочевника нельзя нападать, и он не
+# может» — это цена найма, а не подарок: пока идёт срок, он рабочая сила и
+# только она. Отсюда три ограничения, без которых наём стал бы покупкой
+# бессмертия:
+#   — защита работает ТОЛЬКО между игроками. Мобы, падение, лава, голод
+#     бьют как обычно, иначе найм был бы страховкой шахтёра;
+#   — нанятый сам не может ударить игрока. Неуязвимый боец на поле — это
+#     конец и войн, и Главы 2 УК;
+#   — кочевник, на которого открыт контракт (`contracts.sk`), наняться не
+#     может вовсе. Иначе наём за 16💎 отменял бы заказ на 256💎.
+#
+# ⚠ Кочевник определяется по правам, а права читаются только у тех, кто
+# В СЕТИ (та же грабля, что в `menu_roles.sk`). Поэтому весь наём идёт по
+# онлайну: список собирается из присутствующих, срок тикает онлайн-минутами,
+# как в тюрьме, а не по настенным часам.
+#
+# ⚠ Цену называет САМ кочевник, а не наниматель. Прайса на людей в проекте
+# нет и быть не должно: `price_list.md` считает ресурсы, а труд — предмет
+# договора. Наниматель шлёт заявку со сроком, кочевник отвечает ценой,
+# наниматель платит или отказывается.
+#
+# ⚠ Ни одного broadcast. Заявка, цена, оплата, конец срока — всё уходит
+# ЛИЧНО двум сторонам, а третьей стороной остаётся консоль (а значит,
+# Discord-канал Администрации), как у контрактов. Публичны на этом сервере
+# только чат, газета и решения Суда.
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &2&l[НАЁМ] &r
+    line: &8&m----------------------------------------
+    per_page: 28        # голов на страницу: слоты 10-16, 19-25, 28-34, 37-43
+    max_price: 512      # потолок цены, алмазов
+    offer_ttl: 600      # сколько секунд живёт заявка и названная цена
+    warn_gap: 3         # не чаще раза в N секунд повторять «он неприкосновенен»
+
+# CMD-метки окна. 7900-7906 — свободный диапазон: 7100-7107 у menu_players,
+# 7200 у jail_property, 7300/7400/7500/7600 у spawn_market и соседей,
+# 7700 у мастера команд, 7801/7802 у бура, 7810/7820 у контрактов и аукциона.
+#   7900 — рамка и портрет (клик просто гасится)
+#   7901 — голова кочевника
+#   7902 — срок найма
+#   7903 — закрыть
+#   7904 — назад к списку
+#   7905 — следующая страница
+#   7906 — предыдущая страница
+
+# Хранилище (ключ — UUID; в ИМЕНИ переменной %player% даёт UUID, а
+# %offlineplayer% — ник, поэтому ключ считается явно одной строкой):
+#   {hire::closed::<uuid>}   — кочевник закрыл себя от найма
+#   {hire::req::<uuid>}      — ник нанимателя, приславшего заявку
+#   {hire::reqmin::<uuid>}   — срок заявки в онлайн-минутах
+#   {hire::reqat::<uuid>}    — когда заявка подана (unix)
+#   {hire::price::<uuid>}    — цена, названная кочевником
+#   {hire::mine::<uuid>}     — у нанимателя: uuid кочевника, которому послана заявка
+#   {hire::boss::<uuid>}     — ник нанимателя действующего найма
+#   {hire::left::<uuid>}     — сколько онлайн-минут осталось
+#   {hire::paid::<uuid>}     — сколько заплачено
+#   {hire::name::<uuid>}     — ник кочевника (реестр: ветка без собственного
+#                              значения не перебирается `loop`, грабля из
+#                              jail_online_time)
+#   {hire::owe::<ник>}       — недоданные алмазы, выдаются on join (как почта)
+#   {hire::warn::<uuid>}     — когда последний раз предупреждали об ударе
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+function hr_cmd(i: item) :: number:
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+# Типизированный параметр заставляет Skript привести `slot N of inv` к
+# предмету — тот же приём, что `jail_item` и `dn_cmd`.
+function hr_slot(i: item) :: item:
+    return {_i}
+
+# Слоты 36-40 не трогаются: Skript 2.16.2 строит по ним EquipmentSlot
+# и падает с NullPointerException (разбор в CLAUDE.md).
+function hr_free(p: player) :: number:
+    set {_c} to 0
+    loop integers from 0 to 35:
+        if hr_slot(slot loop-number of {_p}'s inventory) is air:
+            add 1 to {_c}
+    return {_c}
+
+# Кочевник — тот, у кого есть меню кочевника и нет гражданства.
+function hr_nomad(p: player) :: boolean:
+    if {_p} has permission "ekb.menu.citizen":
+        return false
+    if {_p} has permission "ekb.menu.nomad":
+        return true
+    return false
+
+function hr_hired(u: text) :: boolean:
+    if {hire::boss::%{_u}%} is not set:
+        return false
+    return true
+
+# Открытый контракт на кочевника — запрет на наём. Заказ стоит дороже найма,
+# и позволить цели откупиться от него за 16💎 значит закрыть доску.
+#
+# Проверка живёт в `contracts.sk` (`ct_wanted`) и одна на весь проект: её же
+# спрашивает PvP Главного города. Держать здесь вторую копию значило бы
+# однажды поправить одну и забыть другую.
+function hr_wanted(name: text) :: boolean:
+    return ct_wanted({_name})
+
+# Готов ли кочевник к заявке прямо сейчас.
+function hr_ready(p: player) :: boolean:
+    set {_u} to "%uuid of {_p}%"
+    if hr_nomad({_p}) is false:
+        return false
+    if {hire::closed::%{_u}%} is set:
+        return false
+    if hr_hired({_u}) is true:
+        return false
+    if {hire::req::%{_u}%} is set:
+        return false
+    if hr_wanted("%{_p}%") is true:
+        return false
+    return true
+
+# Почему конкретный игрок не годится — отдельной строкой, чтобы окно
+# объясняло отказ, а не молча прятало человека.
+function hr_why(p: player) :: text:
+    set {_u} to "%uuid of {_p}%"
+    if hr_nomad({_p}) is false:
+        return "гражданин, не кочевник"
+    if hr_hired({_u}) is true:
+        return "уже нанят"
+    if {hire::closed::%{_u}%} is set:
+        return "закрыл себя от найма"
+    if {hire::req::%{_u}%} is set:
+        return "рассматривает другую заявку"
+    # ⚠ Причина не называется: «на него открыт контракт» превращало окно
+    # найма в детектор заказов — достаточно было открыть /hire, чтобы
+    # увидеть всех, на кого есть контракт. Формулировка намеренно общая
+    # и неотличима от личного отказа.
+    if hr_wanted("%{_p}%") is true:
+        return "сейчас не берёт работу"
+    return "свободен"
+
+# Предупреждение с паузой: без неё автоатака мечом заливает чат.
+function hr_warn(p: player, msg: text):
+    set {_k} to "%uuid of {_p}%"
+    set {_now} to unix timestamp of now
+    set {_ok} to true
+    if {hire::warn::%{_k}%} is set:
+        if {hire::warn::%{_k}%} > {_now} - {@warn_gap}:
+            set {_ok} to false
+    if {_ok} is true:
+        set {hire::warn::%{_k}%} to {_now}
+        send "{@prefix}%{_msg}%" to {_p}
+
+# Выплата. Не влезло в рюкзак — ложится в долг и выдаётся on join, как
+# посылка почты: терять чужие алмазы из-за полного инвентаря нельзя.
+function hr_pay_out(name: text, amount: number):
+    set {_p} to {_name} parsed as player
+    set {_done} to false
+    if {_p} is set:
+        if hr_free({_p}) >= ceil({_amount} / 64):
+            give {_amount} of diamond to {_p}
+            set {_done} to true
+    if {_done} is false:
+        add {_amount} to {hire::owe::%{_name}%}
+        if {_p} is set:
+            send "{@prefix}&eВ рюкзаке нет места — &b%{_amount}%💎&e ждут." to {_p}
+            send "&7 Освободи слоты и перезайди." to {_p}
+
+# Снять заявку и сообщить нанимателю. reason — что писать ему.
+function hr_drop_req(u: text, reason: text):
+    set {_boss} to {hire::req::%{_u}%}
+    set {_nick} to {hire::name::%{_u}%}
+    delete {hire::req::%{_u}%}
+    delete {hire::reqmin::%{_u}%}
+    delete {hire::reqat::%{_u}%}
+    delete {hire::price::%{_u}%}
+    if {_boss} is set:
+        set {_b} to {_boss} parsed as player
+        if {_b} is set:
+            delete {hire::mine::%uuid of {_b}%}
+            send "{@prefix}&7Заявка кочевнику &f%{_nick}%&7: %{_reason}%&7." to {_b}
+
+# Завершение найма.
+function hr_finish(u: text, reason: text):
+    set {_nick} to {hire::name::%{_u}%}
+    set {_boss} to {hire::boss::%{_u}%}
+    set {_paid} to {hire::paid::%{_u}%}
+    set {_n} to {_nick} parsed as player
+    if {_n} is set:
+        send "{@prefix}&7Наём окончен: %{_reason}%." to {_n}
+        send "&7 Заплачено было &b%{_paid}%💎&7. Защита снята." to {_n}
+    if {_boss} is set:
+        set {_b} to {_boss} parsed as player
+        if {_b} is set:
+            send "{@prefix}&7Наём &f%{_nick}%&7 окончен: %{_reason}%." to {_b}
+    send "[НАЁМ] %{_boss}% — %{_nick}%: наём завершён (%{_reason}%)" to console
+    delete {hire::boss::%{_u}%}
+    delete {hire::left::%{_u}%}
+    delete {hire::paid::%{_u}%}
+
+# ---------------------------------------------------------------------------
+# Окно: головы кочевников
+# ---------------------------------------------------------------------------
+
+function hr_button(i: item, cmd: number, name: text, lore: text) :: item:
+    set {_it} to {_i}
+    set custom model data of {_it} to {_cmd}
+    set name of {_it} to {_name}
+    set lore of {_it} to {_lore}
+    return {_it}
+
+function hr_frame(inv: inventory):
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7900
+    set name of {_f} to " "
+    loop 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 46, 47, 51, 52 and 53:
+        set slot loop-value of {_inv} to {_f}
+
+function hr_pick(p: player, page: number):
+    set {_pg} to {_page}
+    if {_pg} < 1:
+        set {_pg} to 1
+    set {hire::page::%uuid of {_p}%} to {_pg}
+
+    set {_inv} to a chest inventory with 6 rows named "&8Наём кочевников"
+    hr_frame({_inv})
+    set {_slots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+
+    set {_first} to (({_pg} - 1) * {@per_page}) + 1
+    set {_n} to 0
+    set {_shown} to 0
+    loop all players:
+        if loop-player is not {_p}:
+            if hr_nomad(loop-player) is true:
+                add 1 to {_n}
+                if {_n} >= {_first}:
+                    if {_shown} < {@per_page}:
+                        add 1 to {_shown}
+                        set {_h} to 1 of player head
+                        set skull owner of {_h} to loop-player
+                        set custom model data of {_h} to 7901
+                        set {_why} to hr_why(loop-player)
+                        if {_why} is "свободен":
+                            set name of {_h} to "&a%loop-player%"
+                            set lore of {_h} to "&7Свободен." and "&8Клик — выбрать срок найма"
+                        else:
+                            set name of {_h} to "&8%loop-player%"
+                            set lore of {_h} to "&c%{_why}%" and "&8Сейчас нанять нельзя"
+                        set slot ({_slots::%{_shown}%}) of {_inv} to {_h}
+
+    if {_shown} is 0:
+        set slot 22 of {_inv} to hr_button(1 of barrier, 7903, "&7Кочевников нет", "&8В сети никого без гражданства.")
+
+    set slot 45 of {_inv} to hr_button(1 of arrow, 7903, "&7Закрыть", "&8Ничего не делать")
+    set {_prev} to {_pg} - 1
+    set {_next} to {_pg} + 1
+    if {_pg} > 1:
+        set slot 48 of {_inv} to hr_button(1 of spectral arrow, 7906, "&e< Предыдущая", "&8Страница %{_prev}%")
+    set {_last} to {_first} + {@per_page} - 1
+    if {_n} > {_last}:
+        set slot 50 of {_inv} to hr_button(1 of spectral arrow, 7905, "&eСледующая >", "&8Страница %{_next}%")
+    set slot 49 of {_inv} to hr_button(1 of paper, 7900, "&fКак это работает", "&7Заявка — срок — цена от кочевника — оплата.")
+
+    open {_inv} to {_p}
+
+function hr_term(p: player, target: text):
+    set {hire::target::%uuid of {_p}%} to {_target}
+    set {_inv} to a chest inventory with 3 rows named "&8Срок найма"
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7900
+    set name of {_f} to " "
+    loop 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25 and 26:
+        set slot loop-value of {_inv} to {_f}
+
+    set {_h} to 1 of player head
+    set skull owner of {_h} to {_target} parsed as offline player
+    set custom model data of {_h} to 7900
+    set name of {_h} to "&f%{_target}%"
+    set lore of {_h} to "&7Цену назовёт он сам." and "&8Срок идёт только пока он в сети."
+    set slot 13 of {_inv} to {_h}
+
+    set slot 10 of {_inv} to hr_button(1 of clock, 7902, "&a&lНа 30 мин", "&7Разовое поручение.")
+    set slot 11 of {_inv} to hr_button(1 of clock, 7902, "&a&lНа 60 мин", "&7Работа на вечер.")
+    set slot 15 of {_inv} to hr_button(1 of clock, 7902, "&6&lНа 120 мин", "&7Стройка, караван.")
+    set slot 16 of {_inv} to hr_button(1 of clock, 7902, "&6&lНа 240 мин", "&7Долгий подряд.")
+    set slot 22 of {_inv} to hr_button(1 of barrier, 7904, "&7К списку", "&8Выбрать другого")
+    open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Клики. Принадлежность — по CMD предмета: флаг гаснет на закрытии окна,
+# которое приходит уже поверх следующего (разбор в menu_players.sk).
+# ---------------------------------------------------------------------------
+
+on inventory click:
+    event-item is not air
+    set {_c} to hr_cmd(event-item)
+    if {_c} is between 7900 and 7906:
+        cancel event
+        # имя снимается ДО паузы: после неё данные события уже не читаются
+        set {_label} to uncoloured (name of event-item)
+        set {_u} to "%uuid of player%"
+        set {_me} to player
+        set {_page} to {hire::page::%{_u}%}
+        if {_page} is not set:
+            set {_page} to 1
+
+        if {_c} is 7903:
+            close player's inventory
+        else if {_c} is 7904:
+            # Bukkit запрещает открывать инвентарь внутри клика
+            wait 1 tick
+            hr_pick({_me}, {_page})
+        else if {_c} is 7905:
+            wait 1 tick
+            hr_pick({_me}, {_page} + 1)
+        else if {_c} is 7906:
+            wait 1 tick
+            hr_pick({_me}, {_page} - 1)
+        else if {_c} is 7901:
+            set {_t} to {_label} parsed as player
+            if {_t} is set:
+                if hr_ready({_t}) is true:
+                    wait 1 tick
+                    hr_term({_me}, {_label})
+                else:
+                    send "{@prefix}&c%{_label}%: %hr_why({_t})%." to {_me}
+            else:
+                send "{@prefix}&cОн уже вышел." to {_me}
+        else if {_c} is 7902:
+            set {_min} to 30
+            if {_label} contains "240":
+                set {_min} to 240
+            else if {_label} contains "120":
+                set {_min} to 120
+            else if {_label} contains "60":
+                set {_min} to 60
+            set {_t} to {hire::target::%{_u}%}
+            close player's inventory
+            hr_send({_me}, {_t}, {_min})
+
+# ---------------------------------------------------------------------------
+# Заявка
+# ---------------------------------------------------------------------------
+
+function hr_send(p: player, target: text, minutes: number):
+    set {_t} to {_target} parsed as player
+    set {_ok} to true
+    if {_t} is not set:
+        send "{@prefix}&cОн вышел из сети — заявка не ушла." to {_p}
+        set {_ok} to false
+    if {_ok} is true:
+        if hr_ready({_t}) is false:
+            send "{@prefix}&c%{_target}%: %hr_why({_t})%." to {_p}
+            set {_ok} to false
+    if {_ok} is true:
+        set {_u} to "%uuid of {_t}%"
+        set {_bu} to "%uuid of {_p}%"
+        if {hire::mine::%{_bu}%} is set:
+            send "{@prefix}&cУ тебя уже висит заявка. Сними её: &b/hire no" to {_p}
+        else:
+            set {hire::req::%{_u}%} to "%{_p}%"
+            set {hire::reqmin::%{_u}%} to {_minutes}
+            set {hire::reqat::%{_u}%} to unix timestamp of now
+            set {hire::name::%{_u}%} to "%{_t}%"
+            set {hire::mine::%{_bu}%} to {_u}
+
+            send "{@prefix}&aЗаявка ушла &f%{_t}%&a: &f%{_minutes}%&a мин онлайн." to {_p}
+            send "&7 Цену назовёт он сам. Ответ придёт лично." to {_p}
+            send "&8 Отозвать: &b/hire no" to {_p}
+
+            send "{@prefix}&a&lТебя зовут на работу." to {_t}
+            send "&7 Наниматель: &f%{_p}%&7, срок &f%{_minutes}%&7 онлайн-минут." to {_t}
+            send "&7 Пока идёт наём, тебя нельзя бить — и ты не бьёшь." to {_t}
+            send "&8 Назвать цену: &b/hire price <алмазов>&8 (до {@max_price})" to {_t}
+            send "&8 Отказаться: &b/hire no" to {_t}
+            play sound "block.note_block.pling" with volume 1 with pitch 1.4 to {_t}
+            send "[НАЁМ] %{_p}% зовёт %{_t}% на %{_minutes}% мин" to console
+
+# ---------------------------------------------------------------------------
+# Команда
+# ---------------------------------------------------------------------------
+
+command /hire [<text>] [<integer>]:
+    description: Наём кочевников: заявка, цена, оплата
+    usage: /hire | price <алмазов> | pay | no | end | status | off | on
+    aliases: /наём, /наем
+    executable by: players
+    trigger:
+        set {_u} to "%uuid of player%"
+
+        if arg-1 is not set:
+            hr_pick(player, 1)
+            stop
+
+        if arg-1 is "list":
+            set {_n} to 0
+            send "{@prefix}&7Кочевники в сети:" to player
+            loop all players:
+                if loop-player is not player:
+                    if hr_nomad(loop-player) is true:
+                        add 1 to {_n}
+                        send "&7 %loop-player% &8— %hr_why(loop-player)%" to player
+            if {_n} is 0:
+                send "&7 Никого." to player
+            stop
+
+        if arg-1 is "off":
+            set {hire::closed::%{_u}%} to true
+            send "{@prefix}&7Тебя больше нельзя нанять." to player
+            send "&8 Вернуть: &b/hire on" to player
+            stop
+
+        if arg-1 is "on":
+            delete {hire::closed::%{_u}%}
+            send "{@prefix}&aТы снова доступен для найма." to player
+            stop
+
+        if arg-1 is "price":
+            if {hire::req::%{_u}%} is not set:
+                send "{@prefix}&7Тебе никто не присылал заявку." to player
+                stop
+            if arg-2 is not set:
+                send "{@prefix}&cНазови цену: &b/hire price <алмазов>" to player
+                stop
+            set {_n} to arg-2
+            if {_n} < 1:
+                send "{@prefix}&cЦена — от 1💎. Бесплатный труд Суд не защищает." to player
+                stop
+            if {_n} > {@max_price}:
+                send "{@prefix}&cПотолок — &f{@max_price}💎&c." to player
+                stop
+            set {hire::price::%{_u}%} to {_n}
+            set {_boss} to {hire::req::%{_u}%}
+            set {_min} to {hire::reqmin::%{_u}%}
+            send "{@prefix}&aЦена названа: &b%{_n}%💎&a за &f%{_min}%&a мин." to player
+            send "&8 Решает наниматель. Передумал — &b/hire no" to player
+            set {_b} to {_boss} parsed as player
+            if {_b} is set:
+                send "{@prefix}&f%player%&7 просит &b%{_n}%💎&7 за &f%{_min}%&7 мин." to {_b}
+                send "&8 Нанять: &b/hire pay&8 · отказаться: &b/hire no" to {_b}
+                play sound "block.note_block.pling" with volume 1 with pitch 1.2 to {_b}
+            send "[НАЁМ] %player% назвал цену %{_n}% алмазов для %{_boss}%" to console
+            stop
+
+        if arg-1 is "pay":
+            set {_nu} to {hire::mine::%{_u}%}
+            if {_nu} is not set:
+                send "{@prefix}&7У тебя нет висящей заявки." to player
+                stop
+            if {hire::price::%{_nu}%} is not set:
+                send "{@prefix}&7Цена ещё не названа — жди ответа." to player
+                stop
+            set {_price} to {hire::price::%{_nu}%}
+            set {_min} to {hire::reqmin::%{_nu}%}
+            set {_nick} to {hire::name::%{_nu}%}
+            if (number of diamond in player's inventory) < {_price}:
+                send "{@prefix}&cНужно &b%{_price}%💎&c россыпью на руках." to player
+                send "&8 Блоки не считаются: разбей их." to player
+                stop
+            remove {_price} of diamond from player's inventory
+            set {hire::boss::%{_nu}%} to "%player%"
+            set {hire::left::%{_nu}%} to {_min}
+            set {hire::paid::%{_nu}%} to {_price}
+            delete {hire::req::%{_nu}%}
+            delete {hire::reqmin::%{_nu}%}
+            delete {hire::reqat::%{_nu}%}
+            delete {hire::price::%{_nu}%}
+            delete {hire::mine::%{_u}%}
+            hr_pay_out({_nick}, {_price})
+
+            send "{@prefix}&a&f%{_nick}%&a нанят на &f%{_min}%&a онлайн-минут." to player
+            send "&7 Бить его нельзя — ни тебе, ни другим." to player
+            send "&8 Отпустить раньше: &b/hire end" to player
+            set {_n} to {_nick} parsed as player
+            if {_n} is set:
+                send "{@prefix}&a&lТебя наняли." to {_n}
+                send "&7 Наниматель: &f%player%&7, срок &f%{_min}%&7 мин онлайн." to {_n}
+                send "&7 Пока идёт срок, драться нельзя — ни тебе, ни по тебе." to {_n}
+                send "&8 Бросить работу: &b/hire end&8 — алмазы остаются у тебя," to {_n}
+                send "&8 но брошенный договор Суд разбирает по статье УК 1.2." to {_n}
+            send "[НАЁМ] %player% нанял %{_nick}% на %{_min}% мин за %{_price}% алмазов" to console
+            stop
+
+        if arg-1 is "no":
+            # отказ работает с обеих сторон: у кочевника — своя заявка,
+            # у нанимателя — посланная им
+            if {hire::req::%{_u}%} is set:
+                hr_drop_req({_u}, "&cотказ")
+                send "{@prefix}&7Заявка отклонена." to player
+                stop
+            set {_nu} to {hire::mine::%{_u}%}
+            if {_nu} is set:
+                hr_drop_req({_nu}, "&7отозвана нанимателем")
+                send "{@prefix}&7Заявка отозвана." to player
+                stop
+            send "{@prefix}&7Нечего отклонять." to player
+            stop
+
+        if arg-1 is "end":
+            if hr_hired({_u}) is true:
+                hr_finish({_u}, "кочевник ушёл сам")
+                stop
+            set {_found} to false
+            loop {hire::boss::*}:
+                if loop-value is "%player%":
+                    set {_found} to true
+                    hr_finish(loop-index, "наниматель отпустил")
+            if {_found} is false:
+                send "{@prefix}&7Ты никого не нанимал и сам не нанят." to player
+            stop
+
+        if arg-1 is "status":
+            send "{@prefix}&7Твоё состояние:" to player
+            if {hire::closed::%{_u}%} is set:
+                send "&8 • тебя нельзя нанять (&b/hire on&8 — открыть)" to player
+            else:
+                send "&8 • ты открыт для найма (&b/hire off&8 — закрыть)" to player
+            if hr_hired({_u}) is true:
+                send "&7 • нанят: &f%{hire::boss::%{_u}%}%&7, осталось &f%{hire::left::%{_u}%}%&7 мин" to player
+            if {hire::req::%{_u}%} is set:
+                send "&7 • заявка от &f%{hire::req::%{_u}%}%&7 на &f%{hire::reqmin::%{_u}%}%&7 мин" to player
+                send "&8   назови цену: &b/hire price <алмазов>" to player
+            set {_nu} to {hire::mine::%{_u}%}
+            if {_nu} is set:
+                send "&7 • твоя заявка к &f%{hire::name::%{_nu}%}%&7 ждёт ответа" to player
+            loop {hire::boss::*}:
+                if loop-value is "%player%":
+                    send "&7 • ты нанял &f%{hire::name::%loop-index%}%&7, осталось &f%{hire::left::%loop-index%}%&7 мин" to player
+            stop
+
+        send "{@prefix}&7/hire &8— окно найма (головы кочевников)" to player
+        send "&8 /hire list &8— список текстом" to player
+        send "&8 /hire price <алмазов> &8— назвать цену за заявку" to player
+        send "&8 /hire pay &8— нанять по названной цене" to player
+        send "&8 /hire no &8— отклонить или отозвать заявку" to player
+        send "&8 /hire end &8— закончить наём досрочно" to player
+        send "&8 /hire status &8— моё состояние" to player
+        send "&8 /hire off | on &8— закрыть или открыть себя для найма" to player
+
+# ---------------------------------------------------------------------------
+# Неприкосновенность нанятого
+# ---------------------------------------------------------------------------
+
+on damage:
+    attacker is a player
+    victim is a player
+    set {_a} to attacker
+    set {_v} to victim
+    set {_ka} to "%uuid of {_a}%"
+    set {_kv} to "%uuid of {_v}%"
+    if hr_hired({_kv}) is true:
+        cancel event
+        hr_warn({_a}, "&f%{_v}% &7нанят: пока идёт срок, его не трогают.")
+    else:
+        if hr_hired({_ka}) is true:
+            cancel event
+            hr_warn({_a}, "&cТы нанят — драться нельзя. &8Бросить: &b/hire end")
+
+# ---------------------------------------------------------------------------
+# Часы найма. Срок идёт ОНЛАЙН-минутами, как в тюрьме: отсидеться
+# в оффлайне и «отработать» лёжа нельзя.
+# ---------------------------------------------------------------------------
+
+every 1 minute:
+    set {_now} to unix timestamp of now
+    loop all players:
+        set {_k} to "%uuid of loop-player%"
+
+        if {hire::reqat::%{_k}%} is set:
+            if {hire::reqat::%{_k}%} < {_now} - {@offer_ttl}:
+                send "{@prefix}&7Заявка протухла — ответа не было." to loop-player
+                hr_drop_req({_k}, "&7истекла без ответа")
+
+        if {hire::boss::%{_k}%} is set:
+            if hr_nomad(loop-player) is false:
+                hr_finish({_k}, "кочевник получил гражданство")
+            else:
+                remove 1 from {hire::left::%{_k}%}
+                set {_left} to {hire::left::%{_k}%}
+                if {_left} <= 0:
+                    hr_finish({_k}, "срок вышел")
+                else if {_left} is 5:
+                    send "{@prefix}&7До конца найма &f5&7 мин." to loop-player
+                else if {_left} is 1:
+                    send "{@prefix}&7Последняя минута найма." to loop-player
+
+# Недоданные алмазы — как посылка почты: ждут места в рюкзаке.
+on join:
+    wait 4 seconds
+    set {_n} to "%player%"
+    if {hire::owe::%{_n}%} is set:
+        set {_amount} to {hire::owe::%{_n}%}
+        if hr_free(player) >= ceil({_amount} / 64):
+            give {_amount} of diamond to player
+            delete {hire::owe::%{_n}%}
+            send "{@prefix}&aДоплата за наём: &b%{_amount}%💎&a." to player
+        else:
+            send "{@prefix}&eЗа тобой &b%{_amount}%💎&e — освободи место в рюкзаке." to player

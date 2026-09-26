@@ -31,7 +31,7 @@ items:
     slot: 20
     display_name: '&6&lМэрия'
     lore:
-      - '&7Аренда точки 5x5 — &b10💎&7 в неделю.'
+      - '&7Аренда точки 5x5 — &b5💎&7 в сутки, с яйцом торговца.'
       - '&7Статус беженца: сдать оружие и жить'
       - '&7в нейтральной зоне (Конституция 5.6).'
       - '&7Регистрация государства — Устав в Discord.'
@@ -94,9 +94,8 @@ items:
       - ''
       - '&aЛКМ &8— порядок в чат'
     left_click_commands:
-      - '[message] &c&lСУД: &7иск подаётся в Discord командой &f/иск'
-      - '[message] &c&lСУД: &7показания по убийству — &f/report <ник> убийство'
-      - '[message] &8Освободился — выбери выход: &f/freedom'
+      - '[close]'
+      - '[player] ekbdo report'
 
   'laws':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=

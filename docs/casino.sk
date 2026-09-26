@@ -1,0 +1,387 @@
+# EKB SHIELD — casino.sk
+# Казино Спавна: рулетка, слоты, орёл-решка. Всё через Казну.
+#
+# Зачем своё, а не плагин. Готовых казино под 26.1.2 на Modrinth штук шесть
+# (CasinoCore, NitroCasino, Pixel Casino и прочие), и все они считают деньги
+# через Vault — то есть через EssentialsX $, валюту, которой на этом сервере
+# нет. Выигрыш там берётся из воздуха, а проигрыш в воздух и уходит. Здесь
+# наоборот: ставка ложится в КАЗНУ Спавна физическими алмазами, выигрыш из
+# неё же и достаётся. Казна конечна — пустая касса не принимает ставок, и
+# это рычаг Мэрии, а не баг.
+#
+# ⚠ Перед каждой ставкой проверяется, потянет ли Казна МАКСИМАЛЬНЫЙ выигрыш
+# по этой игре, а не среднюю выплату. Иначе крупная ставка проходила бы, а
+# на выплате касса оказывалась пуста — и выигрыш повисал бы долгом.
+#
+# ⚠ Перевес заведения заложен в выплаты, а не в подкрученный бросок. Бросок
+# честный (`random integer between`), а Казна выигрывает статистикой:
+#   рулетка: красное/чёрное x2 при 18 из 37 — ожидание 0.97 (ваниль рулетки);
+#            зеро x24 при 1 из 37 — ожидание 0.65, это лотерея, и так честнее
+#            называть вещи;
+#   слоты:   три одинаковых x18 (6 из 216), два одинаковых — возврат ставки
+#            (90 из 216) — ожидание 0.92;
+#   монета:  x2 при 45 из 100 — ожидание 0.90.
+# Подкрученный бросок игрок однажды заметит, а математику видно сразу и она
+# написана в лоре кнопок.
+#
+# ⚠ Ставка списывается ДО броска, выплата идёт ПОСЛЕ. Если выплата не
+# прошла (Казна опустела между проверкой и выдачей, в сундуках нет места),
+# долг уходит в консоль и в Discord Администрации — терять чужой выигрыш
+# на полном сундуке Мэрия права не имеет, как и Суд в тюремном ящике.
+#
+# Требует treasury.sk (tr_pay, tr_payout, tr_loose, tr_ready).
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &5&l[КАЗИНО] &r
+    line: &8&m----------------------------------------
+    cooldown: 3          # секунд между ставками, чтобы не кликали навылет
+    maxwin_roulette: 24  # во сколько раз может вырасти ставка (зеро)
+    maxwin_slots: 18
+    maxwin_coin: 2
+
+# CMD-метки окна (7930-7936 — свободный диапазон: 7900 наём, 7910 стройка,
+# 7920 показания):
+#   7930 — рамка и таблички
+#   7931 — выбор размера ставки
+#   7932 — ход в рулетке (красное/чёрное/зеро)
+#   7933 — закрыть
+#   7934 — крутить слоты
+#   7935 — бросить монету
+#   7936 — назад в Бар
+
+# Хранилище:
+#   {cas::bet::<uuid>}   — выбранная ставка
+#   {cas::last::<uuid>}  — время последней ставки (unix)
+#   {cas::win::<uuid>} / {cas::lose::<uuid>} — личный счёт
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+function cas_cmd(i: item) :: number:
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function cas_bet(p: player) :: number:
+    set {_b} to {cas::bet::%uuid of {_p}%}
+    if {_b} is not set:
+        return 1
+    return {_b}
+
+# ⚠ lore объявлен СПИСКОМ (`texts`), а не одной строкой: кнопки здесь
+# многострочные, а на `text` Skript отвечает «Expected type text for
+# argument 'lore', but ... is of type texts» и не грузит файл целиком.
+function cas_button(i: item, cmd: number, name: text, lore: texts) :: item:
+    set {_it} to {_i}
+    set custom model data of {_it} to {_cmd}
+    set name of {_it} to {_name}
+    set lore of {_it} to {_lore::*}
+    return {_it}
+
+function cas_frame(inv: inventory):
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7930
+    set name of {_f} to " "
+    loop 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 27, 35, 36, 37, 38, 39, 40, 41, 42, 43 and 44:
+        set slot loop-value of {_inv} to {_f}
+
+# Кнопки размера ставки — одинаковый ряд во всех трёх играх.
+function cas_bets(inv: inventory, p: player):
+    set {_cur} to cas_bet({_p})
+    set {_vals::*} to 1, 2, 4, 8 and 16
+    set {_slots::*} to 28, 29, 30, 31 and 32
+    loop {_vals::*}:
+        set {_v} to loop-value
+        set {_i} to {_v} of diamond
+        set custom model data of {_i} to 7931
+        if {_v} is {_cur}:
+            set name of {_i} to "&a&l▶ Ставка %{_v}%💎"
+            set lore of {_i} to "&aВыбрана."
+        else:
+            set name of {_i} to "&7Ставка %{_v}%💎"
+            set lore of {_i} to "&8Клик — выбрать"
+        set slot ({_slots::%loop-index%}) of {_inv} to {_i}
+
+# Можно ли принять ставку: касса назначена, в ней хватает на максимум,
+# и у игрока есть чем платить.
+function cas_ok(p: player, mult: number) :: boolean:
+    set {_bet} to cas_bet({_p})
+    if tr_ready() is false:
+        send "{@prefix}&cКазна Спавна не назначена — касса закрыта." to {_p}
+        return false
+    if tr_loose() < ({_bet} * {_mult}):
+        send "{@prefix}&cКасса не потянет такую ставку." to {_p}
+        send "&7 В Казне меньше &b%{_bet} * {_mult}%💎&7 — это максимум по этой игре." to {_p}
+        send "&8 Поставь меньше или дождись, пока город пополнит кассу." to {_p}
+        return false
+    set {_now} to unix timestamp of now
+    set {_last} to {cas::last::%uuid of {_p}%}
+    if {_last} is set:
+        if ({_now} - {_last}) < {@cooldown}:
+            send "{@prefix}&7Крупье ещё считает. Пару секунд." to {_p}
+            return false
+    return true
+
+# Выплата с честным долгом, если касса подвела.
+function cas_win(p: player, n: number, what: text):
+    set {_r} to tr_payout({_p}, {_n})
+    if {_r} is not "ok":
+        send "{@prefix}%{_r}%" to {_p}
+        send "&c Выигрыш &b%{_n}%💎&c остался за Казной — позови Мэрию." to {_p}
+        send "[КАЗИНО] ДОЛГ: %{_p}% выиграл %{_n}% алмазов (%{_what}%), выдача не прошла" to console
+    else:
+        add 1 to {cas::win::%uuid of {_p}%}
+        send "{@prefix}&a&lВЫИГРЫШ! &fЗабирай &b%{_n}%💎&f." to {_p}
+        play sound "entity.player.levelup" with volume 0.7 with pitch 1.4 to {_p}
+        send "[КАЗИНО] %{_p}% выиграл %{_n}% алмазов (%{_what}%)" to console
+
+function cas_lost(p: player, what: text):
+    add 1 to {cas::lose::%uuid of {_p}%}
+    send "&7 Ставка ушла в Казну Спавна." to {_p}
+    play sound "block.note_block.bass" with volume 0.7 with pitch 0.7 to {_p}
+    send "[КАЗИНО] %{_p}% проиграл (%{_what}%)" to console
+
+# ---------------------------------------------------------------------------
+# Рулетка
+# ---------------------------------------------------------------------------
+
+function cas_roulette_menu(p: player):
+    set {_inv} to a chest inventory with 5 rows named "&8Рулетка"
+    cas_frame({_inv})
+    cas_bets({_inv}, {_p})
+
+    set slot 11 of {_inv} to cas_button(1 of red wool, 7932, "&c&lКРАСНОЕ", "&7Выплата &fx2&7. Шанс 18 из 37.")
+    set slot 13 of {_inv} to cas_button(1 of black wool, 7932, "&8&lЧЁРНОЕ", "&7Выплата &fx2&7. Шанс 18 из 37.")
+    set slot 15 of {_inv} to cas_button(1 of lime wool, 7932, "&a&lЗЕРО", "&7Выплата &fx24&7. Шанс 1 из 37." and "&8Это лотерея, и так оно и называется.")
+
+    set slot 22 of {_inv} to cas_button(1 of paper, 7930, "&fКак считается", "&7Колесо честное: 0-36, как в жизни." and "&7Перевес заведения — в выплатах, а не в броске." and "&8Ставка идёт в Казну, выигрыш — из Казны.")
+    set slot 45 of {_inv} to cas_button(1 of arrow, 7936, "&7Назад", "&8В Бар и кости")
+    set slot 49 of {_inv} to cas_button(1 of barrier, 7933, "&cЗакрыть", "&8")
+    open {_inv} to {_p}
+
+function cas_spin(p: player, choice: text):
+    if cas_ok({_p}, {@maxwin_roulette}) is true:
+        set {_bet} to cas_bet({_p})
+        set {_r} to tr_pay({_p}, {_bet})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%" to {_p}
+        else:
+            set {cas::last::%uuid of {_p}%} to unix timestamp of now
+            set {_n} to random integer between 0 and 36
+            set {_col} to "чёрное"
+            if {_n} is 0:
+                set {_col} to "зеро"
+            else if mod({_n}, 2) is 1:
+                set {_col} to "красное"
+            send "{@prefix}&7Колесо остановилось: &f%{_n}% &7— %{_col}%." to {_p}
+            if {_choice} is {_col}:
+                if {_col} is "зеро":
+                    cas_win({_p}, {_bet} * 24, "рулетка, зеро")
+                else:
+                    cas_win({_p}, {_bet} * 2, "рулетка, %{_col}%")
+            else:
+                send "{@prefix}&cМимо." to {_p}
+                cas_lost({_p}, "рулетка")
+            wait 1 tick
+            cas_roulette_menu({_p})
+
+# ---------------------------------------------------------------------------
+# Слоты
+# ---------------------------------------------------------------------------
+
+function cas_reel(n: number) :: item:
+    if {_n} is 1:
+        return 1 of diamond
+    if {_n} is 2:
+        return 1 of gold ingot
+    if {_n} is 3:
+        return 1 of emerald
+    if {_n} is 4:
+        return 1 of redstone
+    if {_n} is 5:
+        return 1 of lapis lazuli
+    return 1 of coal
+
+function cas_slots_menu(p: player):
+    set {_inv} to a chest inventory with 5 rows named "&8Слоты"
+    cas_frame({_inv})
+    cas_bets({_inv}, {_p})
+
+    loop 11, 13 and 15:
+        set {_i} to cas_reel(random integer between 1 and 6)
+        set custom model data of {_i} to 7930
+        set name of {_i} to "&8—"
+        set slot loop-value of {_inv} to {_i}
+
+    set slot 22 of {_inv} to cas_button(1 of lever, 7934, "&6&lКРУТИТЬ", "&7Три одинаковых — &fx18&7." and "&7Два одинаковых — ставка возвращается." and "&8Шесть символов, 216 сочетаний.")
+    set slot 45 of {_inv} to cas_button(1 of arrow, 7936, "&7Назад", "&8В Бар и кости")
+    set slot 49 of {_inv} to cas_button(1 of barrier, 7933, "&cЗакрыть", "&8")
+    open {_inv} to {_p}
+
+function cas_roll_slots(p: player):
+    if cas_ok({_p}, {@maxwin_slots}) is true:
+        set {_bet} to cas_bet({_p})
+        set {_r} to tr_pay({_p}, {_bet})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%" to {_p}
+        else:
+            set {cas::last::%uuid of {_p}%} to unix timestamp of now
+            set {_a} to random integer between 1 and 6
+            set {_b} to random integer between 1 and 6
+            set {_c} to random integer between 1 and 6
+            send "{@prefix}&7Барабаны: &f%name of cas_reel({_a})% &8| &f%name of cas_reel({_b})% &8| &f%name of cas_reel({_c})%" to {_p}
+            if {_a} is {_b}:
+                if {_b} is {_c}:
+                    cas_win({_p}, {_bet} * 18, "слоты, три одинаковых")
+                else:
+                    cas_win({_p}, {_bet}, "слоты, два одинаковых")
+            else if {_b} is {_c}:
+                cas_win({_p}, {_bet}, "слоты, два одинаковых")
+            else if {_a} is {_c}:
+                cas_win({_p}, {_bet}, "слоты, два одинаковых")
+            else:
+                send "{@prefix}&cНичего не совпало." to {_p}
+                cas_lost({_p}, "слоты")
+            wait 1 tick
+            cas_slots_menu({_p})
+
+# ---------------------------------------------------------------------------
+# Орёл или решка
+# ---------------------------------------------------------------------------
+
+function cas_coin_menu(p: player):
+    set {_inv} to a chest inventory with 5 rows named "&8Орёл или решка"
+    cas_frame({_inv})
+    cas_bets({_inv}, {_p})
+
+    set slot 12 of {_inv} to cas_button(1 of gold ingot, 7935, "&6&lОРЁЛ", "&7Выплата &fx2&7." and "&8Шанс 45 из 100 — заведение берёт своё.")
+    set slot 14 of {_inv} to cas_button(1 of iron ingot, 7935, "&f&lРЕШКА", "&7Выплата &fx2&7." and "&8Шанс 45 из 100 — заведение берёт своё.")
+
+    set slot 22 of {_inv} to cas_button(1 of paper, 7930, "&fЧестно?", "&7Монета не идеальная, и это написано прямо:" and "&745 из 100, а не 50. Казино живёт с разницы," and "&7а Казна с него — с той же самой.")
+    set slot 45 of {_inv} to cas_button(1 of arrow, 7936, "&7Назад", "&8В Бар и кости")
+    set slot 49 of {_inv} to cas_button(1 of barrier, 7933, "&cЗакрыть", "&8")
+    open {_inv} to {_p}
+
+function cas_flip(p: player, side: text):
+    if cas_ok({_p}, {@maxwin_coin}) is true:
+        set {_bet} to cas_bet({_p})
+        set {_r} to tr_pay({_p}, {_bet})
+        if {_r} is not "ok":
+            send "{@prefix}%{_r}%" to {_p}
+        else:
+            set {cas::last::%uuid of {_p}%} to unix timestamp of now
+            # ⚠ Сначала решается ВЫИГРЫШ, и только потом называется сторона.
+            # Первая версия бросала 1-100 и при 91-100 оставляла «решку»
+            # как значение по умолчанию: выбравший решку выигрывал в 55%
+            # случаев вместо 45, а выбравший орла — ровно в 45. Монета была
+            # кривой в одну сторону, и заметить это можно было только
+            # по статистике.
+            set {_n} to random integer between 1 and 100
+            if {_n} <= 45:
+                set {_res} to {_side}
+            else if {_side} is "орёл":
+                set {_res} to "решка"
+            else:
+                set {_res} to "орёл"
+            send "{@prefix}&7Монета: &f%{_res}%&7." to {_p}
+            if {_res} is {_side}:
+                cas_win({_p}, {_bet} * 2, "монета, %{_side}%")
+            else:
+                send "{@prefix}&cНе твоя сторона." to {_p}
+                cas_lost({_p}, "монета")
+            wait 1 tick
+            cas_coin_menu({_p})
+
+# ---------------------------------------------------------------------------
+# Клики
+# ---------------------------------------------------------------------------
+
+on inventory click:
+    event-item is not air
+    set {_c} to cas_cmd(event-item)
+    if {_c} is between 7930 and 7936:
+        cancel event
+        set {_label} to uncoloured (name of event-item)
+        set {_me} to player
+        set {_u} to "%uuid of player%"
+
+        if {_c} is 7933:
+            close player's inventory
+        else if {_c} is 7936:
+            close player's inventory
+            # меню DeluxeMenus открывается из чата, а не из карты команд
+            make player say "/casino"
+        else if {_c} is 7931:
+            set {_v} to 1
+            if {_label} contains "16":
+                set {_v} to 16
+            else if {_label} contains "8":
+                set {_v} to 8
+            else if {_label} contains "4":
+                set {_v} to 4
+            else if {_label} contains "2":
+                set {_v} to 2
+            set {cas::bet::%{_u}%} to {_v}
+            wait 1 tick
+            if "%name of top inventory of {_me}%" contains "Рулетка":
+                cas_roulette_menu({_me})
+            else if "%name of top inventory of {_me}%" contains "Слоты":
+                cas_slots_menu({_me})
+            else:
+                cas_coin_menu({_me})
+        else if {_c} is 7932:
+            set {_choice} to "чёрное"
+            if {_label} contains "КРАСНОЕ":
+                set {_choice} to "красное"
+            else if {_label} contains "ЗЕРО":
+                set {_choice} to "зеро"
+            cas_spin({_me}, {_choice})
+        else if {_c} is 7934:
+            cas_roll_slots({_me})
+        else if {_c} is 7935:
+            set {_side} to "решка"
+            if {_label} contains "ОРЁЛ":
+                set {_side} to "орёл"
+            cas_flip({_me}, {_side})
+
+# ---------------------------------------------------------------------------
+# Команды
+# ---------------------------------------------------------------------------
+
+command /roulette:
+    description: Рулетка казино Спавна
+    aliases: /рулетка
+    executable by: players
+    trigger:
+        cas_roulette_menu(player)
+
+command /slots:
+    description: Игровые автоматы казино Спавна
+    aliases: /слоты
+    executable by: players
+    trigger:
+        cas_slots_menu(player)
+
+command /coinflip:
+    description: Орёл или решка
+    aliases: /монетка
+    executable by: players
+    trigger:
+        cas_coin_menu(player)
+
+command /casinostats:
+    description: Мой счёт в казино
+    aliases: /моиставки
+    executable by: players
+    trigger:
+        set {_u} to "%uuid of player%"
+        set {_w} to {cas::win::%{_u}%}
+        set {_l} to {cas::lose::%{_u}%}
+        if {_w} is not set:
+            set {_w} to 0
+        if {_l} is not set:
+            set {_l} to 0
+        send "{@prefix}&7Твой счёт: &a%{_w}%&7 побед, &c%{_l}%&7 проигрышей." to player
+        send "&8 В кассе сейчас: &b%tr_loose()%💎&8 россыпью." to player

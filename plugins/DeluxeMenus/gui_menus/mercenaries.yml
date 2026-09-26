@@ -4,16 +4,11 @@ open_command:
   - наёмники
 size: 54
 
-# Витрина услуг и бронь. Оплата и договор — вручную через Суд/Discord:
-# автоматического списания нет, потому что валюта на сервере физическая
-# (алмазы в сундуке), а не цифра на счету.
-# Кнопка брони пишет заявку в консоль — она уходит и в Discord-канал логов,
-# так что Администрация увидит её даже будучи оффлайн.
-
 items:
+
   'rules':
     material: WRITTEN_BOOK
-    slot: 10
+    slot: 13
     display_name: '&e&lКак это работает'
     lore:
       - '&7Сотрудник САП может выйти в поле как обычный'
@@ -31,7 +26,7 @@ items:
 
   'guard':
     material: SHIELD
-    slot: 11
+    slot: 20
     display_name: '&a&lОхрана каравана'
     lore:
       - '&7Сопровождение груза между городами.'
@@ -42,12 +37,11 @@ items:
       - '&aЛКМ &8— забронировать'
     left_click_commands:
       - '[close]'
-      - '[console] say &c[НАЁМ] &f%player_name% &7бронирует: &fОхрана каравана &8(64–96💎)'
       - '[message] &aЗаявка отправлена. Условия согласуй в Discord.'
 
   'siege':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDA0NTY1MWMwODNiOTg3MzM4NmFjYzA3YjY2Yzc4MGQ3ZGJjODMxOWRkZWJhYjFkMTM4Y2VhZjA5ZjQ5N2UyNyJ9fX0=
-    slot: 12
+    slot: 22
     display_name: '&c&lУчастие в войне'
     lore:
       - '&7Наёмник воюет на стороне города как'
@@ -62,12 +56,11 @@ items:
       - '&aЛКМ &8— забронировать'
     left_click_commands:
       - '[close]'
-      - '[console] say &c[НАЁМ] &f%player_name% &7бронирует: &fУчастие в войне &8(256–384💎)'
       - '[message] &aЗаявка отправлена. Война должна быть объявлена по правилам.'
 
   'builder':
     material: DIAMOND_PICKAXE
-    slot: 13
+    slot: 24
     display_name: '&6&lСтроительные работы'
     lore:
       - '&7Руками, без админ-инструментов.'
@@ -80,12 +73,11 @@ items:
       - '&aЛКМ &8— забронировать'
     left_click_commands:
       - '[close]'
-      - '[console] say &c[НАЁМ] &f%player_name% &7бронирует: &fСтроительные работы'
       - '[message] &aЗаявка отправлена. Объём работ согласуй в Discord.'
 
   'escort':
     material: LEAD
-    slot: 14
+    slot: 30
     display_name: '&b&lКонвой заключённого'
     lore:
       - '&7Доставка осуждённого в тюрьму и охрана'
@@ -96,8 +88,8 @@ items:
       - '&7а обязанность.'
 
   'wanted':
-    material: PLAYER_HEAD
-    slot: 15
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDA0NTY1MWMwODNiOTg3MzM4NmFjYzA3YjY2Yzc4MGQ3ZGJjODMxOWRkZWJhYjFkMTM4Y2VhZjA5ZjQ5N2UyNyJ9fX0=
+    slot: 31
     display_name: '&4&lЗаказ на игрока'
     lore:
       - '&7Такой услуги нет и не будет.'
@@ -107,6 +99,11 @@ items:
       - '&7и тюрьма от 10 часов. И заказчику тоже.'
       - ''
       - '&7Хочешь чужого добра — иди в Суд.'
+
+  'header':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDA0NTY1MWMwODNiOTg3MzM4NmFjYzA3YjY2Yzc4MGQ3ZGJjODMxOWRkZWJhYjFkMTM4Y2VhZjA5ZjQ5N2UyNyJ9fX0=
+    slot: 4
+    display_name: '&6&lНаёмники САП'
 
   'back':
     material: ARROW
@@ -122,7 +119,7 @@ items:
     left_click_commands:
       - '[close]'
 
-  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  # рамка ставится генератором, руками её не правят
   'frame_0':
     material: GRAY_STAINED_GLASS_PANE
     slot: 0
@@ -138,10 +135,6 @@ items:
   'frame_3':
     material: GRAY_STAINED_GLASS_PANE
     slot: 3
-    display_name: ' '
-  'frame_4':
-    material: GRAY_STAINED_GLASS_PANE
-    slot: 4
     display_name: ' '
   'frame_5':
     material: GRAY_STAINED_GLASS_PANE

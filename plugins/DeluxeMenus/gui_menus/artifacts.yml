@@ -130,8 +130,8 @@ items:
       - ''
       - '&aЛКМ &8— как списать'
     left_click_commands:
-      - '[message] &5&lСписать: &7/artifact release <id> <номер>'
-      - '[message] &8id: compass dagger hourglass journal mark mask'
+      - '[close]'
+      - '[player] ekbdo artifactrelease'
 
   'header':
     material: NETHER_STAR

@@ -1,0 +1,547 @@
+# EKB SHIELD — menu_wizard.sk
+# Мастер команд: кнопка меню не печатает образец, а ведёт по шагам.
+#
+# Зачем. В GUI аргумент ввести негде, поэтому 41 кнопка в 23 меню делала
+# одно и то же — печатала в чат строку вида `/co lookup u:<ник> t:<время>
+# r:<радиус>` и оставляла игрока набирать её руками. Кнопка выглядела
+# рабочей, а была подсказкой. Здесь аргументы собираются окнами: игрок —
+# головой из списка онлайна, время и радиус — кнопками, свободный текст —
+# одной строкой в чат.
+#
+# Как подключается: кнопка DeluxeMenus зовёт `[player] ekbdo <действие>`,
+# действие лежит в реестре ниже. Новая команда = две строки в `on script
+# load` плюс кнопка в `menus_spec.py`.
+#
+# ⚠ Принадлежность клика определяется по CustomModelData предмета, а НЕ по
+# переменной-флагу: мастер сам закрывает окно, чтобы спросить текст в чате,
+# и любой флаг на `on inventory close` гасился бы ровно в этот момент
+# (грабля из `menu_players.sk` и `nirvana.sk`).
+#
+#   7700 — рамка и карточка действия (клик гасится)
+#   7701 — голова игрока
+#   7702 — вариант ответа (значение лежит в {wz::slot::...})
+#   7703 — отмена
+#   7704 — шаг назад
+#   7705 / 7706 — страница вперёд / назад
+#   7707 — ввести вручную (мастер спросит в чате)
+#   7708 — выполнить
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &6&l[МАСТЕР] &r
+    per_page: 28        # вариантов на страницу: слоты 10-16, 19-25, 28-34, 37-43
+
+# Хранилище (ключ — UUID; в имени переменной %player% даёт UUID, поэтому
+# ключ считается один раз в {_u}):
+#   {wz::act::<id>::title|icon|perm|cmd|note|args} — описание действия
+#   {wz::arg::<id>::<n>::type|label|opts|val::*|lab::*} — описание аргумента
+#   {wz::run::<uuid>::id|step|page|val::<n>}       — что игрок собирает сейчас
+#   {wz::slot::<uuid>::<слот>}                     — что лежит в слоте окна
+#   {wz::ask::<uuid>}                              — ждём строку из чата
+
+# ---------------------------------------------------------------------------
+# Реестр действий
+# ---------------------------------------------------------------------------
+#
+# Шаблон команды пишется с метками @1..@4, а не с %1%: процент в строке
+# Skript открывает выражение, и "%1%" пришлось бы экранировать в каждой
+# строке реестра.
+#
+# Право проверяется ДО первого шага — чтобы не вести человека через три окна
+# к отказу. Там, где право у самой команды составное (у `/onair` это
+# «стример ИЛИ ютубер»), поле оставлено пустым: пусть команда откажет сама.
+
+on script load:
+    delete {wz::act::*}
+    delete {wz::arg::*}
+    delete {wz::run::*}
+    delete {wz::slot::*}
+    delete {wz::ask::*}
+
+    # --- Суд и логи ---------------------------------------------------------
+    # ⚠ У AdvancedReports 1.1.0 команда `/report <player>` берёт РОВНО один
+    # аргумент (сверено по `ReportCommand.onCommand` в jar'е): причину и
+    # подробности спрашивает его собственное окно. Слово «убийство» из
+    # старого образца плагин молча выбрасывал.
+    wz_new("report", "Жалоба в Суд", 1 of paper, "", "report @1", "Причину и подробности спросит окно жалобы.")
+    wz_arg("report", "player", "На кого жалоба", "noself")
+
+    wz_new("colookup", "Поиск по логам", 1 of spyglass, "coreprotect.lookup", "co lookup u:@1 t:@2 r:@3", "Результат придёт в чат страницами.")
+    wz_arg("colookup", "player", "Чьи действия смотрим", "")
+    wz_arg("colookup", "choice", "За какое время", "30m=последние 30 минут|1h=последний час|3h=последние 3 часа|12h=последние 12 часов|1d=сутки|7d=неделя")
+    wz_arg("colookup", "choice", "Радиус вокруг тебя", "5=5 блоков|10=10 блоков|20=20 блоков|50=50 блоков|100=100 блоков")
+
+    wz_new("corollback", "Откат по решению Суда", 1 of tnt, "coreprotect.rollback", "co rollback u:@1 t:@2 r:@3", "Откат — приговор, а не уборка. Конституция 1.2.")
+    wz_arg("corollback", "player", "Чьи действия откатываем", "")
+    wz_arg("corollback", "choice", "За какое время", "30m=последние 30 минут|1h=последний час|3h=последние 3 часа|12h=последние 12 часов|1d=сутки|7d=неделя")
+    wz_arg("corollback", "choice", "Радиус вокруг тебя", "5=5 блоков|10=10 блоков|20=20 блоков|50=50 блоков|100=100 блоков")
+
+    wz_new("corestore", "Вернуть откат обратно", 1 of redstone torch, "coreprotect.rollback", "co restore u:@1 t:@2 r:@3", "Отменяет собственный откат теми же рамками.")
+    wz_arg("corestore", "player", "Чей откат отменяем", "")
+    wz_arg("corestore", "choice", "За какое время", "30m=последние 30 минут|1h=последний час|3h=последние 3 часа|12h=последние 12 часов|1d=сутки|7d=неделя")
+    wz_arg("corestore", "choice", "Радиус вокруг тебя", "5=5 блоков|10=10 блоков|20=20 блоков|50=50 блоков|100=100 блоков")
+
+    wz_new("courtlog", "Приобщить логи к делу", 1 of writable book, "courtbridge.use", "courtlog @1 @2 @3 @4", "CourtBridge отправит выгрузку в канал #суд.")
+    wz_arg("courtlog", "player", "Чьи действия выгружаем", "")
+    wz_arg("courtlog", "number", "Сколько минут назад", "30=полчаса|60=час|180=три часа|720=полсуток|1440=сутки")
+    wz_arg("courtlog", "number", "Радиус", "10=10 блоков|20=20 блоков|50=50 блоков|100=100 блоков")
+    wz_arg("courtlog", "number", "Номер дела", "")
+
+    # --- Тетрадь и артефакты ------------------------------------------------
+    wz_new("dncooldown", "Кулдаун Тетради", 1 of clock, "ekb.deathnote.admin", "deathnote cooldown @1", "Сколько ждать между именами.")
+    wz_arg("dncooldown", "number", "Часов между именами", "1=час|3=три часа|6=шесть часов|12=полсуток|24=сутки|48=двое суток")
+
+    wz_new("dncount", "Счётчик выданных Тетрадей", 1 of writable book, "ekb.deathnote.admin", "deathnote setcount @1", "Поправить, если счётчик разошёлся с миром.")
+    wz_arg("dncount", "number", "Сколько Тетрадей на руках", "0=ни одной|1=одна|2=две")
+
+    wz_new("artifactrelease", "Списать пропавший артефакт", 1 of barrier, "ekb.artifact.admin", "artifact release @1 @2", "Номер освободится, и артефакт можно выдать заново.")
+    wz_arg("artifactrelease", "choice", "Какой артефакт", "compass=Компас Охотника за Головами|dagger=Кинжал Теневого Шага|hourglass=Песочные Часы Времени|journal=Журнал Контрабандиста|mark=Чёрная Метка|mask=Маска Безликого")
+    wz_arg("artifactrelease", "number", "Номер экземпляра", "1=первый|2=второй")
+
+    # --- Мир и сервис -------------------------------------------------------
+    wz_new("bloodnight", "Назначить Кровавый Сон", 1 of red dye, "coreprotect.rollback", "bloodnight через @1", "После объявления — бэкап и purge на хосте.")
+    wz_arg("bloodnight", "number", "Через сколько часов", "1=через час|2=через два часа|3=через три часа|6=через шесть часов|12=через полсуток|24=через сутки")
+
+    wz_new("drillbook", "Книга чары «Бур 3×3»", 1 of enchanted book, "ekb.drill.admin", "drillbook @1", "Кладётся на наковальне. Источник книги — только выдача и аукцион.")
+    wz_arg("drillbook", "player", "Кому выдать книгу", "")
+
+    wz_new("shadowskin", "Скин Личины", 1 of player head, "coreprotect.rollback", "setshadowskin @1", "Чей скин выдаётся за Личину на Теневом Рынке.")
+    wz_arg("shadowskin", "player", "Чей скин берём", "")
+
+    wz_new("givegun", "Выдать себе ствол", 1 of crossbow, "qualityarmory.admin", "givegun @1 @2", "id стволов — имена файлов в plugins/QualityArmory/newGuns/.")
+    wz_arg("givegun", "choice", "Какой ствол", "ak47=АК-47|awp=AWP|deagle=Desert Eagle|spas12=SPAS-12|m4a1s=M4A1-S|uzi=Uzi|rpg=РПГ|minigun=Миниган|kar98k=Kar98k")
+    wz_arg("givegun", "number", "Сколько штук", "1=одну|2=две|4=четыре|8=восемь")
+
+    wz_new("brewset", "Протрезвить игрока", 1 of milk bucket, "", "brew set @1 0", "Обнуляет опьянение. Зависимость лечит Клиника.")
+    wz_arg("brewset", "player", "Кого трезвим", "")
+
+    wz_new("tpto", "Телепорт к игроку", 1 of ender eye, "essentials.tp", "tp @1", "Служебный телепорт: игрокам его запрещает Конституция 1.1.")
+    wz_arg("tpto", "player", "К кому", "noself")
+
+    wz_new("tphere", "Призвать к себе", 1 of ender pearl, "essentials.tp.others", "tphere @1", "Служебный телепорт: игрокам его запрещает Конституция 1.1.")
+    wz_arg("tphere", "player", "Кого", "noself")
+
+    # --- Почта и связь ------------------------------------------------------
+    wz_new("mailsend", "Отправить письмо", 1 of paper, "", "mailsend @1 @2", "Письмо идёт час и стоит 1 алмаз.")
+    wz_arg("mailsend", "player", "Кому", "noself")
+    wz_arg("mailsend", "text", "Текст письма", "")
+
+    wz_new("parcel", "Отправить посылку", 1 of chest, "", "parcel @1", "Уедет предмет из главной руки. Посылка стоит 4 алмаза.")
+    wz_arg("parcel", "player", "Кому", "noself")
+
+    wz_new("skinset", "Скин по нику", 1 of player head, "", "skin set @1", "Возьмёт скин этого ника себе.")
+    wz_arg("skinset", "player", "Чей скин", "")
+
+    # ⚠ У EssentialsX `/ignore` — переключатель: тот же вызов снимает игнор
+    # (алиас `unignore` ведёт в ту же команду, сверено по plugin.yml 2.22.0).
+    wz_new("ignore", "Игнор игрока", 1 of barrier, "", "ignore @1", "Повторный вызов снимает игнор.")
+    wz_arg("ignore", "player", "Кого не слышать", "noself")
+
+    wz_new("carry", "Нести на руках", 1 of lead, "", "cargar @1", "Человек отвечает /aceptar или /rechazar.")
+    wz_arg("carry", "player", "Кого несём", "noself")
+
+    # --- Пресса -------------------------------------------------------------
+    wz_new("onair", "Анонс эфира", 1 of note block, "", "onair @1", "Раз в 4 часа, бесплатно.")
+    wz_arg("onair", "text", "Что анонсируешь", "")
+
+    wz_new("newsflash", "Экстренная новость", 1 of bell, "ekb.duty.journalist", "newsflash @1", "Одна строка на весь сервер.")
+    wz_arg("newsflash", "text", "Текст новости", "")
+
+    # --- Город (ClansLite) --------------------------------------------------
+    wz_new("clancreate", "Основать город", 1 of white banner, "", "clan create @1", "Название потом не сменить — только префикс.")
+    wz_arg("clancreate", "text", "Название города", "")
+
+    wz_new("claninvite", "Позвать жителя", 1 of player head, "", "clan invite @1", "Приглашение принимает сам игрок.")
+    wz_arg("claninvite", "player", "Кого зовём", "noself")
+
+    wz_new("clankick", "Выгнать жителя", 1 of iron door, "", "clan kick @1", "Изгнание без причины — повод для иска.")
+    wz_arg("clankick", "player", "Кого выгоняем", "noself")
+
+    wz_new("clanprefix", "Префикс города", 1 of name tag, "", "clan prefix @1", "Короткий тег перед ником горожан.")
+    wz_arg("clanprefix", "text", "Новый префикс", "")
+
+    wz_new("clanally", "Союз с городом", 1 of blue banner, "", "clan ally @1", "Повторный вызов разрывает союз.")
+    wz_arg("clanally", "text", "Название города", "")
+
+    wz_new("clanenemy", "Объявить войну", 1 of red banner, "", "clan enemy @1", "Сначала объявление в #военный-трибунал, потом команда.")
+    wz_arg("clanenemy", "text", "Название города", "")
+
+    wz_new("clantransfer", "Передать город", 1 of golden helmet, "", "clan transfer @1", "Передача главы — единственный способ смены власти.")
+    wz_arg("clantransfer", "player", "Новый глава", "noself")
+
+function wz_new(id: text, title: text, icon: item, perm: text, cmd: text, note: text):
+    set {wz::act::%{_id}%::title} to {_title}
+    set {wz::act::%{_id}%::icon} to {_icon}
+    set {wz::act::%{_id}%::perm} to {_perm}
+    set {wz::act::%{_id}%::cmd} to {_cmd}
+    set {wz::act::%{_id}%::note} to {_note}
+    set {wz::act::%{_id}%::args} to 0
+
+# Варианты приходят строкой «значение=подпись|значение=подпись». Значение
+# уходит в команду, подпись видит игрок: у CoreProtect в команде стоит «3h»,
+# а на кнопке должно быть написано «последние 3 часа».
+function wz_arg(id: text, type: text, label: text, opts: text):
+    add 1 to {wz::act::%{_id}%::args}
+    set {_n} to {wz::act::%{_id}%::args}
+    set {wz::arg::%{_id}%::%{_n}%::type} to {_type}
+    set {wz::arg::%{_id}%::%{_n}%::label} to {_label}
+    set {wz::arg::%{_id}%::%{_n}%::opts} to {_opts}
+    if {_type} is not "player":
+        if {_opts} is not "":
+            loop {_opts} split at "|":
+                set {_pair::*} to loop-value split at "="
+                add {_pair::1} to {wz::arg::%{_id}%::%{_n}%::val::*}
+                if {_pair::2} is set:
+                    add {_pair::2} to {wz::arg::%{_id}%::%{_n}%::lab::*}
+                else:
+                    add {_pair::1} to {wz::arg::%{_id}%::%{_n}%::lab::*}
+
+# ---------------------------------------------------------------------------
+# Вход
+# ---------------------------------------------------------------------------
+
+command /ekbdo [<text>]:
+    description: Мастер команд — собрать команду по шагам
+    usage: /ekbdo <действие>
+    executable by: players
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix}&7Мастер собирает команду по шагам вместо ручного ввода."
+            send "&7 Его зовут кнопки меню: &8/ekbdo <действие>"
+            stop
+        set {_id} to arg-1
+        if {wz::act::%{_id}%::title} is not set:
+            send "{@prefix}&cНеизвестное действие: &f%{_id}%"
+            stop
+        set {_perm} to {wz::act::%{_id}%::perm}
+        if {_perm} is not "":
+            if player does not have permission {_perm}:
+                send "{@prefix}&cНа это нет прав."
+                send "&7 Нужно: &8%{_perm}%"
+                stop
+        wz_start(player, {_id})
+
+function wz_start(p: player, id: text):
+    set {_u} to "%uuid of {_p}%"
+    delete {wz::run::%{_u}%::*}
+    delete {wz::slot::%{_u}%::*}
+    delete {wz::ask::%{_u}%}
+    set {wz::run::%{_u}%::id} to {_id}
+    set {wz::run::%{_u}%::step} to 1
+    wz_open({_p}, 1)
+
+# ---------------------------------------------------------------------------
+# Шаг: окно с вариантами или вопрос в чат
+# ---------------------------------------------------------------------------
+
+function wz_open(p: player, page: number):
+    set {_u} to "%uuid of {_p}%"
+    set {_id} to {wz::run::%{_u}%::id}
+    if {_id} is set:
+        set {_step} to {wz::run::%{_u}%::step}
+        set {_total} to {wz::act::%{_id}%::args}
+        if {_step} > {_total}:
+            wz_confirm({_p})
+        else:
+            set {_type} to {wz::arg::%{_id}%::%{_step}%::type}
+            if {_type} is "text":
+                wz_ask({_p})
+            else:
+                set {wz::run::%{_u}%::page} to {_page}
+                delete {wz::slot::%{_u}%::*}
+                set {_label} to {wz::arg::%{_id}%::%{_step}%::label}
+                set {_inv} to a chest inventory with 6 rows named "&8Шаг %{_step}%/%{_total}% · %{_label}%"
+                wz_frame({_inv})
+                set {_slots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+
+                set {_first} to (({_page} - 1) * {@per_page}) + 1
+                set {_n} to 0        # сколько вариантов просмотрено всего
+                set {_shown} to 0    # сколько попало на эту страницу
+
+                if {_type} is "player":
+                    loop all players:
+                        set {_skip} to false
+                        if {wz::arg::%{_id}%::%{_step}%::opts} is "noself":
+                            if loop-player is {_p}:
+                                set {_skip} to true
+                        if {_skip} is false:
+                            add 1 to {_n}
+                            if {_n} >= {_first}:
+                                if {_shown} < {@per_page}:
+                                    add 1 to {_shown}
+                                    set {_slot} to {_slots::%{_shown}%}
+                                    set {_h} to 1 of player head
+                                    set skull owner of {_h} to loop-player
+                                    set custom model data of {_h} to 7701
+                                    set name of {_h} to "&f%loop-player%"
+                                    set lore of {_h} to "&7%{_label}%" and "&8Клик — выбрать"
+                                    set slot {_slot} of {_inv} to {_h}
+                                    set {wz::slot::%{_u}%::%{_slot}%} to "%loop-player%"
+                else:
+                    loop {wz::arg::%{_id}%::%{_step}%::val::*}:
+                        add 1 to {_n}
+                        if {_n} >= {_first}:
+                            if {_shown} < {@per_page}:
+                                add 1 to {_shown}
+                                set {_slot} to {_slots::%{_shown}%}
+                                set {_lab} to {wz::arg::%{_id}%::%{_step}%::lab::%loop-index%}
+                                set {_it} to wz_opt_icon({_type})
+                                set custom model data of {_it} to 7702
+                                set name of {_it} to "&f%{_lab}%"
+                                set lore of {_it} to "&7%{_label}%", "&8в команду уйдёт: %loop-value%" and "&8Клик — выбрать"
+                                set slot {_slot} of {_inv} to {_it}
+                                set {wz::slot::%{_u}%::%{_slot}%} to "%loop-value%"
+
+                if {_shown} is 0:
+                    set slot 22 of {_inv} to wz_button(1 of barrier, 7707, "&eЗдесь пусто", "&8Введи значение вручную")
+
+                # Ручной ввод есть всегда: нужный ник бывает у того, кто
+                # сейчас оффлайн, а номер дела из списка не выберешь вовсе.
+                set slot 45 of {_inv} to wz_button(1 of arrow, 7704, "&7Назад", "&8На шаг раньше")
+                set slot 46 of {_inv} to wz_button(1 of writable book, 7707, "&e&lВвести вручную", "&8Мастер спросит значение в чате")
+                if {_page} > 1:
+                    set {_prev} to {_page} - 1
+                    set slot 48 of {_inv} to wz_button(1 of spectral arrow, 7706, "&e< Предыдущая", "&8Страница %{_prev}%")
+                set slot 49 of {_inv} to wz_button(1 of barrier, 7703, "&cОтмена", "&8Ничего не делать")
+                set {_last} to {_first} + {@per_page} - 1
+                if {_n} > {_last}:
+                    set {_next} to {_page} + 1
+                    set slot 50 of {_inv} to wz_button(1 of spectral arrow, 7705, "&eСледующая >", "&8Страница %{_next}%")
+                set slot 53 of {_inv} to wz_card({_id}, {_u})
+
+                open {_inv} to {_p}
+
+function wz_opt_icon(type: text) :: item:
+    if {_type} is "number":
+        return 1 of clock
+    return 1 of paper
+
+# Карточка действия с уже собранными аргументами: на третьем шаге должно
+# быть видно, что выбрано на первых двух, — иначе к концу мастера игрок не
+# помнит, чьи логи он вообще смотрит.
+function wz_card(id: text, u: text) :: item:
+    # ⚠ Вкладывать %…% друг в друга нельзя: "%{wz::act::%{_id}%::title}%" —
+    # это интерполяция внутри интерполяции, Skript отдаёт её другому
+    # выражению и падает на ровном месте (та же грабля, что с регионом
+    # WorldGuard в `spear_no_cooldown.sk`). Значение достаётся отдельной
+    # строкой, в строку подставляется уже локальная переменная.
+    set {_i} to {wz::act::%{_id}%::icon}
+    set custom model data of {_i} to 7700
+    set {_t} to {wz::act::%{_id}%::title}
+    set {_note} to {wz::act::%{_id}%::note}
+    set name of {_i} to "&6&l%{_t}%"
+    set {_lore::*} to "&8%{_note}%"
+    set {_n} to {wz::act::%{_id}%::args}
+    set {_k} to 1
+    while {_k} <= {_n}:
+        set {_v} to {wz::run::%{_u}%::val::%{_k}%}
+        if {_v} is set:
+            set {_lab} to {wz::arg::%{_id}%::%{_k}%::label}
+            add "&7%{_lab}%: &f%{_v}%" to {_lore::*}
+        set {_k} to {_k} + 1
+    set lore of {_i} to {_lore::*}
+    return {_i}
+
+function wz_button(i: item, cmd: number, title: text, note: text) :: item:
+    set custom model data of {_i} to {_cmd}
+    set name of {_i} to {_title}
+    set lore of {_i} to {_note}
+    return {_i}
+
+function wz_frame(inv: inventory):
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7700
+    set name of {_f} to " "
+    loop 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 47, 51 and 52:
+        set slot loop-value of {_inv} to {_f}
+
+function wz_cmdid(i: item) :: number:
+    # У воздуха нет меты: `custom model data of air` кидает исключение.
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+# ---------------------------------------------------------------------------
+# Вопрос в чат — свободный текст и ручной ввод
+# ---------------------------------------------------------------------------
+
+function wz_ask(p: player):
+    set {_u} to "%uuid of {_p}%"
+    set {_id} to {wz::run::%{_u}%::id}
+    set {_step} to {wz::run::%{_u}%::step}
+    set {wz::ask::%{_u}%} to {_step}
+    set {_label} to {wz::arg::%{_id}%::%{_step}%::label}
+    close {_p}'s inventory
+    send "{@prefix}&f%{_label}%&7 — напиши следующей строкой в чат." to {_p}
+    send "&7 Строка уйдёт в команду, а не в чат." to {_p}
+    send "&8 отмена &7— бросить мастер." to {_p}
+
+# ⚠ Строка перехватывается на обычном приоритете, а CarbonChat разбирает чат
+# на HIGHEST с ignoreCancelled (сверено по `PaperChatListener` в jar'е
+# 3.0.0-beta.37): отменённое здесь до канала не доходит. Иначе текст письма
+# уехал бы в локальный чат вместе с адресатом.
+on chat:
+    set {_u} to "%uuid of player%"
+    {wz::ask::%{_u}%} is set
+    cancel event
+    set {_m} to message
+    # Событие чата асинхронное: окна и команды — только со следующего тика.
+    wait 1 tick
+    wz_answer(player, {_m})
+
+function wz_answer(p: player, line: text):
+    set {_u} to "%uuid of {_p}%"
+    set {_id} to {wz::run::%{_u}%::id}
+    set {_step} to {wz::ask::%{_u}%}
+    if {_id} is set:
+        if {_step} is set:
+            delete {wz::ask::%{_u}%}
+            if {_line} is "отмена":
+                wz_stop({_p})
+            else:
+                set {_type} to {wz::arg::%{_id}%::%{_step}%::type}
+                set {_why} to ""
+                if {_line} is "":
+                    set {_why} to "пустая строка не годится"
+                if {_type} is "number":
+                    set {_num} to {_line} parsed as number
+                    if {_num} is not set:
+                        set {_why} to "нужно число"
+                if {_why} is not "":
+                    send "{@prefix}&cНе понял ответ: %{_why}%." to {_p}
+                    wz_ask({_p})
+                else:
+                    wz_take({_p}, {_line})
+
+# ---------------------------------------------------------------------------
+# Шаг вперёд, шаг назад, подтверждение
+# ---------------------------------------------------------------------------
+
+function wz_take(p: player, value: text):
+    set {_u} to "%uuid of {_p}%"
+    set {_step} to {wz::run::%{_u}%::step}
+    set {wz::run::%{_u}%::val::%{_step}%} to {_value}
+    set {wz::run::%{_u}%::step} to {_step} + 1
+    wz_open({_p}, 1)
+
+function wz_back(p: player):
+    set {_u} to "%uuid of {_p}%"
+    set {_step} to {wz::run::%{_u}%::step}
+    if {_step} <= 1:
+        wz_stop({_p})
+    else:
+        set {_prev} to {_step} - 1
+        delete {wz::run::%{_u}%::val::%{_prev}%}
+        set {wz::run::%{_u}%::step} to {_prev}
+        wz_open({_p}, 1)
+
+function wz_stop(p: player):
+    set {_u} to "%uuid of {_p}%"
+    delete {wz::run::%{_u}%::*}
+    delete {wz::slot::%{_u}%::*}
+    delete {wz::ask::%{_u}%}
+    close {_p}'s inventory
+    send "{@prefix}&7Мастер закрыт, ничего не выполнено." to {_p}
+
+function wz_line(id: text, u: text) :: text:
+    set {_c} to {wz::act::%{_id}%::cmd}
+    set {_v} to {wz::run::%{_u}%::val::1}
+    if {_v} is set:
+        replace all "@1" with {_v} in {_c}
+    set {_v} to {wz::run::%{_u}%::val::2}
+    if {_v} is set:
+        replace all "@2" with {_v} in {_c}
+    set {_v} to {wz::run::%{_u}%::val::3}
+    if {_v} is set:
+        replace all "@3" with {_v} in {_c}
+    set {_v} to {wz::run::%{_u}%::val::4}
+    if {_v} is set:
+        replace all "@4" with {_v} in {_c}
+    return {_c}
+
+function wz_confirm(p: player):
+    set {_u} to "%uuid of {_p}%"
+    set {_id} to {wz::run::%{_u}%::id}
+    set {_inv} to a chest inventory with 3 rows named "&8Проверь и выполни"
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to 7700
+    set name of {_f} to " "
+    loop 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25 and 26:
+        set slot loop-value of {_inv} to {_f}
+
+    set slot 13 of {_inv} to wz_card({_id}, {_u})
+    set {_line} to wz_line({_id}, {_u})
+    set slot 11 of {_inv} to wz_button(1 of lime dye, 7708, "&a&lВыполнить", "&8/%{_line}%")
+    set slot 15 of {_inv} to wz_button(1 of arrow, 7704, "&7Изменить последнее", "&8Вернуться на шаг назад")
+    set slot 22 of {_inv} to wz_button(1 of barrier, 7703, "&c&lОтмена", "&8Ничего не делать")
+    open {_inv} to {_p}
+
+function wz_run(p: player):
+    set {_u} to "%uuid of {_p}%"
+    set {_id} to {wz::run::%{_u}%::id}
+    if {_id} is set:
+        set {_line} to wz_line({_id}, {_u})
+        delete {wz::run::%{_u}%::*}
+        delete {wz::slot::%{_u}%::*}
+        delete {wz::ask::%{_u}%}
+        close {_p}'s inventory
+        send "{@prefix}&7Выполняю: &f/%{_line}%" to {_p}
+        # Команда идёт ОТ ИМЕНИ игрока: мастер собирает аргументы, но прав не
+        # добавляет — отказ придёт тот же, что и при ручном вводе.
+        make {_p} execute command {_line}
+
+# ---------------------------------------------------------------------------
+# Клики
+# ---------------------------------------------------------------------------
+#
+# ⚠ Значение берётся по НОМЕРУ СЛОТА, а не из имени предмета: на кнопке
+# написана подпись («последние 3 часа»), а в команду уходит значение («3h»).
+# Проверка «клик по верхнему окну» обязательна — `index of event-slot`
+# считает слоты внутри своего инвентаря, и десятый слот рюкзака приходит под
+# тем же номером, что десятый слот окна (грабля из `spawn_market.sk`).
+
+on inventory click:
+    event-item is not air
+    set {_c} to wz_cmdid(event-item)
+    if {_c} is between 7700 and 7708:
+        cancel event
+        set {_u} to "%uuid of player%"
+        if {wz::run::%{_u}%::id} is set:
+            set {_page} to {wz::run::%{_u}%::page}
+            if {_page} is not set:
+                set {_page} to 1
+            # Номер слота снимается ДО паузы: после неё данные события уже
+            # не читаются.
+            set {_slot} to -1
+            if clicked inventory is current inventory of player:
+                set {_slot} to index of event-slot
+
+            # ⚠ Bukkit запрещает открывать инвентарь внутри
+            # InventoryClickEvent, а почти каждая кнопка мастера открывает
+            # следующее окно: без тика оно остаётся «призраком» и не
+            # принимает клики (грабля из `spawn_market.sk`).
+            wait 1 tick
+
+            if {_c} is 7703:
+                wz_stop(player)
+            else if {_c} is 7704:
+                wz_back(player)
+            else if {_c} is 7705:
+                wz_open(player, {_page} + 1)
+            else if {_c} is 7706:
+                wz_open(player, {_page} - 1)
+            else if {_c} is 7707:
+                wz_ask(player)
+            else if {_c} is 7708:
+                wz_run(player)
+            else:
+                set {_v} to {wz::slot::%{_u}%::%{_slot}%}
+                if {_v} is set:
+                    wz_take(player, {_v})
+
+on quit:
+    set {_u} to "%uuid of player%"
+    delete {wz::run::%{_u}%::*}
+    delete {wz::slot::%{_u}%::*}
+    delete {wz::ask::%{_u}%}

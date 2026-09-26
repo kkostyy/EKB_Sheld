@@ -15,8 +15,8 @@ items:
       - ''
       - '&aЛКМ &8— как отправить'
     left_click_commands:
-      - '[message] &6&lПИСЬМО: &f/mailsend <ник> <текст>'
-      - '[message] &8Ник в кнопку не подставить — введи команду сам.'
+      - '[close]'
+      - '[player] ekbdo mailsend'
 
   'parcel':
     material: CHEST
@@ -28,7 +28,8 @@ items:
       - ''
       - '&aЛКМ &8— как отправить'
     left_click_commands:
-      - '[message] &6&lПОСЫЛКА: &7возьми вещь в руку и введи &f/parcel <ник>'
+      - '[close]'
+      - '[player] ekbdo parcel'
 
   'box':
     material: BARREL

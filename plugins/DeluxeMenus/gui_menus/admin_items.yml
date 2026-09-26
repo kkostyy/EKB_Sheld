@@ -38,22 +38,9 @@ items:
     right_click_commands:
       - '[player] ekbmenu info'
 
-  'allitems':
-    material: CHEST
-    slot: 22
-    display_name: '&d&lКаталог вещей'
-    lore:
-      - '&7Шесть разделов по типу вещи: конопля,'
-      - '&7напитки, артефакты, Тетрадь, стволы, настолки.'
-      - '&8Вкладки в креативе быть не может — её собирает клиент.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    left_click_commands:
-      - '[openguimenu] ekb_allitems'
-
   'artifacts':
     material: NETHER_STAR
-    slot: 24
+    slot: 22
     display_name: '&5&lОсобые артефакты'
     lore:
       - '&7Шесть предметов, по два на весь мир.'
@@ -65,7 +52,7 @@ items:
 
   'holo':
     material: ITEM_FRAME
-    slot: 30
+    slot: 24
     display_name: '&b&lГолограммы рынка'
     lore:
       - '&aЛКМ &8— список голограмм'
@@ -75,6 +62,23 @@ items:
     right_click_commands:
       - '[message] &b&lГолограмма: &7/markethologram <текст> <x> <y>'
       - '[message] &b&lУбрать: &7/markethologramremove <id> &8— id берётся из списка'
+
+  'drill':
+    material: ENCHANTED_BOOK
+    slot: 30
+    display_name: '&b&lЧара: Бур 3×3'
+    lore:
+      - '&7Кирка ломает плоскость 3×3.'
+      - '&7Книгу и кирку кладёшь на наковальню, забираешь кирку.'
+      - '&7Копать буром может любой владелец кирки.'
+      - ''
+      - '&8Клик — выдать книгу СЕБЕ. Другому: /drillbook <ник>.'
+      - '&8Источник книги — только выдача и аукцион.'
+      - ''
+      - '&aЛКМ &8— выдать книгу себе'
+    left_click_commands:
+      - '[close]'
+      - '[player] drillbook'
 
   'heads':
     material: PLAYER_HEAD

@@ -21,14 +21,16 @@ items:
   'shopegg':
     material: VILLAGER_SPAWN_EGG
     slot: 20
-    display_name: '&a&lКупить яйцо торговца'
+    display_name: '&a&lЗапасное яйцо торговца'
     lore:
-      - '&7Без него лавку не открыть: этим яйцом'
-      - '&7кликают по сундуку с товаром.'
+      - '&7Этим яйцом кликают по сундуку с товаром.'
+      - ''
+      - '&aПри первой аренде палатки оно выдаётся'
+      - '&aбесплатно — сюда идут, если потеряли.'
       - '&b16💎 &7россыпью, уходят в Казну Спавна.'
       - '&8Выдаёт сам плагин — у его яйца своя метка.'
       - ''
-      - '&aЛКМ &8— купить'
+      - '&aЛКМ &8— купить запасное'
     left_click_commands:
       - '[player] shopegg'
 
@@ -92,9 +94,27 @@ items:
     left_click_commands:
       - '[openguimenu] ekb_blackmarket'
 
+  'hire':
+    material: LEATHER_BOOTS
+    slot: 31
+    display_name: '&2&lНаём кочевников'
+    lore:
+      - '&7Рабочие руки без гражданства:'
+      - '&7выбери голову, назначь срок —'
+      - '&7цену кочевник назовёт сам.'
+      - ''
+      - '&7Пока идёт наём, его нельзя бить,'
+      - '&7и сам он тоже не дерётся.'
+      - '&8Алмазы идут из рук в руки, мимо Казны.'
+      - ''
+      - '&aЛКМ &8— открыть список'
+    left_click_commands:
+      - '[close]'
+      - '[player] hire'
+
   'post':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
-    slot: 31
+    slot: 32
     display_name: '&f&lЛамповая Почта'
     lore:
       - '&7Письмо — 1💎, посылка вещью — 4💎.'
@@ -106,7 +126,7 @@ items:
 
   'bar':
     material: POTION
-    slot: 32
+    slot: 33
     display_name: '&d&lБар и кости'
     lore:
       - '&7Стойка Спавна и азартный уголок Бармена.'
@@ -117,7 +137,7 @@ items:
 
   'prices':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
-    slot: 33
+    slot: 34
     display_name: '&f&lПрайс-лист'
     lore:
       - '&aЛКМ &8— цены и законы'
@@ -126,7 +146,7 @@ items:
 
   'rules':
     material: BARRIER
-    slot: 34
+    slot: 40
     display_name: '&c&lЗапреты рынка'
     lore:
       - '&4Лавка вне Рынка — снос и конфискация (УК 7.1).'

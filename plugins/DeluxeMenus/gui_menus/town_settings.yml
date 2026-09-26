@@ -44,7 +44,8 @@ items:
       - ''
       - '&aЛКМ &8— как сменить'
     left_click_commands:
-      - '[message] &e&lПРЕФИКС: &7/clan prefix <тег>'
+      - '[close]'
+      - '[player] ekbdo clanprefix'
 
   'ally':
     material: GOLDEN_APPLE
@@ -56,8 +57,8 @@ items:
       - ''
       - '&aЛКМ &8— как заключить'
     left_click_commands:
-      - '[message] &a&lСОЮЗ: &7/clan ally <город>'
-      - '[message] &8Повторный ввод разрывает союз.'
+      - '[close]'
+      - '[player] ekbdo clanally'
 
   'enemy':
     material: IRON_SWORD
@@ -70,8 +71,8 @@ items:
       - ''
       - '&aЛКМ &8— как объявить'
     left_click_commands:
-      - '[message] &c&lВРАГ: &7/clan enemy <город>'
-      - '[message] &8Сначала объявление в #военный-трибунал, потом команда.'
+      - '[close]'
+      - '[player] ekbdo clanenemy'
 
   'pvp':
     material: SHIELD
@@ -96,7 +97,8 @@ items:
       - ''
       - '&aЛКМ &8— как передать'
     left_click_commands:
-      - '[message] &6&lПЕРЕДАЧА: &7/clan transfer <ник>'
+      - '[close]'
+      - '[player] ekbdo clantransfer'
 
   'disband':
     material: TNT
@@ -113,7 +115,7 @@ items:
       - '[message] &cКоманда сработает сразу, подтверждения нет.'
 
   'roles':
-    material: PLAYER_HEAD
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTFiMGE1YmJjNjk3YzBjNDJhNmNmMWI5YzRjNDQzNWIwNzMyMmZjZTViYjI3ZDgyYjY5MzA4NDNlNWFiN2EwOSJ9fX0=
     slot: 32
     display_name: '&d&lДолжности в городе'
     lore:

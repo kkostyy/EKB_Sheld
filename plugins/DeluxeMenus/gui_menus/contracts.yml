@@ -72,7 +72,8 @@ items:
       - ''
       - '&aЛКМ &8— как дать показания'
     left_click_commands:
-      - '[message] &8&lПоказания: &7/report <ник> убийство'
+      - '[close]'
+      - '[player] ekbdo report'
 
   'header':
     material: IRON_SWORD

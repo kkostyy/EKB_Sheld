@@ -1,0 +1,234 @@
+# EKB SHIELD — drill.sk
+# Чара «Бур 3×3»: книга кладётся на кирку НА НАКОВАЛЬНЕ, кирка ломает 3×3.
+#
+# Почему снова Skript, а не плагин AdvanceEnchantmentX. У плагина энчант
+# Mining3x3 есть, но книга у него применяется НЕ на наковальне: BookListener
+# ловит InventoryClickEvent и кладёт чару, когда книгу с курсора роняют на
+# предмет (getCursor + getCurrentItem, сверено по байткоду). Ни одного
+# AnvilListener / PrepareAnvilEvent в плагине нет. Владельцу нужна именно
+# наковальня — а её умеет Skript (`on anvil prepare`). Поэтому Mining3x3
+# у плагина выключен (config.yml: enabled: false), а бур ведёт этот скрипт.
+#
+# ⚠ Опознание — по CustomModelData: 7801 книга, 7802 кирка с чарой. На
+# отрисовку номера не влияют (ни enchanted_book, ни кирок нет в перезаписанных
+# items/*.json пака — рисуются ванильно).
+#
+# ⚠ Источник книги один — `/drillbook` (право ekb.drill.admin). Ни крафта,
+# ни дропа: книга живёт как вещь, её продают на аукционе, отбирают по суду.
+#
+# ⚠ Бур НЕ обходит защиту: каждый блок проверяется через `can build`
+# (хук WorldGuard). Событие, уже отменённое тюрьмой/регионом, гасит всю
+# плоскость.
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &8&l[БУР] &r
+    admin: ekb.drill.admin
+    repair_cost: 5      # уровней опыта за наложение чары на наковальне
+
+# ---------------------------------------------------------------------------
+# Предметы
+# ---------------------------------------------------------------------------
+
+function drill_cmd(i: item) :: number:
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function drill_book() :: item:
+    set {_i} to 1 of enchanted book
+    set custom model data of {_i} to 7801
+    set name of {_i} to "&b&lЧара: Бур 3×3"
+    set lore of {_i} to "&7Кирка ломает плоскость 3×3." and "&7Дроп по кирке — фортуна и шёлк работают." and "" and "&8Как наложить: книгу и кирку на НАКОВАЛЬНЮ," and "&8забрать зачарованную кирку (стоит &f{@repair_cost}&8 ур.)." and "" and "&8Копать буром может любой владелец кирки."
+    return {_i}
+
+# ---------------------------------------------------------------------------
+# Выдача книги
+# ---------------------------------------------------------------------------
+
+command /drillbook [<text>]:
+    permission: {@admin}
+    permission message: &cКнигу чары «Бур 3×3» выдаёт только Администрация.
+    description: Выдать книгу чары «Бур 3×3» (без ника — себе)
+    usage: /drillbook [ник]
+    executable by: players
+    trigger:
+        # Без аргумента — себе: кнопка меню зовёт /drillbook без ника, а
+        # подставить %player_name% в кнопку DeluxeMenus нельзя.
+        if arg-1 is not set:
+            give drill_book() to player
+            send "{@prefix}&aКнига чары «Бур 3×3» выдана тебе." to player
+            send "&7 Наложить: книгу и кирку на наковальню, забрать кирку." to player
+            send "[БУР] %player% выдал книгу чары себе" to console
+            stop
+        set {_p} to arg-1 parsed as player
+        if {_p} is not set:
+            send "{@prefix}&cИгрок &f%arg-1%&c не в сети — книгу передать некому." to player
+            stop
+        give drill_book() to {_p}
+        send "{@prefix}&aКнига чары «Бур 3×3» выдана: &f%{_p}%" to player
+        if "%{_p}%" is not "%player%":
+            send "{@prefix}&bТебе выдали книгу чары «Бур 3×3». Клади её с киркой на наковальню." to {_p}
+        send "[БУР] %player% выдал книгу чары игроку %{_p}%" to console
+
+# ---------------------------------------------------------------------------
+# Наложение на наковальне
+# ---------------------------------------------------------------------------
+#
+# Левый слот наковальни — кирка, правый — наша книга. Результат: та же кирка
+# с меткой 7802. Забирая результат, ваниль сама спишет книгу и опыт.
+#
+# ⚠ Результат ставится в слот 2 через `set slot 2 of event-inventory` — так
+# Skript пишет в PrepareAnvilEvent.setResult. Без ненулевой цены результат
+# из наковальни не вынуть, поэтому ставим {@repair_cost}.
+
+# Превью результата в слоте 2. ⚠ На 26.1.2 `set slot 2 of event-inventory`
+# в PrepareAnvilEvent НЕ всегда доживает до отрисовки (у Skript 2.16.2 нет
+# отдельного выражения anvil result, а ваниль перетирает слот после события —
+# отсюда красный крест в окне). Поэтому превью тут «как получится», а
+# НАСТОЯЩЕЕ наложение делает клик по слоту результата ниже — он не зависит от
+# того, дожило превью или нет.
+on anvil prepare:
+    set {_tool} to slot 0 of event-inventory
+    set {_book} to slot 1 of event-inventory
+    if drill_cmd({_book}) is 7801:
+        if "%type of {_tool}%" contains "pickaxe":
+            if drill_cmd({_tool}) is not 7802:
+                set {_res} to {_tool}
+                set custom model data of {_res} to 7802
+                set lore of {_res} to "&b&lБур 3×3" and "&7Ломает плоскость 3×3 по направлению взгляда." and "&8Чару выдаёт только Администрация."
+                set anvil repair cost to {@repair_cost}
+                set slot 2 of event-inventory to {_res}
+
+# Настоящее наложение: клик по слоту результата наковальни (индекс 2), когда
+# слева кирка, справа наша книга. Не зависит от превью — работает, даже если
+# в окне красный крест.
+on inventory click:
+    if "%type of event-inventory%" in lowercase contains "anvil":
+        if clicked inventory is event-inventory:
+            if (index of event-slot) is 2:
+                set {_tool} to slot 0 of event-inventory
+                set {_book} to slot 1 of event-inventory
+                if drill_cmd({_book}) is 7801:
+                    if "%type of {_tool}%" contains "pickaxe":
+                        cancel event
+                        if drill_cmd({_tool}) is 7802:
+                            send "{@prefix}&7На этой кирке чара уже стоит." to player
+                            stop
+                        if (level of player) < {@repair_cost}:
+                            send "{@prefix}&cНужно &f{@repair_cost}&c уровней опыта." to player
+                            stop
+                        set {_res} to {_tool}
+                        set custom model data of {_res} to 7802
+                        set lore of {_res} to "&b&lБур 3×3" and "&7Ломает плоскость 3×3 по направлению взгляда." and "&8Чару выдаёт только Администрация."
+                        set slot 0 of event-inventory to air
+                        set slot 1 of event-inventory to air
+                        set slot 2 of event-inventory to air
+                        remove {@repair_cost} from player's level
+                        give {_res} to player
+                        close player's inventory
+                        send "{@prefix}&aЧара наложена. Кирка у тебя в рюкзаке." to player
+                        play sound "block.anvil.use" with volume 0.7 to player
+                        send "[БУР] %player% наложил чару на %type of {_res}%" to console
+
+# ---------------------------------------------------------------------------
+# Работа бура
+# ---------------------------------------------------------------------------
+
+on break:
+    if event is cancelled:
+        stop
+    if drill_cmd(player's tool) is not 7802:
+        stop
+
+    set {_c} to location of event-block
+    set {_w} to world of {_c}
+    set {_x} to x of {_c}
+    set {_y} to y of {_c}
+    set {_z} to z of {_c}
+
+    # Плоскость выбирается по взгляду; ось — сравнением углов без atan2
+    # (тот же приём, что у Компаса в artifacts.sk). Смещения выписаны здесь,
+    # а не в функции: Skript передаёт параметры по значению, три списка разом
+    # из функции не вернуть.
+    set {_pitch} to pitch of player
+    set {_yaw} to yaw of player
+    if {_yaw} < 0:
+        set {_yaw} to {_yaw} + 360
+
+    set {_axis} to "xy"
+    if {_pitch} > 45:
+        set {_axis} to "xz"
+    if {_pitch} < -45:
+        set {_axis} to "xz"
+    if {_axis} is "xy":
+        if {_yaw} > 45:
+            if {_yaw} < 135:
+                set {_axis} to "zy"
+        if {_yaw} > 225:
+            if {_yaw} < 315:
+                set {_axis} to "zy"
+
+    if {_axis} is "xz":
+        set {_dx::*} to -1, 0, 1, -1, 1, -1, 0 and 1
+        set {_dy::*} to 0, 0, 0, 0, 0, 0, 0 and 0
+        set {_dz::*} to -1, -1, -1, 0, 0, 1, 1 and 1
+    else if {_axis} is "zy":
+        set {_dx::*} to 0, 0, 0, 0, 0, 0, 0 and 0
+        set {_dy::*} to -1, 0, 1, -1, 1, -1, 0 and 1
+        set {_dz::*} to -1, -1, -1, 0, 0, 1, 1 and 1
+    else:
+        set {_dx::*} to -1, -1, -1, 0, 0, 1, 1 and 1
+        set {_dy::*} to -1, 0, 1, -1, 1, -1, 0 and 1
+        set {_dz::*} to 0, 0, 0, 0, 0, 0, 0 and 0
+
+    loop 1, 2, 3, 4, 5, 6, 7 and 8:
+        set {_i} to loop-value
+        set {_l} to location({_x} + {_dx::%{_i}%}, {_y} + {_dy::%{_i}%}, {_z} + {_dz::%{_i}%}, {_w})
+        if drill_ok(player, block at {_l}, {_l}) is true:
+            break (block at {_l}) naturally using player's tool
+    # Удар буром стоит 9 прочности ВСЕГДА, а не по числу сломанных соседей:
+    # центральный блок снимает ваниль (1 прочности после события), бур
+    # добавляет 8 — итого 9 за взмах, даже если у края сломался не весь 3×3.
+    drill_wear(player, 8)
+
+function drill_ok(p: player, b: block, l: location) :: boolean:
+    set {_ok} to true
+    if {_b} is air:
+        set {_ok} to false
+    if {_b} is water or lava:
+        set {_ok} to false
+    if {_p} cannot build at {_l}:
+        set {_ok} to false
+    if drill_hard({_b}) is true:
+        set {_ok} to false
+    return {_ok}
+
+# Контейнеры, бедрок, барьер, спавнер и рамку портала бур не трогает: сундук,
+# задетый краем, высыпал бы чужое имущество — Глава 1 УК считает это кражей.
+function drill_hard(b: block) :: boolean:
+    if {_b} is bedrock or barrier or spawner or end portal frame:
+        return true
+    if {_b} is chest or trapped chest or barrel or hopper:
+        return true
+    if {_b} is furnace or blast furnace or smoker or brewing stand:
+        return true
+    if {_b} is dispenser or dropper or beacon or enchanting table:
+        return true
+    if {_b} is shulker box:
+        return true
+    return false
+
+# Износ через `damage value` (набранный износ), а не `durability` (остаток):
+# у Skript это два выражения одного поля. Кирка не доводится до поломки —
+# на последней единице бур отключается.
+function drill_wear(p: player, n: number):
+    set {_max} to max durability of {_p}'s tool
+    if {_max} > 0:
+        set {_d} to damage value of {_p}'s tool
+        set {_new} to {_d} + {_n}
+        if {_new} >= ({_max} - 1):
+            set {_new} to {_max} - 1
+            send "{@prefix}&cКирка на исходе — бур отключён до починки." to {_p}
+        set damage value of {_p}'s tool to {_new}

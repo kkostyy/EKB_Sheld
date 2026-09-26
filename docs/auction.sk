@@ -1,0 +1,359 @@
+# EKB SHIELD — auction.sk
+# Аукцион: продавец выставляет вещь, покупатели перебивают цену, 30 минут.
+#
+# Чем отличается от доски лотов (`/lot` в spawn_market.sk): доска только
+# ОБЪЯВЛЯЕТ — вещь остаётся у продавца, алмазы стороны передают лично.
+# Аукцион берёт вещь и ставки в ЭСКРОУ: вещь снимается с продавца сразу,
+# ставка списывается с покупателя сразу, перебитому возвращается. Так торги
+# честные — нельзя ни выставить то, чего нет, ни перебить пустой ставкой.
+# Доска оставлена для бартера и личных сделок; аукцион — для «дорогой предмет
+# за алмазы, все повышают».
+#
+# Как открывается: `/auction` (кнопка меню «Аукцион») — окно активных лотов.
+# Клик по лоту = ставка (текущая + шаг). Выставить своё: держишь вещь и
+# `/auction start <цена>` (или кнопка снизу — мастер спросит цену).
+#
+# ⚠ Хранилище переменных Skript ПЕРЕЖИВАЕТ рестарт, а таймер считается от
+# метки времени (`{au::end}`), а не тикающим счётчиком: перезапуск сервера
+# посреди торгов не обнуляет отсчёт (та же причина, что у почты и тюрьмы).
+#
+# ⚠ Продавца/покупателя может не быть в сети в момент закрытия. Вещь и алмазы
+# тогда лежат в «долге» (`{au::owe_i}`, `{au::owe_d}`) и выдаются `on join`
+# и раз в минуту — иначе рестарт посреди доставки терял бы имущество
+# (грабля из mail.sk).
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &6&l[АУКЦИОН] &r
+    line: &8&m----------------------------------------
+    duration: 1800      # длительность торгов, секунд (30 минут)
+    min_start: 16       # минимальная стартовая цена, алмазов
+    increment: 5        # шаг ставки в процентах от текущей (не меньше 1💎)
+    antisnipe: 60       # ставка в последнюю минуту продлевает торги на столько же
+    frame_cmd: 7820
+    lot_cmd: 7821
+    btn_cmd: 7822
+
+# Хранилище:
+#   {au::id}                  — счётчик
+#   {au::item::<id>}          — вещь в эскроу (объект-предмет)
+#   {au::seller::<id>}        — ник продавца
+#   {au::start::<id>}         — стартовая цена
+#   {au::bid::<id>}           — текущая ставка (0, пока никто не ставил)
+#   {au::bidder::<id>}        — ник лидера («» пока ставок нет)
+#   {au::end::<id>}           — unix-время закрытия
+#   {au::slot::<uuid>::<слот>}— слот окна -> номер лота
+#   {au::owe_d::<ник>}        — алмазов к выдаче (возврат/выручка оффлайну)
+#   {au::owe_i::<ник>::*}     — вещи к выдаче оффлайну
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+function au_alive(id: text) :: boolean:
+    if {au::seller::%{_id}%} is not set:
+        return false
+    return true
+
+function au_cmd(i: item) :: number:
+    if {_i} is air:
+        return 0
+    return custom model data of {_i}
+
+function au_button(i: item, cmd: number, title: text, note: text) :: item:
+    set custom model data of {_i} to {_cmd}
+    set name of {_i} to {_title}
+    set lore of {_i} to {_note}
+    return {_i}
+
+# Сколько сейчас нужно, чтобы перебить лот. Первая ставка = стартовая цена
+# (лот можно забрать по старту), дальше — текущая плюс шаг.
+function au_next(id: text) :: number:
+    set {_bid} to {au::bid::%{_id}%}
+    if {_bid} <= 0:
+        return {au::start::%{_id}%}
+    set {_step} to round({_bid} * {@increment} / 100)
+    if {_step} < 1:
+        set {_step} to 1
+    return {_bid} + {_step}
+
+# Сколько минут осталось (для лора)
+function au_left(id: text) :: text:
+    set {_s} to {au::end::%{_id}%} - (unix timestamp of now)
+    if {_s} <= 0:
+        return "закрывается"
+    if {_s} < 60:
+        return "%{_s}% сек"
+    return "%round({_s} / 60)% мин"
+
+# Долг игроку: вещь или алмазы, когда его нет в сети.
+function au_owe_item(name: text, i: item):
+    add {_i} to {au::owe_i::%{_name}%::*}
+
+function au_owe_diamond(name: text, amount: number):
+    if {au::owe_d::%{_name}%} is not set:
+        set {au::owe_d::%{_name}%} to 0
+    add {_amount} to {au::owe_d::%{_name}%}
+
+# Выдать долг: либо в руки (если в сети), либо копить дальше.
+function au_pay(name: text):
+    set {_p} to {_name} parsed as player
+    if {_p} is not set:
+        stop
+    if {au::owe_d::%{_name}%} is set:
+        set {_d} to {au::owe_d::%{_name}%}
+        if {_d} > 0:
+            give {_d} of diamond to {_p}
+            send "{@prefix}&aС аукциона: &b%{_d}%💎&a." to {_p}
+        delete {au::owe_d::%{_name}%}
+    if {au::owe_i::%{_name}%::*} is set:
+        loop {au::owe_i::%{_name}%::*}:
+            give loop-value to {_p}
+        send "{@prefix}&aС аукциона получены вещи. Проверь рюкзак." to {_p}
+        delete {au::owe_i::%{_name}%::*}
+
+# ---------------------------------------------------------------------------
+# Команда
+# ---------------------------------------------------------------------------
+
+command /auction [<text>] [<number>]:
+    description: Аукцион Спавна
+    aliases: /аукцион, /ah
+    usage: /auction | /auction start <цена>
+    executable by: players
+    trigger:
+        if arg-1 is not set:
+            au_open(player)
+            stop
+
+        if arg-1 is "start":
+            if arg-2 is not set:
+                send "{@prefix}&7Возьми вещь в руку и назови стартовую цену:"
+                send "{@prefix}&b/auction start <цена>&7 (минимум {@min_start}💎, торги {@duration} сек)."
+                stop
+            set {_price} to arg-2
+            if {_price} < {@min_start}:
+                send "{@prefix}&cСтартовая цена — минимум &f{@min_start}💎&c."
+                stop
+            set {_i} to player's tool
+            if {_i} is air:
+                send "{@prefix}&cВозьми в главную руку то, что продаёшь."
+                stop
+            # Вещь уходит в эскроу СРАЗУ: нельзя выставить и оставить себе.
+            add 1 to {au::id}
+            set {_id} to "%{au::id}%"
+            set {au::item::%{_id}%} to {_i}
+            set {au::seller::%{_id}%} to "%player%"
+            set {au::start::%{_id}%} to {_price}
+            set {au::bid::%{_id}%} to 0
+            set {au::bidder::%{_id}%} to ""
+            set {au::end::%{_id}%} to (unix timestamp of now) + {@duration}
+            set player's tool to air
+            send "{@prefix}&aЛот №&f%{_id}%&a выставлен: &f%{_i}%&a, старт &b%{_price}%💎&a." to player
+            send "{@prefix}&7Торги идут &f%round({@duration} / 60)%&7 мин. Нет ставок — вещь вернётся тебе." to player
+            broadcast "{@prefix}&f%player%&7 выставил на аукцион &f%{_i}%&7 — старт &b%{_price}%💎&7. &8/auction"
+            send "[АУКЦИОН] лот %{_id}%: %player% выставил %{_i}% старт %{_price}%" to console
+            stop
+
+        send "{@prefix}&cНеизвестное действие. Открыть окно: &b/auction"
+
+# ---------------------------------------------------------------------------
+# Окно аукциона
+# ---------------------------------------------------------------------------
+
+function au_open(p: player):
+    set {_u} to "%uuid of {_p}%"
+    delete {au::slot::%{_u}%::*}
+    set {_inv} to a chest inventory with 6 rows named "&8Аукцион Спавна"
+    set {_f} to 1 of gray stained glass pane
+    set custom model data of {_f} to {@frame_cmd}
+    set name of {_f} to " "
+    loop 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 51 and 52:
+        set slot loop-value of {_inv} to {_f}
+    set {_slots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+
+    set {_n} to 0
+    loop {au::seller::*}:
+        set {_id} to loop-index
+        if au_alive({_id}) is true:
+            if {_n} < 28:
+                add 1 to {_n}
+                set {_slot} to {_slots::%{_n}%}
+                set {_it} to {au::item::%{_id}%}
+                set {_next} to au_next({_id})
+                if {au::bid::%{_id}%} <= 0:
+                    set {_state} to "&7Ставок нет. Забрать по старту: &b%{_next}%💎"
+                    set {_top} to "&8Лидера нет"
+                else:
+                    set {_state} to "&7Текущая: &b%{au::bid::%{_id}%}%💎 &8· перебить: &b%{_next}%💎"
+                    set {_top} to "&7Лидер: &f%{au::bidder::%{_id}%}%"
+                set lore of {_it} to "&8Лот №%{_id}% · продавец %{au::seller::%{_id}%}%", {_state}, {_top}, "&7Осталось: &f%au_left({_id})%", "", "&aЛКМ — поставить &b%{_next}%💎" and "&8Ставка списывается сразу, перебитому вернётся"
+                set slot {_slot} of {_inv} to {_it}
+                set {au::slot::%{_u}%::%{_slot}%} to {_id}
+
+    if {_n} is 0:
+        set slot 22 of {_inv} to au_button(1 of barrier, {@btn_cmd}, "&7Лотов нет", "&8Выставь первым — кнопка ниже.")
+
+    set slot 47 of {_inv} to au_button(1 of arrow, {@frame_cmd}, "&7Назад в Коллегию", "&8В Торговую Коллегию")
+    set slot 48 of {_inv} to au_button(1 of gold ingot, {@btn_cmd}, "&6&lВыставить свой лот", "&8Возьми вещь в руку и введи &f/auction start <цена>")
+    set slot 49 of {_inv} to au_button(1 of clock, {@frame_cmd}, "&eОбновить", "&8Клик — перерисовать окно")
+    set slot 50 of {_inv} to au_button(1 of barrier, {@frame_cmd}, "&cЗакрыть", "&8Ничего не делать")
+    open {_inv} to {_p}
+
+# ---------------------------------------------------------------------------
+# Ставки
+# ---------------------------------------------------------------------------
+
+on inventory click:
+    # Своё окно узнаётся по кнопке «Выставить свой лот» в слоте 48 (btn_cmd
+    # уникален и стоит там всегда) — тот же приём «маркер в слоте», что и в
+    # окне скупщика: по переменной-флагу нельзя, событие закрытия гасит её.
+    set {_top} to current inventory of player
+    if (amount of slots of {_top}) >= 54:
+        if au_cmd(slot 48 of {_top}) is {@btn_cmd}:
+            cancel event
+            set {_u} to "%uuid of player%"
+            set {_name} to "%name of event-item%"
+            if {_name} contains "Закрыть":
+                close player's inventory
+                stop
+            if {_name} contains "Обновить":
+                wait 1 tick
+                au_open(player)
+                stop
+            if {_name} contains "Назад":
+                close player's inventory
+                make player say "/market"
+                stop
+            if {_name} contains "Выставить свой лот":
+                close player's inventory
+                send "{@prefix}&7Возьми вещь в руку и введи &b/auction start <цена>&7." to player
+                stop
+            # Клик по лоту: слот окна -> номер лота, только по ВЕРХНЕМУ окну
+            # (index of event-slot считает слоты внутри своего инвентаря).
+            if clicked inventory is {_top}:
+                set {_slot} to index of event-slot
+                set {_id} to {au::slot::%{_u}%::%{_slot}%}
+                if {_id} is set:
+                    au_bid(player, {_id})
+
+function au_bid(p: player, id: text):
+    if au_alive({_id}) is false:
+        send "{@prefix}&cЛот уже закрыт." to {_p}
+        wait 1 tick
+        au_open({_p})
+        stop
+    if {au::seller::%{_id}%} is "%{_p}%":
+        send "{@prefix}&cСвой лот не перебивают." to {_p}
+        stop
+    if {au::bidder::%{_id}%} is "%{_p}%":
+        send "{@prefix}&7Ты и так лидируешь по этому лоту." to {_p}
+        stop
+    set {_need} to au_next({_id})
+    if (number of diamond in {_p}'s inventory) < {_need}:
+        send "{@prefix}&cНужно &f%{_need}%💎&c на руках — ставка списывается сразу." to {_p}
+        play sound "block.note_block.bass" with volume 0.6 to {_p}
+        stop
+    # Возврат прежнему лидеру ДО списания с нового: если это один и тот же
+    # человек, он уже отсечён выше, так что двойного начисления нет.
+    set {_prev} to {au::bidder::%{_id}%}
+    set {_prevbid} to {au::bid::%{_id}%}
+    if {_prev} is not "":
+        if {_prevbid} > 0:
+            set {_pp} to {_prev} parsed as player
+            if {_pp} is set:
+                give {_prevbid} of diamond to {_pp}
+                send "{@prefix}&7Твою ставку по лоту №&f%{_id}%&7 перебили — &b%{_prevbid}%💎&7 возвращены." to {_pp}
+            else:
+                au_owe_diamond({_prev}, {_prevbid})
+    remove {_need} of diamond from {_p}'s inventory
+    set {au::bid::%{_id}%} to {_need}
+    set {au::bidder::%{_id}%} to "%{_p}%"
+    # Антиснайп: ставка в последнюю минуту продлевает торги, как на живых
+    # аукционах — иначе всё решала бы последняя секунда.
+    set {_rem} to {au::end::%{_id}%} - (unix timestamp of now)
+    if {_rem} < {@antisnipe}:
+        set {au::end::%{_id}%} to (unix timestamp of now) + {@antisnipe}
+        send "{@prefix}&eСтавка в последнюю минуту — торги продлены." to {_p}
+    send "{@prefix}&aСтавка принята: &b%{_need}%💎&a по лоту №&f%{_id}%&a." to {_p}
+    set {_seller} to {au::seller::%{_id}%} parsed as player
+    if {_seller} is set:
+        send "{@prefix}&7Твой лот №&f%{_id}%&7 подняли до &b%{_need}%💎&7." to {_seller}
+    wait 1 tick
+    au_open({_p})
+
+# ---------------------------------------------------------------------------
+# Закрытие торгов
+# ---------------------------------------------------------------------------
+
+every 20 seconds:
+    loop {au::seller::*}:
+        set {_id} to loop-index
+        if au_alive({_id}) is true:
+            if (unix timestamp of now) >= {au::end::%{_id}%}:
+                au_finish({_id})
+
+function au_finish(id: text):
+    set {_item} to {au::item::%{_id}%}
+    set {_seller} to {au::seller::%{_id}%}
+    set {_bidder} to {au::bidder::%{_id}%}
+    set {_bid} to {au::bid::%{_id}%}
+
+    if {_bidder} is not "":
+        if {_bid} > 0:
+            # Победитель получает вещь, продавец — алмазы. Обоих может не быть
+            # в сети — тогда в долг, выдастся on join.
+            set {_wp} to {_bidder} parsed as player
+            if {_wp} is set:
+                give {_item} to {_wp}
+                send "{@prefix}&aТы выиграл лот №&f%{_id}%&a за &b%{_bid}%💎&a: &f%{_item}%&a." to {_wp}
+            else:
+                au_owe_item({_bidder}, {_item})
+            set {_sp} to {_seller} parsed as player
+            if {_sp} is set:
+                give {_bid} of diamond to {_sp}
+                send "{@prefix}&aЛот №&f%{_id}%&a продан за &b%{_bid}%💎&a." to {_sp}
+            else:
+                au_owe_diamond({_seller}, {_bid})
+            broadcast "{@prefix}&f%{_bidder}%&7 выиграл &f%{_item}%&7 за &b%{_bid}%💎&7 (лот №%{_id}%)."
+            send "[АУКЦИОН] лот %{_id}% продан: %{_bidder}% за %{_bid}% (продавец %{_seller}%)" to console
+    else:
+        # Ставок не было — вещь возвращается продавцу.
+        set {_sp} to {_seller} parsed as player
+        if {_sp} is set:
+            give {_item} to {_sp}
+            send "{@prefix}&7Лот №&f%{_id}%&7 закрыт без ставок — вещь вернулась." to {_sp}
+        else:
+            au_owe_item({_seller}, {_item})
+        send "[АУКЦИОН] лот %{_id}% закрыт без ставок, вещь возвращена %{_seller}%" to console
+
+    delete {au::item::%{_id}%}
+    delete {au::seller::%{_id}%}
+    delete {au::start::%{_id}%}
+    delete {au::bid::%{_id}%}
+    delete {au::bidder::%{_id}%}
+    delete {au::end::%{_id}%}
+
+# ---------------------------------------------------------------------------
+# Выдача долгов
+# ---------------------------------------------------------------------------
+
+on join:
+    wait 2 seconds
+    au_pay("%player%")
+
+every 1 minute:
+    loop all players:
+        au_pay("%loop-player%")
+
+# ---------------------------------------------------------------------------
+# Флаг окна снимается при закрытии и выходе (грабля nirvana.sk: иначе клики
+# в собственном инвентаре остаются отменёнными)
+# ---------------------------------------------------------------------------
+
+on inventory close:
+    delete {au::slot::%uuid of player%::*}
+
+on quit:
+    delete {au::slot::%uuid of player%::*}

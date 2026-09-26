@@ -1,0 +1,144 @@
+# EKB SHIELD — admin_log.sk
+# Журнал действий Администрации.
+#
+# Зачем. Весь проект построен на «смотреть можно, менять нельзя»: у помощника
+# отобраны откат CoreProtect, `sv.see`, профилировщик spark и редактирование
+# чужого инвентаря. К самой Администрации этот принцип при этом не
+# применялся никак — кто ушёл в спектатор, к кому лазил в рюкзак, кто выдал
+# право стройки, знала только консоль, а её читает один человек.
+#
+# Здесь то же самое, но внутри игры и с поиском по нику. Строки в консоль
+# как шли, так и идут — журнал их не заменяет, а дублирует в удобном виде.
+#
+# ⚠ Кто что видит. Полный журнал — только у главного админа
+# (`ekb.menu.admin`). Помощник видит ТОЛЬКО свои записи, и это не
+# недоверие, а следствие уже принятого решения: у помощника снят `sv.see`,
+# то есть главный админ остаётся невидим и для операторов. Журнал, из
+# которого помощник читает «админ ушёл в спектатор к такому-то», отменял бы
+# этот запрет обходным путём.
+#
+# ⚠ Журнал кольцевой: старше {@keep} записей удаляются. Skript хранит
+# переменные в своей базе и на каждой записи пишет на диск — бесконечно
+# растущий журнал через месяц стал бы самой тяжёлой таблицей на сервере.
+#
+# ⚠ Реестр перебирается по {alog::who::*}, а не по {alog::*}: у ветки без
+# собственного значения `loop` не возвращает ничего (та же грабля, что
+# в jail_online_time и mail).
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &8&l[ЖУРНАЛ] &r
+    line: &8&m----------------------------------------
+    keep: 500           # сколько записей держать
+    page: 20            # сколько показывать за раз
+
+# Хранилище:
+#   {alog::id}          — счётчик
+#   {alog::who::<id>}   — кто сделал
+#   {alog::what::<id>}  — что сделал (короткой строкой)
+#   {alog::whom::<id>}  — над кем (может быть пусто)
+#   {alog::at::<id>}    — когда (unix)
+
+# ---------------------------------------------------------------------------
+# Запись
+# ---------------------------------------------------------------------------
+
+# Зовётся из других скриптов: al_add("%player%", "спектатор", "%{_t}%").
+# Функции у Skript общие на все файлы, поэтому отдельного подключения нет.
+function al_add(who: text, what: text, whom: text):
+    add 1 to {alog::id}
+    set {_id} to "%{alog::id}%"
+    set {alog::who::%{_id}%} to {_who}
+    set {alog::what::%{_id}%} to {_what}
+    set {alog::whom::%{_id}%} to {_whom}
+    set {alog::at::%{_id}%} to unix timestamp of now
+
+    # Кольцо: всё, что старше {@keep} номеров, вычищается.
+    set {_old} to {alog::id} - {@keep}
+    if {_old} > 0:
+        set {_o} to "%{_old}%"
+        delete {alog::who::%{_o}%}
+        delete {alog::what::%{_o}%}
+        delete {alog::whom::%{_o}%}
+        delete {alog::at::%{_o}%}
+
+# Сколько минут назад это было — журнал читают «что тут было только что»,
+# а не «что было 14 сентября».
+function al_ago(at: number) :: text:
+    set {_d} to (unix timestamp of now) - {_at}
+    if {_d} < 60:
+        return "только что"
+    if {_d} < 3600:
+        return "%floor({_d} / 60)% мин назад"
+    if {_d} < 86400:
+        return "%floor({_d} / 3600)% ч назад"
+    return "%floor({_d} / 86400)% дн назад"
+
+# ---------------------------------------------------------------------------
+# Чтение
+# ---------------------------------------------------------------------------
+
+command /adminlog [<text>]:
+    description: Журнал действий Администрации
+    usage: /adminlog [ник]
+    aliases: /журнал
+    executable by: players
+    trigger:
+        set {_full} to false
+        if player has permission "ekb.menu.admin":
+            set {_full} to true
+        set {_own} to false
+        if player has permission "ekb.menu.helper":
+            set {_own} to true
+        if {_full} is false:
+            if {_own} is false:
+                send "{@prefix}&cЭто инструмент Администрации." to player
+                stop
+
+        set {_filter} to arg-1
+        if {_full} is false:
+            # Помощник читает только свои записи — разбор в шапке файла.
+            set {_filter} to "%player%"
+
+        if {_filter} is set:
+            send "{@prefix}&7Действия по нику &f%{_filter}%&7:" to player
+        else:
+            send "{@prefix}&7Последние действия Администрации:" to player
+
+        # Идём от свежих к старым и набираем {@page} строк.
+        set {_i} to {alog::id}
+        if {_i} is not set:
+            set {_i} to 0
+        set {_n} to 0
+        set {_seen} to 0
+        while {_i} > 0:
+            if {_n} < {@page}:
+                set {_k} to "%{_i}%"
+                set {_who} to {alog::who::%{_k}%}
+                if {_who} is set:
+                    set {_whom} to {alog::whom::%{_k}%}
+                    set {_ok} to true
+                    if {_filter} is set:
+                        set {_ok} to false
+                        if {_who} is {_filter}:
+                            set {_ok} to true
+                        if {_whom} is {_filter}:
+                            set {_ok} to true
+                    if {_ok} is true:
+                        add 1 to {_n}
+                        set {_tail} to ""
+                        if {_whom} is not "":
+                            set {_tail} to " &8→ &7%{_whom}%"
+                        send "&8 %al_ago({alog::at::%{_k}%})%&7: &f%{_who}%&7 %{alog::what::%{_k}%}%%{_tail}%" to player
+                remove 1 from {_i}
+            else:
+                set {_i} to 0
+
+        if {_n} is 0:
+            send "&7 Пусто." to player
+        else:
+            if {_full} is true:
+                send "&8 Всего записей: &7%{alog::id}%&8, хранится последние {@keep}." to player
+            else:
+                send "&8 Помощнику видны только его собственные действия." to player

@@ -129,3 +129,41 @@ gui_menus:
     file: guns.yml
   ekb_tables:
     file: tables.yml
+  ekb_voice:
+    file: voice.yml
+  ekb_skins_red:
+    file: skins_red.yml
+  ekb_skins_orange:
+    file: skins_orange.yml
+  ekb_skins_yellow:
+    file: skins_yellow.yml
+  ekb_skins_green:
+    file: skins_green.yml
+  ekb_skins_cyan:
+    file: skins_cyan.yml
+  ekb_skins_blue:
+    file: skins_blue.yml
+  ekb_skins_purple:
+    file: skins_purple.yml
+  ekb_skins_pink:
+    file: skins_pink.yml
+  ekb_skins_brown:
+    file: skins_brown.yml
+  ekb_skins_beige:
+    file: skins_beige.yml
+  ekb_skins_beige_2:
+    file: skins_beige_2.yml
+  ekb_skins_white:
+    file: skins_white.yml
+  ekb_skins_white_2:
+    file: skins_white_2.yml
+  ekb_skins_gray:
+    file: skins_gray.yml
+  ekb_skins_black:
+    file: skins_black.yml
+  ekb_skins_black_2:
+    file: skins_black_2.yml
+  ekb_skins_black_3:
+    file: skins_black_3.yml
+  ekb_skinscolor:
+    file: skinscolor.yml

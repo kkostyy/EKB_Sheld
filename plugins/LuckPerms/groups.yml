@@ -56,12 +56,46 @@ groups:
       - ekb.deathnote.admin
       - ekb.artifact.admin
 
+      # Право стройки в Главном городе раздаётся головами (/spawnbuild,
+      # docs/spawn_build.sk). Гейт отдельный, а НЕ coreprotect.rollback:
+      # тот снят у помощника, а помощник по замыслу выдавать умеет.
+      - ekb.build.grant
+
+      # --- Голосовые аддоны Plasmo Voice (24.09.2026) ---
+      # Зеркало минусов default: объявление на весь мир, приоритетный
+      # голос поверх остальных и запись музыки на пластинки.
+      - pv.activation.broadcast
+      - pv.addon.broadcast.broadcasting
+      - pv.addon.broadcast.command
+      - pv.addon.broadcast.range
+      - pv.addon.broadcast.world
+      - pv.addon.broadcast.server
+      - pv.activation.priority
+      - pv.addon.discs.burn
+      - pv.addon.discs.cancel
+
       # Зеркала минусов default по плагинам обновления 18.09.2026.
       # QualityArmory: выдача и крафт стволов. ImageFrame: чужие картины,
       # анимация, массовое удаление.
       - qualityarmory.admin
       - qualityarmory.craft
       - qualityarmory.shop
+
+      # CloudAC: команда, алерты и обход проверок. Обход нужен не ради
+      # поблажки — админ летает в креативе и ходит в ванише, а это для
+      # боевых проверок аномалия.
+      - cloudac.admin
+      - cloudac.alerts
+      - cloudac.bypass
+
+      # Чара «Бур 3×3»: книга выдаётся только этой командой, другого
+      # источника у неё нет вовсе. Та же логика, что у Тетради и артефактов —
+      # предмет, меняющий баланс, не раздаётся в обход главного админа.
+      - ekb.drill.admin
+      # AdvanceEnchantmentX: выдача книг чар и применение — только главный
+      # админ. Сама чара работает у любого владельца кирки
+      # (require-permissions: false), гейт стоит на РАЗДАЧЕ книги.
+      - aex.admin
       - imageframe.create.animated
       - imageframe.create.others
       - imageframe.overlay
@@ -114,6 +148,25 @@ groups:
       # (docs/menu_roles.sk). Но помощник может назначить второго
       # помощника — это осознанно.
       - ekb.roles.manage
+      # Раздача стройки на Спавне — одно из немногих прав, которое у
+      # помощника ПОЛНОЕ, а не урезанное: нанимать рабочих и заводить их
+      # в город — его повседневная работа, а сам регион от этого не
+      # открывается (право выдаётся поимённо и снимается тем же кликом).
+      - ekb.build.grant
+
+      # --- Голосовые аддоны ---
+      # Объявление и приоритетный голос — рабочий инструмент дежурного:
+      # эвакуация, сбор на заседание Суда, разгон драки на Спавне.
+      # Запись музыки на пластинки помощнику НЕ нужна — это развлечение,
+      # а не служба, и модерировать её должен тот, кто её и раздаёт.
+      - pv.activation.broadcast
+      - pv.addon.broadcast.broadcasting
+      - pv.addon.broadcast.command
+      - pv.addon.broadcast.range
+      - pv.addon.broadcast.world
+      - pv.activation.priority
+      - -pv.addon.broadcast.server
+      - -pv.addon.discs.burn
       - coreprotect.inspect
       - coreprotect.lookup
       - -coreprotect.rollback   # Запрет на откат без решения главного админа
@@ -129,6 +182,19 @@ groups:
       # Стрелять помощник может (право наследуется из default).
       - -qualityarmory.admin
       - -qualityarmory.give
+
+      - -ekb.drill.admin        # Книгу чары «Бур» выдаёт только главный админ
+      - -aex.admin.give         # ...и напрямую через плагин тоже нельзя
+      - -aex.admin.apply
+
+      # --- CloudAC: алерты видит, настройками не управляет ---
+      # Та же логика «смотреть можно, менять нельзя», что у OpenInv и spark:
+      # помощник должен видеть, кто бьёт сквозь стены, но не должен уметь
+      # сбрасывать чужие VL и глушить проверки командой /cloudac.
+      # bypass — по той же причине, что у админа: ваниш и креатив.
+      - cloudac.alerts
+      - cloudac.bypass
+      - -cloudac.admin
 
       # --- ImageFrame: чужие картины видно, трогать нельзя ---
       # Картина на стене — имущество игрока, а Ст. 1-4 УК требуют возврата
@@ -229,6 +295,38 @@ groups:
       - -ekb.nirvana.admin
       - -ekb.deathnote.admin
       - -ekb.artifact.admin
+      - -ekb.build.grant        # Право стройки раздаёт только Администрация
+
+      # --- Голосовые аддоны Plasmo Voice (24.09.2026) ---
+      #
+      # Что открыто всем:
+      #   шёпот (pv.activation.whisper) — тихий голос на пару блоков,
+      #     прямое продолжение локального чата CarbonChat: расстояние
+      #     должно значить что-то и для голоса;
+      #   группы (/groups) — своя частота на отряд. Телепортов нет,
+      #     а договориться на расстоянии как-то надо; переписка в Discord
+      #     всё равно есть, и запрещать голосовой её аналог бессмысленно.
+      #
+      # ⚠ Что закрыто и почему:
+      #   broadcast — голос на весь мир поверх всего. У кого он есть,
+      #     тот владеет вниманием сервера; это инструмент службы.
+      #   priority — голос, приглушающий остальных. То же самое, тише.
+      #   discs.burn — запись ЛЮБОГО звука по ссылке из интернета на
+      #     пластинку. Это не баланс, а модерация: пластинку слышно всем
+      #     вокруг проигрывателя, а содержимое сервер не контролирует.
+      #     Хочешь музыку в баре — пусть её пишет Администрация.
+      - pv.activation.whisper
+      - pv.activation.groups
+      - pv.addon.groups
+      - -pv.activation.broadcast
+      - -pv.addon.broadcast.broadcasting
+      - -pv.addon.broadcast.command
+      - -pv.addon.broadcast.range
+      - -pv.addon.broadcast.world
+      - -pv.addon.broadcast.server
+      - -pv.activation.priority
+      - -pv.addon.discs.burn
+      - -pv.addon.discs.cancel
 
       # --- QualityArmory (обновление 18.09.2026) ---
       # Стрелять умеют все, потому что ствол нельзя скрафтить и нельзя

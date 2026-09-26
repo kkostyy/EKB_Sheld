@@ -1,0 +1,442 @@
+menu_title: '&8Скины: белые &8(1/2)'
+size: 54
+
+items:
+
+  's000':
+    material: texture-d8d62957702de6f7386d886f47a2e83a8afb7618970b807c5ca8b7b96aedbb6b
+    slot: 10
+    display_name: '&f&lмальчик в чёрном'
+    lore:
+      - '&8/skin мальчик_в_чёрном'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin мальчик_в_чёрном'
+
+  's001':
+    material: texture-c7f35e4f20d6405362e39b76580e994d35af7f223cedc2d41cd123eb684832fa
+    slot: 11
+    display_name: '&f&lсвинка горничная'
+    lore:
+      - '&8/skin свинка_горничная'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin свинка_горничная'
+
+  's002':
+    material: texture-b8c0c8d8d417456b04871d79dff3731dacaf48896e716ae55ab426ce2f07a8c
+    slot: 12
+    display_name: '&f&lэмо парень'
+    lore:
+      - '&8/skin эмо_парень'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin эмо_парень'
+
+  's003':
+    material: texture-d3cbdabefa06375c9caadc38563c57e1884a32afbb7db7b64d283664f2411e3a
+    slot: 13
+    display_name: '&f&lдворецкий'
+    lore:
+      - '&8/skin дворецкий'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin дворецкий'
+
+  's004':
+    material: texture-70d6e8ab7faaa6fe3b80a8cea8626323e5ed02c84612ae1adf1f7235b4bac92
+    slot: 14
+    display_name: '&f&lгорничный'
+    lore:
+      - '&8/skin горничный'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin горничный'
+
+  's005':
+    material: texture-a15724e4780a41b4e7c6e0e97003fff5c1ab1dfa77b32b2cfc5778663db28bb2
+    slot: 15
+    display_name: '&f&lбеловолосый парень'
+    lore:
+      - '&8/skin беловолосый_парень'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin беловолосый_парень'
+
+  's006':
+    material: texture-e682a39e5484b00ca337e4eed03b315bace3d26156c0de70ce537923d347f958
+    slot: 16
+    display_name: '&f&lбелая маска'
+    lore:
+      - '&8/skin белая_маска'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin белая_маска'
+
+  's007':
+    material: texture-6e209ede3c4abad09fc874c8031f98efcd9358b1b3d76aac6028b1678910da23
+    slot: 19
+    display_name: '&f&lбелый с крестом'
+    lore:
+      - '&8/skin белый_с_крестом'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin белый_с_крестом'
+
+  's008':
+    material: texture-5adc81e4c100c62e8ec4cc7df4a69945a14f43b3f224decc8ca31d8f2b7ba3eb
+    slot: 20
+    display_name: '&f&lшейх'
+    lore:
+      - '&8/skin шейх'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin шейх'
+
+  's009':
+    material: texture-1e14f5e18acfb04380d635abb387bf230cfd17b1ebe21690b021d7983128b820
+    slot: 21
+    display_name: '&f&lримлянин'
+    lore:
+      - '&8/skin римлянин'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin римлянин'
+
+  's010':
+    material: texture-6a5b923dbca8adec2630764fc07d43df6abc73959edc015eb41b3b712db2964b
+    slot: 22
+    display_name: '&f&lбелая тень'
+    lore:
+      - '&8/skin белая_тень'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin белая_тень'
+
+  's011':
+    material: texture-f451a029cd026d2923f92d89b22e4fa703d0031746923d49661e8ee5400e3e99
+    slot: 23
+    display_name: '&f&lассасин'
+    lore:
+      - '&8/skin ассасин'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin ассасин'
+
+  's012':
+    material: texture-f967b5ad82f78ce9957d50d572429199305e185f27bf859804093991082fdf19
+    slot: 24
+    display_name: '&f&lстарец в рубахе'
+    lore:
+      - '&8/skin старец_в_рубахе'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin старец_в_рубахе'
+
+  's013':
+    material: texture-db032a3a0d4e02478ab2a4588f66de5e43f1b10784e43d884cc2c1b2e84983a0
+    slot: 25
+    display_name: '&f&lсерый манекен'
+    lore:
+      - '&8/skin серый_манекен'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin серый_манекен'
+
+  's014':
+    material: texture-df70b995405544df92f03c746420e72bb0fd2e2e6928154b5c42a996be9494b8
+    slot: 28
+    display_name: '&f&lутка во фраке'
+    lore:
+      - '&8/skin утка_во_фраке'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin утка_во_фраке'
+
+  's015':
+    material: texture-8c1a0d391a3459695d7f25b7eaa604d2db3df06f5c865498327fd89e611b12c0
+    slot: 29
+    display_name: '&f&lвосходящее солнце'
+    lore:
+      - '&8/skin восходящее_солнце'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin восходящее_солнце'
+
+  's016':
+    material: texture-3cafa402587a74bb36e7bd46a77f67917bf304114665b2511294f6b861d59c77
+    slot: 30
+    display_name: '&f&lлох'
+    lore:
+      - '&8/skin лох'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin лох'
+
+  's017':
+    material: texture-a4a2680efb9da3958ece36764f5811a53ad4e4d650a4d2954a4b8d9e9329c51d
+    slot: 31
+    display_name: '&f&lтамплиер 2'
+    lore:
+      - '&8/skin тамплиер_2'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin тамплиер_2'
+
+  's018':
+    material: texture-df0a439c8598c76020601c67ff02d588461357f97e9e3b960e1d8b65ac8d68d5
+    slot: 32
+    display_name: '&f&lфермер'
+    lore:
+      - '&8/skin фермер'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin фермер'
+
+  's019':
+    material: texture-3ec8c2b87aa3ad5f17341fc079d28c9778f56995d5093032a6851bdab67b4a0
+    slot: 33
+    display_name: '&f&lледяной старец'
+    lore:
+      - '&8/skin ледяной_старец'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin ледяной_старец'
+
+  's020':
+    material: texture-a31609a603096280bda25d350a601034bc9bf61b657dae70b45ff16ee435a223
+    slot: 34
+    display_name: '&f&lимперка'
+    lore:
+      - '&8/skin имперка'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin имперка'
+
+  's021':
+    material: texture-7e9161f160c8bfaaa6bd0978abbef9755e8c5682fa2da3cc7b042877c113b71a
+    slot: 37
+    display_name: '&f&lкоровка'
+    lore:
+      - '&8/skin коровка'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin коровка'
+
+  's022':
+    material: texture-c4e9dcf78364a2ff3525c274db21127dd395100e5f6ac55040dd1b0ef3822071
+    slot: 38
+    display_name: '&f&lмопс'
+    lore:
+      - '&8/skin мопс'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin мопс'
+
+  's023':
+    material: texture-21e3b7df8c0288f4d685f0070fe817743b46458a8e54e10409325d2437e9302e
+    slot: 39
+    display_name: '&f&lтамплиер'
+    lore:
+      - '&8/skin тамплиер'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin тамплиер'
+
+  's024':
+    material: texture-c25d482658f583c5aa06fa34af4a89eb2168911883bbbbe007f0e9a34bd14023
+    slot: 40
+    display_name: '&f&lбелая лама'
+    lore:
+      - '&8/skin белая_лама'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin белая_лама'
+
+  's025':
+    material: texture-6d8d0421cee225c11eafc2a392cf5633ac836070559c58001e993c1427143e31
+    slot: 41
+    display_name: '&f&lмопс в плавках'
+    lore:
+      - '&8/skin мопс_в_плавках'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin мопс_в_плавках'
+
+  's026':
+    material: texture-7a7b68a7bcb0d0c06043e43ac4881c025303d49188c2108e67fff3102741937f
+    slot: 42
+    display_name: '&f&lсвин учёный'
+    lore:
+      - '&8/skin свин_учёный'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin свин_учёный'
+
+  's027':
+    material: texture-3481a3170603f1ae724e9976a2c382430c59e8f10271f67481f89130619f5d94
+    slot: 43
+    display_name: '&f&lйети'
+    lore:
+      - '&8/skin йети'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin йети'
+
+  'header':
+    material: WHITE_WOOL
+    slot: 4
+    display_name: '&f&lБелые'
+    lore:
+      - '&7Клик по голове — надеть скин.'
+      - '&7Снять — «Скины» в Профиле, ПКМ.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_skinscolor'
+
+  'next_page':
+    material: SPECTRAL_ARROW
+    slot: 50
+    display_name: '&e&lСледующая страница'
+    lore:
+      - '&7Страница 2 из 2'
+    left_click_commands:
+      - '[openguimenu] ekb_skins_white_2'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

@@ -91,7 +91,8 @@ items:
       - ''
       - '&aЛКМ &8— порядок'
     left_click_commands:
-      - '[message] &8&lИск: &7в Discord командой /иск &8· &8Жалоба: &7/report <ник> <причина>'
+      - '[close]'
+      - '[player] ekbdo report'
 
   'header':
     material: KNOWLEDGE_BOOK

@@ -12,9 +12,10 @@ open_requirement:
         - '[message] &cЭто меню граждан государств. Вступи в государство или основай своё.'
 
 items:
+
   'state':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjI1YjI3Y2U2MmNhODg3NDM4NDBhOTVkMWMzOTg2OGY0M2NhNjA2OTZhODRmNTY0ZmJkN2RkYTI1OWJlMDBmZSJ9fX0=
-    slot: 10
+    slot: 13
     display_name: '&a&lТвоё государство'
     lore:
       - '&7Государство — это Лидер, от 3 граждан,'
@@ -25,7 +26,7 @@ items:
 
   'territory':
     material: OAK_FENCE
-    slot: 11
+    slot: 20
     display_name: '&6&lЗемля и границы'
     lore:
       - '&7Государству положено до &f8×8 чанков'
@@ -42,7 +43,7 @@ items:
 
   'war':
     material: IRON_SWORD
-    slot: 12
+    slot: 22
     display_name: '&c&lВойна и нейтралитет'
     lore:
       - '&7Война объявляется в Discord, в канале'
@@ -59,7 +60,7 @@ items:
 
   'inactive':
     material: CLOCK
-    slot: 13
+    slot: 24
     display_name: '&e&lНеактивность'
     lore:
       - '&7Лидер пропал на &f7 дней &7— граждане вправе'
@@ -71,7 +72,7 @@ items:
 
   'court':
     material: LECTERN
-    slot: 14
+    slot: 29
     display_name: '&6&lЗащита в Суде'
     lore:
       - '&7Украли, сожгли, разграбили — иск в Discord'
@@ -85,7 +86,7 @@ items:
 
   'market':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
-    slot: 15
+    slot: 30
     display_name: '&b&lТорговля'
     lore:
       - '&7Лавки ChestShop ставятся только на'
@@ -97,20 +98,22 @@ items:
 
   'mail':
     material: PAPER
-    slot: 16
+    slot: 31
     display_name: '&f&lСвязь с другими'
     lore:
       - '&7Телепортов нет — гонца заменяет почта.'
       - ''
       - '&8/mailsend <ник> <текст> &7— письмо'
       - '&8/mailclear &7— очистить свою почту'
+      - ''
+      - '&aЛКМ &8— написать письмо'
     left_click_commands:
       - '[close]'
-      - '[message] &f&lПочта: &7/mailsend <ник> <текст>'
+      - '[player] ekbdo mailsend'
 
   'status':
     material: GLASS_BOTTLE
-    slot: 22
+    slot: 32
     display_name: '&d&lМоё состояние'
     lore:
       - '&7Зависимость от алкоголя и травы.'
@@ -119,6 +122,11 @@ items:
     left_click_commands:
       - '[close]'
       - '[player] addiction'
+
+  'header':
+    material: SHIELD
+    slot: 4
+    display_name: '&a&lГражданин государства'
 
   'back':
     material: ARROW
@@ -134,7 +142,7 @@ items:
     left_click_commands:
       - '[close]'
 
-  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  # рамка ставится генератором, руками её не правят
   'frame_0':
     material: GRAY_STAINED_GLASS_PANE
     slot: 0
@@ -150,10 +158,6 @@ items:
   'frame_3':
     material: GRAY_STAINED_GLASS_PANE
     slot: 3
-    display_name: ' '
-  'frame_4':
-    material: GRAY_STAINED_GLASS_PANE
-    slot: 4
     display_name: ' '
   'frame_5':
     material: GRAY_STAINED_GLASS_PANE

@@ -28,8 +28,8 @@ items:
       - ''
       - '&aЛКМ &8— как основать'
     left_click_commands:
-      - '[message] &a&lГОРОД: &7/clan create <название>'
-      - '[message] &8Название потом не сменить — только префикс.'
+      - '[close]'
+      - '[player] ekbdo clancreate'
 
   'settings':
     material: COMPARATOR
@@ -44,16 +44,20 @@ items:
       - '[openguimenu] ekb_town_settings'
 
   'invite':
-    material: PLAYER_HEAD
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjI1YjI3Y2U2MmNhODg3NDM4NDBhOTVkMWMzOTg2OGY0M2NhNjA2OTZhODRmNTY0ZmJkN2RkYTI1OWJlMDBmZSJ9fX0=
     slot: 24
     display_name: '&b&lЖители'
     lore:
       - '&7До 8 жителей в городе.'
       - ''
       - '&aЛКМ &8— позвать или выгнать'
+      - '&aПКМ &8— выгнать жителя'
     left_click_commands:
-      - '[message] &b&lЖИТЕЛИ: &7/clan invite <ник>&8 — позвать'
-      - '[message] &b&lЖИТЕЛИ: &7/clan kick <ник>&8 — выгнать'
+      - '[close]'
+      - '[player] ekbdo claninvite'
+    right_click_commands:
+      - '[close]'
+      - '[player] ekbdo clankick'
 
   'chat':
     material: PAPER

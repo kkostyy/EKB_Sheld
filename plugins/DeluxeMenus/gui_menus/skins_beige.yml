@@ -1,0 +1,437 @@
+menu_title: '&8Скины: бежевые и телесные &8(1/2)'
+size: 54
+
+items:
+
+  's000':
+    material: texture-cd93c2072832d39a1493efba9a87ab549e45324549a9a0e06d2454fe253668a3
+    slot: 10
+    display_name: '&e&lбдсм маска'
+    lore:
+      - '&8/skin бдсм_маска'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin бдсм_маска'
+
+  's001':
+    material: texture-514568963dbeeb8d67462763e9910ff67d1e915c41cc792c0b4d9abd425f3a1e
+    slot: 11
+    display_name: '&e&lбдсм маска 2'
+    lore:
+      - '&8/skin бдсм_маска_2'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin бдсм_маска_2'
+
+  's002':
+    material: texture-5653a9115e746f16971e05ceb2cbcc3773a47cf4c55938558bae93b113c97153
+    slot: 12
+    display_name: '&e&lдетектив'
+    lore:
+      - '&8/skin детектив'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin детектив'
+
+  's003':
+    material: texture-5620d0bf5355d65af5cb43d17031c47af08b899b9d9dbcce4504fb5de8902152
+    slot: 13
+    display_name: '&e&lголый 5'
+    lore:
+      - '&8/skin голый_5'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голый_5'
+
+  's004':
+    material: texture-5a1bdeb325e30859f6efde825a983739d7ed68756ca8869af1305ded668178c7
+    slot: 14
+    display_name: '&e&lголый 4'
+    lore:
+      - '&8/skin голый_4'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голый_4'
+
+  's005':
+    material: texture-e21d7a8638c51d9e50cb241652db46bc52039aedaf2e4d94821435425e30629b
+    slot: 15
+    display_name: '&e&lголый 2'
+    lore:
+      - '&8/skin голый_2'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голый_2'
+
+  's006':
+    material: texture-3cfec137a27322a715a5d1cbb7fe83005c07dd92653e03b6ab0c5be6b4c39df0
+    slot: 16
+    display_name: '&e&lзелёный борец'
+    lore:
+      - '&8/skin зелёный_борец'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin зелёный_борец'
+
+  's007':
+    material: texture-858d65bd6a5852fc8bbe74ab37ac82fe98cf683d50d01f6469dea5aadca9dfb7
+    slot: 19
+    display_name: '&e&lкультурист'
+    lore:
+      - '&8/skin культурист'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin культурист'
+
+  's008':
+    material: texture-e075203ac7586b3fe962e915edae0a6306a7db035cdc9e142541cc8d94d711ed
+    slot: 20
+    display_name: '&e&lголый качок'
+    lore:
+      - '&8/skin голый_качок'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голый_качок'
+
+  's009':
+    material: texture-5b0cdbee414226ca49bde32a82e86433a953711bbd57d35199be489790c94a41
+    slot: 21
+    display_name: '&e&lдевушка со свастикой'
+    lore:
+      - '&8/skin девушка_со_свастикой'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin девушка_со_свастикой'
+
+  's010':
+    material: texture-5aa082aa84d4e51b8b54f3f794614d8faff015343e2f177432cee05796be3306
+    slot: 22
+    display_name: '&e&lгенерал в плавках'
+    lore:
+      - '&8/skin генерал_в_плавках'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin генерал_в_плавках'
+
+  's011':
+    material: texture-1ada007dcc2333fd98fea32dae26ca8c781d1ffe06a0ae86fc7bf2ce07061c6c
+    slot: 23
+    display_name: '&e&lкачок розовый'
+    lore:
+      - '&8/skin качок_розовый'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin качок_розовый'
+
+  's012':
+    material: texture-d9ca3e05078f590ebddb7a34315ca9f0cebefbc07e34fd8b8b5fde36f7b4203
+    slot: 24
+    display_name: '&e&lголый торс'
+    lore:
+      - '&8/skin голый_торс'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голый_торс'
+
+  's013':
+    material: texture-28c63a49f6c431c2b0e0cde436c31ab7cda2de7b5bc65f5ac94843f6383b453
+    slot: 25
+    display_name: '&e&lкачок эндер'
+    lore:
+      - '&8/skin качок_эндер'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin качок_эндер'
+
+  's014':
+    material: texture-76458f0b95ff79d00dc45bedfb58b01852ecf722f48577fa02798259142ce099
+    slot: 28
+    display_name: '&e&lлюси'
+    lore:
+      - '&8/skin люси'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin люси'
+
+  's015':
+    material: texture-d8764871fd9ebed70e42d450a5d15036be34091c84ff5d3f038ef09fc6de0e51
+    slot: 29
+    display_name: '&e&lмясник'
+    lore:
+      - '&8/skin мясник'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin мясник'
+
+  's016':
+    material: texture-8108de33e0d523fa356972798e336657751799153e476bef069219f617ed396b
+    slot: 30
+    display_name: '&e&lголый 1'
+    lore:
+      - '&8/skin голый_1'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голый_1'
+
+  's017':
+    material: texture-f5e234e11fbf9b8ea684191b12b4faf79139f4c88ef9eae38b6b251c25d96fc1
+    slot: 31
+    display_name: '&e&lмужик в майке'
+    lore:
+      - '&8/skin мужик_в_майке'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin мужик_в_майке'
+
+  's018':
+    material: texture-70d9b3b7ebcb19a9431f1e0de950238fe91e06620c203e2cc4e4d8546402adbc
+    slot: 32
+    display_name: '&e&lмужик в трусах'
+    lore:
+      - '&8/skin мужик_в_трусах'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin мужик_в_трусах'
+
+  's019':
+    material: texture-c8a0e3f674f077267dbe3ad2077a04d72185d96700afd9f32ba2e3d81f202d2e
+    slot: 33
+    display_name: '&e&lголая аниме 3'
+    lore:
+      - '&8/skin голая_аниме_3'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голая_аниме_3'
+
+  's020':
+    material: texture-a7ebbd5526a6e84aa80f6c4add3c7a5676fa480e409ddd0718f6e075d5b600b8
+    slot: 34
+    display_name: '&e&lбомж 2'
+    lore:
+      - '&8/skin бомж_2'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin бомж_2'
+
+  's021':
+    material: texture-d19446c47fb4c2be112dbb37017200d08f001fe7f1a344a131f7ddca99985840
+    slot: 37
+    display_name: '&e&lбомж'
+    lore:
+      - '&8/skin бомж'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin бомж'
+
+  's022':
+    material: texture-be9fea6399969246fac84b567209539b489643953f514e04bb5ec23d14e6c97
+    slot: 38
+    display_name: '&e&lголый 3'
+    lore:
+      - '&8/skin голый_3'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голый_3'
+
+  's023':
+    material: texture-aa8e0f553a10570495c8ed2ff28429439ca75ee6a652e2e9e87776b8e98a2d00
+    slot: 39
+    display_name: '&e&lголая девушка аниме'
+    lore:
+      - '&8/skin голая_девушка_аниме'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голая_девушка_аниме'
+
+  's024':
+    material: texture-a8c4b3cf3d1f4a273951b33736a5ec0afc6cfad49da6f27c5dbc69efb1909a5a
+    slot: 40
+    display_name: '&e&lголая девушка'
+    lore:
+      - '&8/skin голая_девушка'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голая_девушка'
+
+  's025':
+    material: texture-883560305e22b632ddac9398334cb65473c147cd6b6e7aca72b6e694168ee751
+    slot: 41
+    display_name: '&e&lлев'
+    lore:
+      - '&8/skin лев'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin лев'
+
+  's026':
+    material: texture-ed9cb9b38283b3908f92a75191f241710bcaa09d7292bba6ca3905317618f224
+    slot: 42
+    display_name: '&e&lголая рыжая'
+    lore:
+      - '&8/skin голая_рыжая'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin голая_рыжая'
+
+  's027':
+    material: texture-aac9083b3ae8668670633155046b37889eb1c38ba7d0424a1279300725663872
+    slot: 43
+    display_name: '&e&lдед в трусах'
+    lore:
+      - '&8/skin дед_в_трусах'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin дед_в_трусах'
+
+  'header':
+    material: SAND
+    slot: 4
+    display_name: '&e&lБежевые и телесные'
+    lore:
+      - '&7Клик по голове — надеть скин.'
+      - '&7Снять — «Скины» в Профиле, ПКМ.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_skinscolor'
+
+  'next_page':
+    material: SPECTRAL_ARROW
+    slot: 50
+    display_name: '&e&lСледующая страница'
+    lore:
+      - '&7Страница 2 из 2'
+    left_click_commands:
+      - '[openguimenu] ekb_skins_beige_2'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

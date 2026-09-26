@@ -170,7 +170,14 @@ on inventory click:
         if {_c} is 7200:
             jp_apply(player)
             stop
-        # клик по вещи: слот 0-44 -> индекс в ящике
+        # Клик по вещи: слот 0-44 -> индекс в ящике.
+        #
+        # ⚠️ `index of event-slot` считает слоты внутри СВОЕГО инвентаря:
+        # десятый слот рюкзака судьи приходит под тем же номером, что
+        # десятый слот ящика. Без проверки «щёлкнули по верхнему окну»
+        # судья, кликнув по своим вещам, менял бы пометки на чужих.
+        if clicked inventory is not {_top}:
+            stop
         if {_slot} <= 44:
             if event-item is not air:
                 set {_idx} to {_slot} + 1
@@ -209,11 +216,18 @@ function jp_apply(p: player):
         stop
 
     # что возвращаем, что забираем
+    #
+    # ⚠️ Конфискат раньше просто пропадал вместе с ящиком: сообщение обещало
+    # «обращено в Казну», а Казна его не видела. Теперь помеченное складывается
+    # в отдельный список и уезжает в Казну через tr_put() — по той же причине,
+    # что и /jailitems clear: Суд должен уметь показать, куда делись вещи.
     delete {_keep::*}
+    delete {_seize::*}
     set {_take} to 0
     loop {jail_seized::%{_owner}%::*}:
         if {jailprop::mark::%{_u}%::%loop-index%} is "seize":
             add 1 to {_take}
+            add loop-value to {_seize::*}
         else:
             add loop-value to {_keep::*}
 
@@ -226,9 +240,20 @@ function jp_apply(p: player):
         loop {_keep::*}:
             give loop-value to {_to}
 
+    # Конфискат — в Казну. Не влезло — остаётся в ящике: терять чужое
+    # имущество из-за полного сундука Суд не имеет права.
+    set {_lost} to 0
+    loop {_seize::*}:
+        if tr_put("Суд: конфискат %{_name}%", loop-value) is false:
+            add 1 to {_lost}
+
     delete {jail_seized::%{_owner}%::*}
     delete {jail_seized_at::%{_owner}%}
     delete {jailprop::mark::%{_u}%::*}
+    if {_lost} > 0:
+        loop {_seize::*}:
+            add loop-value to {jail_seized::%{_owner}%::*}
+        set {jail_seized_at::%{_owner}%} to now
     close {_p}'s inventory
 
     send "{@prefix}Решение исполнено: возвращено &f%{_need}%&r, конфисковано &f%{_take}%&r." to {_p}
@@ -236,3 +261,6 @@ function jp_apply(p: player):
     if {_take} > 0:
         send "{@prefix}&7Остальное (&f%{_take}%&7) обращено в Казну." to {_to}
         broadcast "{@prefix}Часть имущества %{_name}% (&f%{_take}%&r предметов) конфискована решением Суда."
+    if {_lost} > 0:
+        send "{@prefix}&c%{_lost}% предметов не влезло в Казну — они вернулись в ящик." to {_p}
+        send "{@prefix}&7Добавь сундук (&b/addtreasury&7) и повтори." to {_p}

@@ -1,0 +1,251 @@
+# EKB SHIELD — AdvanceEnchantmentX 1.0.0 (Archit)
+#
+# Плагин добавлен ради ОДНОЙ чары — Mining3x3 («Бур 3×3»): кирка ломает
+# плоскость 3×3, чара кладётся книгой на наковальне и работает нативно.
+# Раньше эту механику делал docs/drill.sk — он снят, потому что два
+# механизма на один предмет конфликтовали бы (тот же принцип, что «Jail
+# не ставим — тюрьма на Skript» в CLAUDE.md).
+#
+# ⚠️ ВСЕ ОСТАЛЬНЫЕ ЧАРЫ ВЫКЛЮЧЕНЫ НАМЕРЕННО (`enabled: false`). В плагине их
+# больше сорока, и среди них GodMode, MeteorStrike, TimeWarp, Execute,
+# Lifesteal — на выживальном RP-сервере с Судом это не «контент», а слом
+# баланса и половины исков УК. Просили ровно бур 3×3 — включён ровно он.
+# Вернуть любую чару = `enabled: true` у неё + `/aex reload`.
+#
+# ⚠️ `chance-to-find` у всех редкостей обнулён: сервер стоит на том, что всё
+# добыто руками (та же логика, что `-headdb.head.take`, конопля только из
+# семян). Книга чары не находится в мире вообще — её выдаёт только админ
+# командой `/aex give <ник> Mining3x3 1` (право `aex.admin.give`), а игроки
+# получают через `/drillbook` (обёртка в menu_give.sk) или с аукциона.
+#
+# ⚠️ `require-permissions: false` оставлено намеренно: право нужно на ВЫДАЧУ
+# книги, а не на её использование. Купивший бур на аукционе должен им копать,
+# не выпрашивая ноду у админа.
+#
+# ⚠️ `worldguard-support: true` — плагин уважает регионы WorldGuard. На привате
+# Спавна бур копать не должен; проверить это живьём (у Skript-версии защита
+# держалась на `can build`, здесь — на этом флаге).
+
+# ====================================================== #
+#               AdvanceEnchantmentX Config               #
+# ====================================================== #
+
+settings:
+  # Do enchants require permission to use?
+  require-permissions: false
+  
+  # Protect against taking damage in worldguard regions if disabled?
+  worldguard-support: true
+  
+  # Max custom enchants an item can have by default
+  max-enchants: 5
+  
+  # The glow effect for custom enchanted items? (Uses hidden vanilla enchant)
+  glow: true
+
+rarities:
+  Common:
+    color: "&f" # White
+    chance-to-find: 0.0
+    cost-exp-levels: 10
+  Uncommon:
+    color: "&a" # Green
+    chance-to-find: 0.0
+    cost-exp-levels: 20
+  Rare:
+    color: "&9" # Blue
+    chance-to-find: 0.0
+    cost-exp-levels: 30
+  Epic:
+    color: "&5" # Purple
+    chance-to-find: 0.0
+    cost-exp-levels: 40
+  Legendary:
+    color: "&6" # Gold
+    chance-to-find: 0.0
+    cost-exp-levels: 50
+  Mythic:
+    color: "&d" # Light Purple
+    chance-to-find: 0.0
+    cost-exp-levels: 60
+  Godly:
+    color: "&4&l" # Dark Red Bold
+    chance-to-find: 0.0
+    cost-exp-levels: 75
+
+enchants:
+  # ================= WEAPONS =================
+  LightningStrike:
+    enabled: false
+    rarity: Rare
+    max-level: 3
+    base-chance: 5.0
+    chance-per-level: 2.0
+    damage-per-level: 2.0
+  Lifesteal:
+    enabled: false
+    rarity: Epic
+    max-level: 5
+    base-heal: 1.0
+    heal-per-level: 0.5
+  Bleed:
+    enabled: false
+    rarity: Uncommon
+    max-level: 3
+    duration-ticks: 60
+    damage-per-tick: 1.0
+  Execute:
+    enabled: false
+    rarity: Legendary
+    max-level: 1
+    hp-threshold: 0.3 # 30%
+    damage-multiplier: 1.5
+  Combo:
+    enabled: false
+    rarity: Rare
+    max-level: 5
+    damage-increase-per-hit: 0.5
+    reset-time-ticks: 40
+  KnockbackControl:
+    enabled: false
+    rarity: Common
+    max-level: 2
+    reduction-multiplier: 0.2
+
+  # ================= PICKAXES =================
+  Mining3x3:
+    enabled: false
+    rarity: Rare
+    max-level: 1
+  Mining5x5:
+    enabled: false
+    rarity: Epic
+    max-level: 1
+  Mining6x6:
+    enabled: false
+    rarity: Legendary
+    max-level: 1
+  VeinMiner:
+    enabled: false
+    rarity: Rare
+    max-level: 1
+    max-blocks: 64
+  AutoSmelt:
+    enabled: false
+    rarity: Uncommon
+    max-level: 1
+  Telepathy:
+    enabled: false
+    rarity: Epic
+    max-level: 1
+  HasteBoost:
+    enabled: false
+    rarity: Common
+    max-level: 3
+    duration-seconds: 5
+
+  # ================= ARMOR =================
+  ThornsPlus:
+    enabled: false
+    rarity: Rare
+    max-level: 3
+    reflect-percentage: 10.0
+    reflect-per-level: 5.0
+  FreezeAura:
+    enabled: false
+    rarity: Epic
+    max-level: 2
+    radius: 3
+    duration-ticks: 40
+  FireAura:
+    enabled: false
+    rarity: Epic
+    max-level: 2
+    radius: 3
+    duration-ticks: 40
+  RegenBoost:
+    enabled: false
+    rarity: Legendary
+    max-level: 3
+    heal-amount: 1.0
+    interval-ticks: 100
+  AntiKnockback:
+    enabled: false
+    rarity: Uncommon
+    max-level: 1
+  DamageReduction:
+    enabled: false
+    rarity: Mythic
+    max-level: 4
+    reduction-percentage: 5.0
+    reduction-per-level: 2.0
+
+  # ================= BOOTS =================
+  SpeedBoost:
+    enabled: false
+    rarity: Common
+    max-level: 2
+  JumpBoost:
+    enabled: false
+    rarity: Common
+    max-level: 2
+  NoFallDamage:
+    enabled: false
+    rarity: Epic
+    max-level: 1
+  DashAbility:
+    enabled: false
+    rarity: Legendary
+    max-level: 1
+    cooldown-seconds: 10
+    velocity-multiplier: 1.5
+
+  # ================= BOWS =================
+  ExplosiveArrow:
+    enabled: false
+    rarity: Rare
+    max-level: 3
+    radius: 2.0
+    radius-per-level: 0.5
+  LightningArrow:
+    enabled: false
+    rarity: Epic
+    max-level: 1
+  PoisonArrow:
+    enabled: false
+    rarity: Uncommon
+    max-level: 3
+    duration-ticks: 60
+    amplifier-per-level: 1
+  PiercingArrow:
+    enabled: false
+    rarity: Rare
+    max-level: 1
+
+  # ================= SPECIAL =================
+  TeleportStrike:
+    enabled: false
+    rarity: Mythic
+    max-level: 1
+    cooldown-seconds: 15
+  MeteorStrike:
+    enabled: false
+    rarity: Godly
+    max-level: 1
+    radius: 5
+    damage: 10.0
+    cooldown-seconds: 30
+  TimeWarp:
+    enabled: false
+    rarity: Godly
+    max-level: 1
+    radius: 10
+    duration-seconds: 5
+    cooldown-seconds: 45
+  GodMode:
+    enabled: false
+    rarity: Godly
+    max-level: 1
+    duration-seconds: 5
+    cooldown-seconds: 60
+

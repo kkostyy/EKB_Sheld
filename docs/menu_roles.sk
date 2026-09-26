@@ -116,6 +116,85 @@ function rl_node(id: text) :: text:
         return "ekb.shadow.member"
     return ""
 
+# Государственная ли роль, то есть привязывает ли она человека к государству.
+# Кочевник — «ничей», и совмещать одно с другим нельзя (спецификация
+# 24.09.2026, пункт 2).
+#
+# ⚠ Помощник администратора в список НЕ входит: он Администрация, а не
+# государство, и правило его не касается вовсе.
+#
+# ⚠ Стример, Ютубер и Теневое Сообщество — тоже не государственные. У
+# медийных ролей всё право — бесплатный анонс `/onair`, а подполье по
+# определению вне государства; кочевнику они разрешены в любом сочетании.
+#
+# Условия расписаны по одному на строку намеренно: составное
+# `{_id} is "a" or "b"` Skript 2.16.2 разбирает не всегда предсказуемо,
+# а цена вопроса здесь — молча неработающее правило.
+function rl_state(id: text) :: boolean:
+    if {_id} is "judge":
+        return true
+    if {_id} is "doctor":
+        return true
+    if {_id} is "citizen":
+        return true
+    if {_id} is "capital":
+        return true
+    if {_id} is "mayor":
+        return true
+    if {_id} is "council":
+        return true
+    if {_id} is "treasurer":
+        return true
+    if {_id} is "guard":
+        return true
+    if {_id} is "sheriff":
+        return true
+    if {_id} is "builder":
+        return true
+    if {_id} is "postman":
+        return true
+    if {_id} is "clerk":
+        return true
+    if {_id} is "barman":
+        return true
+    if {_id} is "dealer":
+        return true
+    if {_id} is "detective":
+        return true
+    if {_id} is "journalist":
+        return true
+    return false
+
+# Сколько государственных ролей на игроке прямо сейчас.
+function rl_state_count(p: player) :: number:
+    set {_ids::*} to "judge", "doctor", "citizen", "capital", "mayor", "council", "treasurer", "guard", "sheriff", "builder", "postman", "clerk", "barman", "dealer", "detective" and "journalist"
+    set {_n} to 0
+    loop {_ids::*}:
+        if rl_has({_p}, loop-value) is true:
+            add 1 to {_n}
+    return {_n}
+
+# Администрация правилу не подчиняется: у неё может быть любой набор ролей.
+function rl_staff(t: player) :: boolean:
+    if {_t} has permission "ekb.menu.admin":
+        return true
+    if {_t} has permission "group.admin":
+        return true
+    if {_t} has permission "group.restricted_admin":
+        return true
+    return false
+
+# Кочевник — состояние по умолчанию: право `ekb.menu.nomad` лежит на группе
+# `default`, которую наследуют все. Поэтому «снять кочевника» — это не
+# `unset`, а явный ЗАПРЕТ на игроке: у LuckPerms явная нода бьёт
+# унаследованную. Вернуть кочевника — наоборот, `unset`, чтобы снова
+# заработало наследование от `default`.
+function rl_nomad_set(target: text, on: boolean):
+    if {_on} is true:
+        make console execute command "lp user %{_target}% permission unset ekb.menu.nomad"
+    else:
+        make console execute command "lp user %{_target}% permission set ekb.menu.nomad false"
+
 function rl_icon(id: text) :: item:
     if {_id} is "helper":
         return 1 of iron sword
@@ -403,6 +482,36 @@ function rl_toggle(p: player, target: text, id: text):
                     make console execute command "lp user %{_target}% permission set %{_node}% true"
                     send "{@prefix}&aВыдано: &f%{_name}%&a игроку &f%{_target}%&a." to {_p}
                     send "{@prefix}&aТебе выдана роль «%{_name}%»." to {_t}
+            al_add("%{_p}%", "роль «%{_name}%»", {_target})
             # LuckPerms применяет изменение не мгновенно — перерисовываем позже
             wait 20 ticks
+            rl_sync({_p}, {_target}, {_id})
             rl_roles({_p}, {_target})
+
+# Кочевник и государственная должность — взаимоисключающие состояния.
+#
+# Выдали госроль — кочевник снимается; сняли последнюю госроль — кочевник
+# возвращается сам. Отдельной кнопки «сделать кочевником» нет намеренно:
+# кочевник не роль, а её отсутствие, и кнопка «выдать отсутствие» читалась
+# бы как ещё одна должность.
+#
+# ⚠ Считаем ПОСЛЕ применения (функция зовётся из-под `wait 20 ticks`):
+# `rl_has` читает живые права, а LuckPerms обновляет их не в тот же тик.
+function rl_sync(by: player, target: text, id: text):
+    set {_t} to {_target} parsed as player
+    if {_t} is set:
+        if rl_state({_id}) is true:
+            if rl_staff({_t}) is false:
+                set {_n} to rl_state_count({_t})
+                if {_n} > 0:
+                    if {_t} has permission "ekb.menu.nomad":
+                        rl_nomad_set({_target}, false)
+                        send "{@prefix}&7Кочевник снят: у &f%{_target}%&7 теперь должность." to {_by}
+                        send "{@prefix}&7Ты больше не кочевник — за тобой государство." to {_t}
+                        send "&8 Наняться как вольный работник больше нельзя." to {_t}
+                else:
+                    if {_t} does not have permission "ekb.menu.nomad":
+                        rl_nomad_set({_target}, true)
+                        send "{@prefix}&7Должностей не осталось — &f%{_target}%&7 снова кочевник." to {_by}
+                        send "{@prefix}&7Ты снова кочевник: ничей и свободный." to {_t}
+                        send "&8 Теперь тебя можно нанимать — &b/hire status" to {_t}

@@ -101,10 +101,8 @@ items:
       - ''
       - '&aЛКМ &8— как выдать остальные'
     left_click_commands:
-      - '[message] &e&lСТВОЛЫ: &7/givegun <id> [кол-во]'
-      - '[message] &8id лежат в plugins/QualityArmory/newGuns/ — 70 файлов,'
-      - '[message] &8имя файла без default_ и без .yml и есть id.'
-      - '[message] &8Ходовые: ak47 awp deagle spas12 m4a1s uzi rpg minigun kar98k'
+      - '[close]'
+      - '[player] ekbdo givegun'
 
   'header':
     material: CROSSBOW

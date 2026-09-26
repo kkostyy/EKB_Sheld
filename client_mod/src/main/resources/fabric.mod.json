@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "ekbshield",
+  "version": "${version}",
+  "name": "EKB SHIELD — вкладка креатива",
+  "description": "Добавляет в творческий инвентарь вкладку с предметами конопли сервера EKB SHIELD. Мод только клиентский: сервер вкладку дать не может, CreativeModeTab собирается на клиенте.",
+  "authors": [
+    "EKB SHIELD"
+  ],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.ekbshield.creative.EkbCreativeTab"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.0",
+    "minecraft": ">=26.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

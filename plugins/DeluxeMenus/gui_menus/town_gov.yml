@@ -14,9 +14,8 @@ items:
       - ''
       - '&aЛКМ &8— обязанности в чат'
     left_click_commands:
-      - '[message] &6&lГЛАВА: &7отвечает перед Судом за действия горожан.'
-      - '[message] &7Назначается только передачей города: &f/clan transfer <ник>'
-      - '[message] &8Право для меню: &fekb.town.mayor'
+      - '[close]'
+      - '[player] ekbdo clantransfer'
 
   'council':
     material: IRON_HELMET

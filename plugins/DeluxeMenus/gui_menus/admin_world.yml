@@ -9,9 +9,27 @@ open_requirement:
         - '[message] &cЭто меню Администрации.'
 
 items:
+
+  'spawnbuild':
+    material: BRICKS
+    slot: 13
+    display_name: '&6&lПраво стройки в городе'
+    lore:
+      - '&7Главный город закрыт для стройки всем,'
+      - '&7кроме Администрации. Нанятым рабочим'
+      - '&7право выдаётся поимённо — кликом по голове.'
+      - ''
+      - '&7Бессрочно, пока не заберёшь тем же кликом.'
+      - '&8Вне города разрешение не нужно вовсе.'
+      - ''
+      - '&aЛКМ &8— открыть список'
+    left_click_commands:
+      - '[close]'
+      - '[player] spawnbuild'
+
   'status':
     material: COMPASS
-    slot: 10
+    slot: 20
     display_name: '&b&lСтадия границы'
     lore:
       - '&7Текущая стадия и режим расширения.'
@@ -23,7 +41,7 @@ items:
 
   'auto_on':
     material: LIME_DYE
-    slot: 11
+    slot: 22
     display_name: '&a&lРасширять автоматически'
     lore:
       - '&7Достижение сразу двигает границу.'
@@ -35,7 +53,7 @@ items:
 
   'auto_off':
     material: GRAY_DYE
-    slot: 12
+    slot: 24
     display_name: '&7&lТолько объявлять'
     lore:
       - '&7Достижение объявляется, границу двигаешь сам'
@@ -49,7 +67,7 @@ items:
 
   'chunky':
     material: DIAMOND_PICKAXE
-    slot: 13
+    slot: 30
     display_name: '&e&lПрогенерация (Chunky)'
     lore:
       - '&8/chunky world <мир>'
@@ -59,13 +77,15 @@ items:
       - '&4Перед каждой стадией — обязательно:'
       - '&7иначе чанки генерируются на ходу и сервер'
       - '&7встаёт колом при первом же забеге игроков.'
+      - ''
+      - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[close]'
       - '[message] &e&lChunky: &7/chunky world world &8· &7/chunky radius 8000 &8· &7/chunky start'
 
   'border':
     material: OAK_FENCE_GATE
-    slot: 14
+    slot: 31
     display_name: '&6&lРучное расширение'
     lore:
       - '&7Стадии 1–5: 4000 → 20000 блоков.'
@@ -76,14 +96,21 @@ items:
 
   'weather':
     material: SUNFLOWER
-    slot: 15
+    slot: 32
     display_name: '&e&lПогода и время'
     lore:
       - '&8/weather clear &8· &8/weather rain'
       - '&8/time set day &8· &8/time set night'
+      - ''
+      - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[close]'
       - '[player] weather clear'
+
+  'header':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2E1MTRiY2NhOGEwNDlhYWRlY2QxNDhhZTA0MzU3YWQwZDUzMzVkYjMwMDMzYTdiM2RkYjU3MWZkNjBkMTc1OCJ9fX0=
+    slot: 4
+    display_name: '&3&lМир и границы'
 
   'back':
     material: ARROW
@@ -99,7 +126,7 @@ items:
     left_click_commands:
       - '[close]'
 
-  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  # рамка ставится генератором, руками её не правят
   'frame_0':
     material: GRAY_STAINED_GLASS_PANE
     slot: 0
@@ -115,10 +142,6 @@ items:
   'frame_3':
     material: GRAY_STAINED_GLASS_PANE
     slot: 3
-    display_name: ' '
-  'frame_4':
-    material: GRAY_STAINED_GLASS_PANE
-    slot: 4
     display_name: ' '
   'frame_5':
     material: GRAY_STAINED_GLASS_PANE

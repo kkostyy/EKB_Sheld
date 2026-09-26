@@ -60,7 +60,8 @@ items:
           type: has permission
           permission: ekb.duty.journalist
     left_click_commands:
-      - '[message] &6&lЭКСТРЕННО: &f/newsflash <текст>'
+      - '[close]'
+      - '[player] ekbdo newsflash'
 
   'onair':
     material: REDSTONE_TORCH
@@ -81,7 +82,8 @@ items:
           type: has permission
           permission: ekb.media.youtuber
     left_click_commands:
-      - '[message] &d&lЭФИР: &f/onair <текст или ссылка>'
+      - '[close]'
+      - '[player] ekbdo onair'
 
   'header':
     material: WRITTEN_BOOK

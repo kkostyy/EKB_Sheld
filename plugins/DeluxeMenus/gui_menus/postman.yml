@@ -33,7 +33,8 @@ items:
       - ''
       - '&aЛКМ &8— как отправить'
     left_click_commands:
-      - '[message] &8&lПочта: &7/mailsend <ник> <текст>'
+      - '[close]'
+      - '[player] ekbdo mailsend'
 
   'clear':
     material: HOPPER

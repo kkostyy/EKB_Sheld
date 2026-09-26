@@ -6,9 +6,64 @@ size: 54
 
 items:
 
+  'roulette':
+    material: RED_WOOL
+    slot: 13
+    display_name: '&c&lРулетка'
+    lore:
+      - '&7Красное или чёрное — &fx2&7, зеро — &fx24&7.'
+      - '&7Колесо честное, 0-36: перевес заведения'
+      - '&7лежит в выплатах, а не в броске.'
+      - ''
+      - '&8Ставка идёт в Казну, выигрыш — из Казны.'
+      - ''
+      - '&aЛКМ &8— к столу'
+    left_click_commands:
+      - '[close]'
+      - '[player] roulette'
+
+  'slots':
+    material: LEVER
+    slot: 20
+    display_name: '&6&lИгровые автоматы'
+    lore:
+      - '&7Три одинаковых — &fx18&7.'
+      - '&7Два одинаковых — ставка возвращается.'
+      - '&8Шесть символов, 216 сочетаний.'
+      - ''
+      - '&aЛКМ &8— крутить'
+    left_click_commands:
+      - '[close]'
+      - '[player] slots'
+
+  'coinflip':
+    material: GOLD_INGOT
+    slot: 22
+    display_name: '&e&lОрёл или решка'
+    lore:
+      - '&7Выплата &fx2&7, шанс 45 из 100.'
+      - '&8Монета неидеальная, и об этом написано прямо.'
+      - ''
+      - '&aЛКМ &8— бросить'
+    left_click_commands:
+      - '[close]'
+      - '[player] coinflip'
+
+  'stats':
+    material: BOOK
+    slot: 24
+    display_name: '&f&lМой счёт'
+    lore:
+      - '&7Победы, проигрыши и сколько сейчас в кассе.'
+      - ''
+      - '&aЛКМ &8— посмотреть'
+    left_click_commands:
+      - '[close]'
+      - '[player] casinostats'
+
   'dice':
     material: DROPPER
-    slot: 13
+    slot: 30
     display_name: '&c&lИгра в кости'
     lore:
       - '&7Ставка &b2💎&7, выигрыш &b5💎&7.'
@@ -21,7 +76,7 @@ items:
 
   'menu':
     material: POTION
-    slot: 20
+    slot: 31
     display_name: '&e&lЧто наливают'
     lore:
       - '&7Цены полные, по прайс-листу.'
@@ -34,7 +89,7 @@ items:
 
   'shop':
     material: BREWING_STAND
-    slot: 22
+    slot: 32
     display_name: '&6&lСтойка бара'
     lore:
       - '&7Все 13 напитков с ценами.'

@@ -12,9 +12,10 @@ open_requirement:
         - '[message] &cЭто меню Клиники.'
 
 items:
+
   'diagnose':
     material: SPYGLASS
-    slot: 10
+    slot: 13
     display_name: '&b&lОсмотр пациента'
     lore:
       - '&8/addiction info <ник>'
@@ -22,12 +23,14 @@ items:
       - '&7Покажет обе шкалы — алкоголь и траву,'
       - '&7стадию ломки и сколько пациент без дозы.'
       - '&7Осмотр по Прайс-листу бесплатный.'
+      - ''
+      - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[player] ekbmenu info'
 
   'cure':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmU3YTgxMGQyMTEyMjc1Y2MxODIxZGNjNmUyOWRhM2QyYjhmYzY1OWFmNzI5MGEzY2I3MGJlNTM2YWUyMDQwYSJ9fX0=
-    slot: 11
+    slot: 20
     display_name: '&a&lКурс лечения'
     lore:
       - '&8/addiction cure <ник> &7— обе зависимости'
@@ -39,12 +42,14 @@ items:
       - ''
       - '&4Деньги вперёд: команда лечит мгновенно'
       - '&4и отменить её нечем.'
+      - ''
+      - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[player] ekbmenu heal'
 
   'relief':
     material: MILK_BUCKET
-    slot: 12
+    slot: 22
     display_name: '&f&lОблегчить симптомы'
     lore:
       - '&7Молоко и рассол глушат ломку на 5 минут,'
@@ -55,7 +60,7 @@ items:
 
   'sober':
     material: POTION
-    slot: 13
+    slot: 24
     display_name: '&6&lВытрезвитель'
     lore:
       - '&8/brew set <ник> 0 &7— полностью протрезвить'
@@ -63,12 +68,14 @@ items:
       - '&7Опьянение и зависимость — разные вещи:'
       - '&7трезвый пациент может быть в ломке,'
       - '&7а пьяный — совершенно здоровым.'
+      - ''
+      - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[player] ekbmenu sober'
 
   'howitworks':
     material: BOOK
-    slot: 14
+    slot: 29
     display_name: '&e&lКак устроена зависимость'
     lore:
       - '&7Каждая доза — плюс единица к своей шкале.'
@@ -84,7 +91,7 @@ items:
 
   'ethics':
     material: PAPER
-    slot: 15
+    slot: 30
     display_name: '&f&lПорядок приёма'
     lore:
       - '&f1. &7Осмотри пациента — &f/addiction info'
@@ -97,7 +104,7 @@ items:
 
   'emergency':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWRlYmM3YjJiYzYxNTE0YmQ0NDY2NjUwMzc1NTFiZjdjODMzMjM3ZTgzMjBmZWZiNDg1NDExZjhmNDJmNjZjOCJ9fX0=
-    slot: 16
+    slot: 31
     display_name: '&c&lВыезд к пациенту'
     lore:
       - '&7Телепорты врачу не положены, если он'
@@ -106,7 +113,7 @@ items:
 
   'prices':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
-    slot: 22
+    slot: 32
     display_name: '&b&lПрайс Клиники'
     lore:
       - '&7Осмотр — бесплатно'
@@ -118,6 +125,11 @@ items:
       - '&aЛКМ &8— весь Прайс-лист'
     left_click_commands:
       - '[openguimenu] ekb_laws'
+
+  'header':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmU3YTgxMGQyMTEyMjc1Y2MxODIxZGNjNmUyOWRhM2QyYjhmYzY1OWFmNzI5MGEzY2I3MGJlNTM2YWUyMDQwYSJ9fX0=
+    slot: 4
+    display_name: '&a&lКлиника'
 
   'back':
     material: ARROW
@@ -133,7 +145,7 @@ items:
     left_click_commands:
       - '[close]'
 
-  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  # рамка ставится генератором, руками её не правят
   'frame_0':
     material: GRAY_STAINED_GLASS_PANE
     slot: 0
@@ -149,10 +161,6 @@ items:
   'frame_3':
     material: GRAY_STAINED_GLASS_PANE
     slot: 3
-    display_name: ' '
-  'frame_4':
-    material: GRAY_STAINED_GLASS_PANE
-    slot: 4
     display_name: ' '
   'frame_5':
     material: GRAY_STAINED_GLASS_PANE

@@ -48,6 +48,9 @@ CODE_REGISTERED = {
     'lp', 'luckperms', 'perm',    # LuckPerms
     'dm', 'deluxemenus',          # DeluxeMenus
     'sv', 'vanish',               # SuperVanish
+    # ⚠ Аддоны Plasmo Voice регистрируют команды через API самого PV,
+    # а не через plugin.yml — в jar'е их не найти, отсюда ручной список.
+    'groups', 'vbroadcast',       # pv-addon-groups, pv-addon-broadcast
     'oi', 'openinv', 'oe', 'openender',
     'brew', 'breweryx',           # BreweryX
     'tab',                        # TAB

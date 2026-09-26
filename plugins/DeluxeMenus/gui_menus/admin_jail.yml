@@ -9,9 +9,10 @@ open_requirement:
         - '[message] &cЭто меню Администрации.'
 
 items:
+
   'info':
     material: COMPASS
-    slot: 10
+    slot: 13
     display_name: '&b&lКто сидит'
     lore:
       - '&7Точка тюрьмы, заключённые и остаток срока,'
@@ -24,7 +25,7 @@ items:
 
   'sentence':
     material: IRON_BARS
-    slot: 11
+    slot: 20
     display_name: '&c&lПосадить'
     lore:
       - '&8/sentence <ник> <минут>'
@@ -34,24 +35,28 @@ items:
       - '&7в судейский ящик, в камере нельзя ломать'
       - '&7и ставить, эндер-жемчуг не телепортирует.'
       - '&7Есть, пить и курить — можно.'
+      - ''
+      - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[player] ekbmenu jail'
 
   'free':
     material: LIME_DYE
-    slot: 12
+    slot: 22
     display_name: '&a&lОсвободить досрочно'
     lore:
       - '&8/freeearly <ник>'
       - ''
       - '&7Освобождённый сам выберет в меню, куда выйти:'
       - '&7кровать, спавн или крыльцо Суда.'
+      - ''
+      - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[player] ekbmenu free'
 
   'items':
     material: CHEST
-    slot: 13
+    slot: 24
     display_name: '&6&lСудейский ящик'
     lore:
       - '&8/jailitems list [ник] &7— что изъято'
@@ -62,20 +67,18 @@ items:
       - '&7свободных слотов, чем предметов в ящике.'
       - ''
       - ''
+      - '&8Shift+ЛКМ &8— список ящиков'
+      - ''
       - '&aЛКМ &8— разобрать ящик по предметам'
       - '&aПКМ &8— вернуть всё сразу'
-      - '&8Shift+ЛКМ &8— список ящиков'
     left_click_commands:
       - '[player] jailprop'
     right_click_commands:
       - '[player] ekbmenu items'
-    shift_left_click_commands:
-      - '[close]'
-      - '[player] jailitems list'
 
   'setjail':
     material: BEACON
-    slot: 14
+    slot: 30
     display_name: '&e&lТочка тюрьмы'
     lore:
       - '&7Встань в камере и нажми — координаты'
@@ -88,7 +91,7 @@ items:
 
   'setcourt':
     material: OAK_DOOR
-    slot: 15
+    slot: 31
     display_name: '&e&lКрыльцо Суда'
     lore:
       - '&7Точка, куда выходят освобождённые,'
@@ -98,6 +101,11 @@ items:
     left_click_commands:
       - '[close]'
       - '[player] setcourtpoint'
+
+  'header':
+    material: IRON_BARS
+    slot: 4
+    display_name: '&c&lТюрьма'
 
   'back':
     material: ARROW
@@ -113,7 +121,7 @@ items:
     left_click_commands:
       - '[close]'
 
-  # рамка: одинаковая во всех меню, чтобы кнопки читались сеткой
+  # рамка ставится генератором, руками её не правят
   'frame_0':
     material: GRAY_STAINED_GLASS_PANE
     slot: 0
@@ -129,10 +137,6 @@ items:
   'frame_3':
     material: GRAY_STAINED_GLASS_PANE
     slot: 3
-    display_name: ' '
-  'frame_4':
-    material: GRAY_STAINED_GLASS_PANE
-    slot: 4
     display_name: ' '
   'frame_5':
     material: GRAY_STAINED_GLASS_PANE

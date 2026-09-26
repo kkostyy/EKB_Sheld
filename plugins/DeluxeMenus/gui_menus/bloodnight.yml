@@ -35,14 +35,18 @@ items:
       - '&cСам ивент гоняется с хоста: purge.ps1'
       - ''
       - '&aЛКМ &8— как назначить'
+      - '&aПКМ &8— отменить назначенный'
     view_requirement:
       requirements:
         perm1:
           type: has permission
           permission: coreprotect.rollback
     left_click_commands:
-      - '[message] &4&lСОН: &f/bloodnight через <часов>&8 · отменить: &f/bloodnight отмена'
-      - '[message] &8Затем на хосте: &f.\purge.ps1 -Hours 3'
+      - '[close]'
+      - '[player] ekbdo bloodnight'
+    right_click_commands:
+      - '[close]'
+      - '[player] bloodnight отмена'
 
   'header':
     material: REDSTONE_BLOCK

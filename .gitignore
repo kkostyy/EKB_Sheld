@@ -40,3 +40,11 @@ server/
 # Секреты, которые повторяются в корне репозитория
 backups/
 *.log
+
+# ключ MineSkin и журнал заливки скинов
+skins/mineskin.key
+skins/upload.log
+skins/upload.err
+
+# личный ключ OpenRouter — не коммитить
+claude-via-openrouter.ps1

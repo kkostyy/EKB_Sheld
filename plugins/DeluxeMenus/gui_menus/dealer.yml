@@ -14,51 +14,59 @@ open_requirement:
 items:
 
   'cards':
-    material: PAPER
+    material: WARPED_FUNGUS_ON_A_STICK
     slot: 13
     display_name: '&f&lКолода'
     lore:
       - '&aЛКМ &8— выдать себе'
+    model_data: 33000
     left_click_commands:
       - '[player] givetable card'
 
   'chips':
-    material: PAPER
+    material: WARPED_FUNGUS_ON_A_STICK
     slot: 20
     display_name: '&6&lФишки'
     lore:
       - '&aЛКМ &8— выдать себе'
+    model_data: 33770
     left_click_commands:
       - '[player] givetable chip'
 
   'dice_item':
-    material: PAPER
+    material: WARPED_FUNGUS_ON_A_STICK
     slot: 22
     display_name: '&f&lКубики'
     lore:
       - '&aЛКМ &8— выдать себе'
+    model_data: 33400
     left_click_commands:
       - '[player] givetable dice'
 
   'board':
-    material: PAPER
+    material: WARPED_FUNGUS_ON_A_STICK
     slot: 24
     display_name: '&e&lДоска и фигуры'
     lore:
+      - '&7Убрать поставленную доску — клик по её'
+      - '&7НИЖНЕЙ части, а не по фигурам сверху.'
+      - ''
       - '&aЛКМ &8— доска'
       - '&aПКМ &8— шахматы'
+    model_data: 33230
     left_click_commands:
       - '[player] givetable board'
     right_click_commands:
       - '[player] givetable chess'
 
   'domino':
-    material: PAPER
+    material: WARPED_FUNGUS_ON_A_STICK
     slot: 30
     display_name: '&f&lДомино и нарды'
     lore:
       - '&aЛКМ &8— домино'
       - '&aПКМ &8— нарды'
+    model_data: 33300
     left_click_commands:
       - '[player] givetable domino'
     right_click_commands:
@@ -76,15 +84,21 @@ items:
     left_click_commands:
       - '[player] dice'
 
-  'models':
-    material: BARRIER
+  'howto':
+    material: KNOWLEDGE_BOOK
     slot: 32
-    display_name: '&4&lПочему всё бумажное'
+    display_name: '&e&lКак вести стол'
     lore:
-      - '&7Модели TablePlays (CMD 33000-33790) в наш'
-      - '&7ресурспак ещё не вмерджены, поэтому фишки'
-      - '&7и карты выглядят обычной бумагой.'
-      - '&8Долг записан в deploy_checklist §1d.'
+      - '&f1. &7Возьми набор кнопкой выше.'
+      - '&f2. &7ПКМ по столу — фигура встаёт на место.'
+      - '&f3. &7ПКМ по самой фигуре — двигать и переворачивать.'
+      - ''
+      - '&c&lУбрать доску: &7клик по её НИЖНЕЙ части,'
+      - '&7а не по фигурам сверху. Фигуры снимаются'
+      - '&7по одной тем же кликом.'
+      - ''
+      - '&8Все наборы — один предмет (тёплый гриб на палке)'
+      - '&8с разными CMD 33000-33790.'
 
   'header':
     material: OAK_PRESSURE_PLATE

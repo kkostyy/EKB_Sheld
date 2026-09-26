@@ -150,9 +150,26 @@ command /givegun <text> [<integer>]:
 
 # Настолки TablePlays. У команды /gimme в plugin.yml стоит permission: op,
 # то есть это нода с именем «op» — админы её получают вместе с оператором.
+# ⚠ Имена наборов у TablePlays СВОИ, и четыре прежних сюда не подходили.
+# Сверено по строкам `commands.class` в jar'е 3.14159-1: плагин знает
+# dice, board, checkers, chess, domino, card36, card52, card54, nardy,
+# nardyboard, chips. Прежние `card`, `chip`, `checker` и `bundle` он не
+# понимает вовсе — отвечал «Not done...» и не выдавал НИЧЕГО, то есть
+# четыре кнопки из десяти были пустыми.
+function gt_arg(a: text) :: text:
+    if {_a} is "card":
+        return "card54"
+    if {_a} is "chip":
+        return "chips"
+    if {_a} is "checker":
+        return "checkers"
+    if {_a} is "bundle":
+        return "card52"
+    return {_a}
+
 command /givetable <text>:
     description: Выдать себе предмет настольной игры
-    usage: /givetable <board|bundle|card|checker|chess|chip|dice|domino|nardy|nardyboard>
+    usage: /givetable <board|card36|card52|card54|checkers|chess|chips|dice|domino|nardy|nardyboard>
     executable by: players
     trigger:
         # Две роли, а поле permission: принимает одну ноду — отсюда проверка
@@ -166,4 +183,12 @@ command /givetable <text>:
         if {_ok} is false:
             send "{@prefix}&cНабор для игры выдаёт крупье или Администрация."
             stop
-        make player execute command "gimme %arg-1%"
+        # ⚠ У команды `gimme` в plugin.yml TablePlays стоит `permission: op`.
+        # Нода нигде не объявлена, а у необъявленных default = OP, поэтому
+        # Крупье (не оператор) не получит НИЧЕГО: команда молча откажет.
+        # Лечится только выдачей ноды `op` — насовсем её давать нельзя
+        # (любой плагин, проверяющий её как признак оператора, получит
+        # ложное «да»), поэтому решение за владельцем. Пока набор Крупье
+        # выдаёт Администрация.
+        send "[НАСТОЛКИ] %player% берёт набор %arg-1%" to console
+        make player execute command "gimme %gt_arg(arg-1)%"

@@ -1,0 +1,412 @@
+{
+  "items": [
+    {
+      "id": "seeds",
+      "item": "minecraft:wheat_seeds",
+      "cmd": 2001,
+      "name": [
+        {
+          "text": "Семена конопли",
+          "color": "green"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Сажаются на вскопанную грядку.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Растут как пшеница.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "hemp",
+      "item": "minecraft:sugar_cane",
+      "cmd": 2002,
+      "name": [
+        {
+          "text": "Конопля",
+          "color": "dark_green"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Сырое волокно.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Сушится на костре, треплется на станке.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "weed",
+      "item": "minecraft:dried_kelp",
+      "cmd": 2003,
+      "name": [
+        {
+          "text": "Шишка",
+          "color": "green"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Высушенное соцветие.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Годится в самокрутку, трубку и бонг.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "cloth",
+      "item": "minecraft:paper",
+      "cmd": 2004,
+      "name": [
+        {
+          "text": "Конопляная ткань",
+          "color": "gold"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Грубое полотно.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Из неё выходит кожа и шляпа.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "empty_bong",
+      "item": "minecraft:glass_bottle",
+      "cmd": 2005,
+      "name": [
+        {
+          "text": "Бонг ",
+          "color": "aqua"
+        },
+        {
+          "text": "(пустой)",
+          "color": "dark_gray"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Заправляется тремя шишками.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Шишки во второй руке + ПКМ.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "joint",
+      "item": "minecraft:paper",
+      "cmd": 2006,
+      "name": [
+        {
+          "text": "Самокрутка",
+          "color": "white"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Одна затяжка — и мир добреет.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "ПКМ, чтобы закурить. Сгорает целиком.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "pipe",
+      "item": "minecraft:stick",
+      "cmd": 2007,
+      "name": [
+        {
+          "text": "Старая трубка ",
+          "color": "dark_gray"
+        },
+        {
+          "text": "(пустая)",
+          "color": "dark_gray"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Набивается тремя шишками.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Шишки во второй руке + ПКМ.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "stuffed_pipe",
+      "item": "minecraft:stick",
+      "cmd": 2008,
+      "name": [
+        {
+          "text": "Набитая трубка",
+          "color": "gold"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Затяжка вдвое крепче самокрутки.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "После неё остаётся пустая трубка.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "bong",
+      "item": "minecraft:glass_bottle",
+      "cmd": 2009,
+      "name": [
+        {
+          "text": "Бонг",
+          "color": "aqua"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Бьёт втрое крепче самокрутки.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "После затяжки остаётся пустым.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "salve",
+      "item": "minecraft:slime_ball",
+      "cmd": 2010,
+      "name": [
+        {
+          "text": "Травяная мазь",
+          "color": "green"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Затягивает раны и вытягивает яд.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "ПКМ, чтобы намазать.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "brownie",
+      "item": "minecraft:cookie",
+      "cmd": 2011,
+      "name": [
+        {
+          "text": "Брауни",
+          "color": "gold"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Съешь — и полчаса будешь думать,",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "почему потолок такой интересный.",
+            "color": "gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "deerstalker",
+      "item": "minecraft:chainmail_helmet",
+      "cmd": 2012,
+      "name": [
+        {
+          "text": "Двухкозырка",
+          "color": "gold"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Шляпа охотника за истиной.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Из пяти кусков конопляной ткани.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "burlap",
+      "item": "minecraft:paper",
+      "cmd": 2013,
+      "name": [
+        {
+          "text": "Мешковина",
+          "color": "gold"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Плотное полотно из трёх кусков ткани.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Из неё выделывают кожу.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "pipe_suspicious",
+      "item": "minecraft:stick",
+      "cmd": 2014,
+      "name": [
+        {
+          "text": "Подозрительная трубка",
+          "color": "dark_purple"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Набита непонятно чем.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Эффект от затяжки — какой выпадет.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "pipe_smouldering",
+      "item": "minecraft:stick",
+      "cmd": 2015,
+      "name": [
+        {
+          "text": "Тлеющая трубка",
+          "color": "red"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Ещё дымится.",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "Через полминуты остынет до пустой.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "thc",
+      "item": "minecraft:tnt_minecart",
+      "cmd": 2016,
+      "name": [
+        {
+          "text": "Динамит THC",
+          "color": "dark_green"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "text": "Обычная вагонетка с динамитом,",
+            "color": "gray"
+          }
+        ],
+        [
+          {
+            "text": "просто пахнет иначе.",
+            "color": "dark_gray"
+          }
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+menu_title: '&8Скины: зелёные'
+size: 54
+
+items:
+
+  's000':
+    material: texture-a4f327db204aae30c08ac1ad624a39b16c4375788030f885f4ac573c8dfe7dd8
+    slot: 13
+    display_name: '&a&lсолдат в камуфляже'
+    lore:
+      - '&8/skin солдат_в_камуфляже'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin солдат_в_камуфляже'
+
+  's001':
+    material: texture-5f674af9d20dd0cb11703d991298d150250cef7b4c5cf9e94232f79c7e3f4856
+    slot: 20
+    display_name: '&a&lсталин'
+    lore:
+      - '&8/skin сталин'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin сталин'
+
+  's002':
+    material: texture-abc5643b2c3946d3d675fbd7b49b5b9b4148da77f5a558cea4937d6464829127
+    slot: 22
+    display_name: '&a&lкрипер фермер'
+    lore:
+      - '&8/skin крипер_фермер'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin крипер_фермер'
+
+  's003':
+    material: texture-1c13501ac121f1d3beef9add52591045bd4debc40309a75ffcd8108a42ae6c10
+    slot: 24
+    display_name: '&a&lзомби король'
+    lore:
+      - '&8/skin зомби_король'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin зомби_король'
+
+  's004':
+    material: texture-d36f05175be1a1fcbac800c501bb3f6f213ca29add393fca74682245a0965ab
+    slot: 29
+    display_name: '&a&lвишня'
+    lore:
+      - '&8/skin вишня'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin вишня'
+
+  's005':
+    material: texture-1acb05d79c41d34166d13d7386ddf5d9c47c9d0fe8e5f8c327bbb52397b8157f
+    slot: 30
+    display_name: '&a&lжитель деревни'
+    lore:
+      - '&8/skin житель_деревни'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin житель_деревни'
+
+  's006':
+    material: texture-ab339af72f6b37e4cdaa87c98879effb1308e9c7efde919ed87947198d6f0fdb
+    slot: 31
+    display_name: '&a&lкрокодил'
+    lore:
+      - '&8/skin крокодил'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin крокодил'
+
+  's007':
+    material: texture-29e296963f3906b9242a8baf709acb55c3476c71ceb11c7d79b5bc37be2d311c
+    slot: 32
+    display_name: '&a&lпепе'
+    lore:
+      - '&8/skin пепе'
+      - '&7Тонкие руки'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin пепе'
+
+  's008':
+    material: texture-e361a9aba42fc3412a00b69df08351a6f0abfb32b7a02adbd96717497b0dddfc
+    slot: 33
+    display_name: '&a&lам ням'
+    lore:
+      - '&8/skin ам_ням'
+      - ''
+      - '&aЛКМ &8— надеть'
+    left_click_commands:
+      - '[player] skin ам_ням'
+
+  'header':
+    material: LIME_WOOL
+    slot: 4
+    display_name: '&a&lЗелёные'
+    lore:
+      - '&7Клик по голове — надеть скин.'
+      - '&7Снять — «Скины» в Профиле, ПКМ.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_skinscolor'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '
