@@ -4,6 +4,10 @@ UA = {"User-Agent": "ekb-shield-modpack/1.0 (server setup)"}
 GAME = sys.argv[2] if len(sys.argv) > 2 else "26.1.2"   # версия игры: py -3 build_index.py <файл> [версия]
 
 MODS = [
+    # Библиотека почти всех Fabric-модов пака (Keybind, Plasmo Voice, наша вкладка
+    # креатива). До 27.09.2026 её в индексе не было — работало только у тех, кто
+    # положил fabric-api руками.
+    ("mods/fabric-api.jar", "fabric-api"),
     ("mods/sodium.jar", "sodium"),
     ("mods/iris.jar", "iris"),
     ("mods/custom-player-models.jar", "custom-player-models"),
@@ -19,6 +23,9 @@ MODS = [
     ("mods/armor-poser.jar", "armor-poser"),           # <- ArmorPoser-Plugin
     ("mods/imageframe-client.jar", "imageframeclient"), # <- ImageFrame
     ("mods/female-gender.jar", "female-gender"),        # <- Female-Gender-Mod-Plugin
+    ("mods/keybind.jar", "keybind"),
+    ("mods/headpats.jar", "headpat"),                   # <- headpats-plugin (погладить игрока)
+    ("mods/cicada.jar", "cicada"),                      # библиотека, её требует headpats                    # <- Keybind (стрелка вниз = /menu)
 ]
 
 def get(url):

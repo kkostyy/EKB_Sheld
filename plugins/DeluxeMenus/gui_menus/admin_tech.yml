@@ -1,0 +1,250 @@
+menu_title: '&8Надзор и техника'
+open_command:
+  - admintech
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.admin
+      deny_commands:
+        - '[message] &cЭто меню Администрации.'
+
+items:
+
+  'xray':
+    material: DIAMOND_ORE
+    slot: 13
+    display_name: '&b&lИстория X-Ray'
+    lore:
+      - '&7Автокика нет: подозрение — повод'
+      - '&7проверить CoreProtect, а не приговор.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока'
+      - '&aПКМ &8— все команды'
+    left_click_commands:
+      - '[close]'
+      - '[player] ekbdo mtcheck'
+    right_click_commands:
+      - '[close]'
+      - '[player] mtrack help'
+
+  'replays':
+    material: ENDER_EYE
+    slot: 20
+    display_name: '&5&lBetterReplay'
+    lore:
+      - '&7Запись игроков на сервере, без модов.'
+      - '&7Для разбора спорных дел Суда.'
+      - ''
+      - '&aЛКМ &8— список записей'
+      - '&aПКМ &8— команды записи'
+    left_click_commands:
+      - '[close]'
+      - '[player] replay list'
+    right_click_commands:
+      - '[close]'
+      - '[player] replay'
+
+  'rolecolor':
+    material: NAME_TAG
+    slot: 22
+    display_name: '&e&lТег роли'
+    lore:
+      - '&7Тег в чате и TAB ставится сам по роли.'
+      - '&7Кнопка пересчитывает твой немедленно.'
+      - ''
+      - '&aЛКМ &8— пересчитать'
+    left_click_commands:
+      - '[close]'
+      - '[player] rolecolor'
+
+  'lotdraw':
+    material: PAPER
+    slot: 24
+    display_name: '&6&lТираж вне расписания'
+    lore:
+      - '&7Разыграть банк лотереи прямо сейчас.'
+      - '&8Следующий тираж — через сутки после этого.'
+      - ''
+      - '&aЛКМ &8— разыграть'
+    left_click_commands:
+      - '[close]'
+      - '[player] lottery draw'
+
+  'radiogive':
+    material: JUKEBOX
+    slot: 29
+    display_name: '&6&lВыдать рацию'
+    lore:
+      - '&7Для ивентов и служб — игроки крафтят сами.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока'
+    left_click_commands:
+      - '[close]'
+      - '[player] ekbdo radiogive'
+
+  'kbind':
+    material: TRIPWIRE_HOOK
+    slot: 30
+    display_name: '&f&lГорячие клавиши'
+    lore:
+      - '&7Клавиша -> команда для всех игроков с модом.'
+      - '&7Окно правки: добавить, изменить, удалить.'
+      - ''
+      - '&aЛКМ &8— редактор'
+    left_click_commands:
+      - '[close]'
+      - '[player] kbind manage'
+
+  'drone_black':
+    material: BLACK_DYE
+    slot: 31
+    display_name: '&8&lДрон-камикадзе'
+    lore:
+      - '&7Запуск: ты становишься наблюдателем,'
+      - '&7дрон летит туда, куда смотришь.'
+      - ''
+      - '&4Взрыв настоящий: CoreProtect пишет, Суд видит.'
+      - '&8Только главный админ — у помощника снято.'
+      - ''
+      - '&aЛКМ &8— чёрный'
+      - '&aПКМ &8— белый'
+    left_click_commands:
+      - '[close]'
+      - '[player] drone black'
+    right_click_commands:
+      - '[close]'
+      - '[player] drone white'
+
+  'drone_jammer':
+    material: LODESTONE
+    slot: 32
+    display_name: '&c&lГлушилка РЭБ'
+    lore:
+      - '&7Блок: дрон в зоне теряет связь и падает.'
+      - '&eПКМ &8— детектор, показывает купол глушилок'
+      - ''
+      - '&aЛКМ &8— взять глушилку'
+      - '&aПКМ &8— взять детектор'
+    left_click_commands:
+      - '[close]'
+      - '[player] drone jammer'
+    right_click_commands:
+      - '[close]'
+      - '[player] drone detector'
+
+  'header':
+    material: OBSERVER
+    slot: 4
+    display_name: '&3&lНадзор и техника'
+    lore:
+      - '&7Плагины обновления 27.09.2026.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_admin'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

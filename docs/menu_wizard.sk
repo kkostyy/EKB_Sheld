@@ -170,6 +170,18 @@ on script load:
     wz_new("clantransfer", "Передать город", 1 of golden helmet, "", "clan transfer @1", "Передача главы — единственный способ смены власти.")
     wz_arg("clantransfer", "player", "Новый глава", "noself")
 
+    # --- Добавлено 27.09.2026 ----------------------------------------------
+    # MinerTrack: история подозрений. Подозрение — повод для проверки, а не
+    # приговор (автокик выключен), поэтому смотреть может и помощник.
+    wz_new("mtcheck", "История X-Ray", 1 of diamond ore, "minertrack.check", "mtrack check @1", "Подозрения — повод для проверки по CoreProtect, а не приговор.")
+    wz_arg("mtcheck", "player", "Кого проверяем", "")
+
+    wz_new("lotbuy", "Билеты лотереи", 1 of paper, "", "lottery buy @1", "Билет 1💎 уходит в Казну. Не больше 16 за тираж.")
+    wz_arg("lotbuy", "choice", "Сколько билетов", "1=1 билет|2=2 билета|4=4 билета|8=8 билетов|16=16 билетов")
+
+    wz_new("radiogive", "Выдать рацию", 1 of jukebox, "simple_voice_radio.give", "simple_voice_radio give @1", "Игроки крафтят рацию сами — выдача для ивентов и служб.")
+    wz_arg("radiogive", "player", "Кому рацию", "")
+
 function wz_new(id: text, title: text, icon: item, perm: text, cmd: text, note: text):
     set {wz::act::%{_id}%::title} to {_title}
     set {wz::act::%{_id}%::icon} to {_icon}

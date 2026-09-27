@@ -197,7 +197,7 @@ items:
 
   'reports':
     material: BOOK
-    slot: 29
+    slot: 28
     display_name: '&e&lМои жалобы'
     lore:
       - '&aЛКМ &8— что я отправлял'
@@ -207,9 +207,36 @@ items:
     right_click_commands:
       - '[message] &8&lЖалоба: &7/report <ник> <причина>'
 
+  'discord':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
+    slot: 29
+    display_name: '&9&lПривязка Discord'
+    lore:
+      - '&7Без привязки на сервер не пускают.'
+      - '&7Бот пришлёт код — отправь его боту в личку.'
+      - ''
+      - '&aЛКМ &8— получить код'
+    left_click_commands:
+      - '[close]'
+      - '[player] discord link'
+
+  'keybind':
+    material: TRIPWIRE_HOOK
+    slot: 30
+    display_name: '&f&lГорячие клавиши'
+    lore:
+      - '&7Стрелка вниз — это меню.'
+      - '&7Переназначить: Настройки → Управление → Keybind.'
+      - '&8Нужен мод Keybind из модпака сервера.'
+      - ''
+      - '&aЛКМ &8— что назначено'
+    left_click_commands:
+      - '[close]'
+      - '[player] kbind list'
+
   'ignore':
     material: BARRIER
-    slot: 30
+    slot: 31
     display_name: '&c&lЧёрный список'
     lore:
       - '&7Игнор не отменяет УК: оскорбления — в Суд.'
@@ -221,7 +248,7 @@ items:
 
   'citizen':
     material: SHIELD
-    slot: 31
+    slot: 32
     display_name: '&a&lГражданство'
     lore:
       - '&7Права и обязанности гражданина.'
@@ -237,7 +264,7 @@ items:
 
   'capital':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmVlZjdlNTZjZGU3NDA3NzJkZmI3NmRkZDJmNTg0YmU4OTA3Yjg1OTc2NjhlNDAyNjM0OTg2NDY5MjMwYWE0OSJ9fX0=
-    slot: 32
+    slot: 33
     display_name: '&b&lЖитель Спавна'
     lore:
       - '&7Мэрия, Клиника, Рынок, Почта.'
@@ -253,7 +280,7 @@ items:
 
   'nomad':
     material: LEATHER_BOOTS
-    slot: 33
+    slot: 34
     display_name: '&7&lКочевник'
     lore:
       - '&7Как получить гражданство и где заработать.'

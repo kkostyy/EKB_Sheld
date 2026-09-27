@@ -167,3 +167,5 @@ gui_menus:
     file: skins_black_3.yml
   ekb_skinscolor:
     file: skinscolor.yml
+  ekb_admin_tech:
+    file: admin_tech.yml

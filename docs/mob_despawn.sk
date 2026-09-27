@@ -1,0 +1,78 @@
+# EKB SHIELD — mob_despawn.sk
+# Замена мода Let Me Despawn: монстр, подобравший предмет, всё равно уходит.
+#
+# Почему скрипт. Let Me Despawn под Paper собран только до 1.19; под 26.1.2
+# он существует лишь как Fabric/NeoForge-мод, а Purpur модов не грузит.
+#
+# Что чиним. В ванили моб, подобравший предмет, становится «вечным»
+# (persistenceRequired) и не деспавнится никогда. Зомби, собравшие по
+# шахтам гнилую плоть и чужие мечи, копятся в чанках годами и едят тики.
+# Мод снимает вечность и, чтобы вещи не пропадали, роняет их при деспавне.
+#
+# ⚠ Снять ванильную вечность мало. Skript это умеет
+# (`make … despawnable when far away`), но деспавн ванили у Skript не
+# виден — события нет, и подобранное исчезнет вместе с мобом. А здесь это
+# может быть чужой меч, то есть вещь, которую потом ищет Суд. Поэтому
+# деспавн делается САМ: метка при подборе, проверка раз в {@period}, и если
+# ни одного игрока ближе {@range} блоков (ванильный радиус жёсткого
+# деспавна) — экипировка падает на землю, моб убирается.
+#
+# ⚠ Метка — scoreboard tag на самой сущности, а не переменная: тег
+# сохраняется в чанке вместе с мобом, и реестр мёртвых UUID не растёт.
+#
+# ⚠ `persistent` в Skript — НЕ то же самое. Это флаг Bukkit «сохранять
+# сущность в чанк вообще»; снимешь его — моб с вещами просто исчезнет при
+# выгрузке чанка.
+#
+# ⚠ Убирается через `kill` + отмену дропа в `on death`: так моб не роняет
+# свой лут и опыт (иначе деспавн стал бы фермой). Экипировка роняется
+# вручную ДО этого — вся, включая ту, что была на мобе с рождения: скрипт
+# не отличит подобранный шлем от родного. Цена мелкая — броня у зомби
+# редкость, а игрок, отошедший на 128 блоков, её всё равно не увидит.
+#
+# ⚠ Именных мобов (бирка) не трогаем — как и мод.
+#
+# Ставится в plugins/Skript/scripts/
+
+options:
+    tag: ekb_lmd
+    range: 128
+    period: 30 seconds
+
+on entity pick up:
+    event-entity is a monster
+    if name of event-entity is not set:
+        add "{@tag}" to scoreboard tags of event-entity
+
+every {@period}:
+    loop all monsters:
+        if scoreboard tags of loop-entity contains "{@tag}":
+            set {_e} to loop-entity
+            set {_l} to location of {_e}
+            if name of {_e} is not set:
+                if size of (all players in radius {@range} around {_l}) is 0:
+                    if tool of {_e} is not air:
+                        drop tool of {_e} at {_l}
+                        set tool of {_e} to air
+                    if off hand tool of {_e} is not air:
+                        drop off hand tool of {_e} at {_l}
+                        set off hand tool of {_e} to air
+                    if helmet of {_e} is not air:
+                        drop helmet of {_e} at {_l}
+                        set helmet of {_e} to air
+                    if chestplate of {_e} is not air:
+                        drop chestplate of {_e} at {_l}
+                        set chestplate of {_e} to air
+                    if leggings of {_e} is not air:
+                        drop leggings of {_e} at {_l}
+                        set leggings of {_e} to air
+                    if boots of {_e} is not air:
+                        drop boots of {_e} at {_l}
+                        set boots of {_e} to air
+                    add "{@tag}_rm" to scoreboard tags of {_e}
+                    kill {_e}
+
+on death of monster:
+    if scoreboard tags of victim contains "{@tag}_rm":
+        cancel the drops of items
+        cancel the drops of experiences

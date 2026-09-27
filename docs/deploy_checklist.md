@@ -124,6 +124,19 @@ Register-ScheduledTask -TaskName "EKB SHIELD backup" -Action $a -Trigger $t
 | PlugManX | modrinth.com/plugin/plugmanx | 3.1.0 |
 | WorldGuard | modrinth.com/plugin/worldguard | 7.0.18 |
 | WorldEdit | modrinth.com/plugin/worldedit | 7.4.5 |
+| Keybind | modrinth.com/plugin/keybind (плагин + Fabric-мод в модпаке) | 1.0.3 |
+| MinerTrack | modrinth.com/plugin/minertrack (автокик выключен) | 2.1.1.2 |
+| BetterReplay | modrinth.com/plugin/betterreplay (нужен PacketEvents) | 1.5.0 |
+| PacketEvents | modrinth.com/plugin/packetevents | 2.14.0 |
+| Simple Voice Chat | modrinth.com/plugin/simple-voice-chat — **порт 24454/UDP пробросить** | 2.6.24 |
+| VoiceConnector2 | modrinth.com/plugin/voiceconnector (мост Plasmo ↔ SVC) | 2.0 |
+| Voicechat WorldGuard | modrinth.com/plugin/voicechat-worldguard (только SVC) | 1.0.2 |
+| Simple Voice Radio | modrinth.com/plugin/simple-voice-radio | 0.0.8 |
+| NotEnoughGlints | modrinth.com/plugin/notenoughglints (свой пак — необязательный) | 1.5 |
+| Fast Leaf Decay | modrinth.com/plugin/fast-leaf-decay | 2.1.0 |
+| Attribute Swap Fixer | modrinth.com/plugin/attribute-swap-fixer | 1.0 |
+| Drone | modrinth.com/plugin/drone-kamikaze (только главный админ) | 1.2.1 |
+| PAPI LuckPerms | `papi ecloud download LuckPerms` — нужен тегам ролей в чате | 5.4-R2 |
 
 ### Обновление 18.09.2026 — плагины из присланного списка
 

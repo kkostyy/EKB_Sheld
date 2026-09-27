@@ -1759,3 +1759,45 @@ jar'ам) нет ни поля `server-limit`, ни активаторов `RIGH
 Подробности — в `CLAUDE.md` и `docs/deploy_checklist.md`.
 2026-09-19 13:22:58 drill.sk скопирован в plugins/Skript/scripts/ — книга Бур 3×3 должна выдавать
 2026-09-19 13:41:12 drill.sk: зачарование 'Бур 3x3' через наковальню (AdvanceEnchantmentX), CMD 7802 заменён на enchant-check
+
+### 27.09.2026 — Keybind: стрелка вниз открывает меню
+
+`plugins/Keybind-Plugin-1.0.3.jar` + `plugins/Keybind/config.yml` (одно действие
+`menu`, клавиша `DOWN`), клиентская половина `keybind` — в `client_modpack/build_index.py`,
+пак пересобран. Действие консольное: `dm open ekb_main {player}` — плагин зовёт
+`performCommand`, а open_command DeluxeMenus ловится из чата, `menu` так не сработал бы.
+Попутно в индекс добавлен `fabric-api` (0.155.3): его не было вовсе, а он нужен
+Keybind, Plasmo Voice и нашей вкладке креатива. Мод положен и в локальный клиент.
+⚠ Нужно залить новый `ekb_shield_client.mrpack` игрокам. Клавиша переназначается
+в Настройки → Управление → Keybind.
+
+### 27.09.2026 — пачка плагинов, лотерея, теги ролей, голос, Discord-вайтлист
+
+**Поставлено как есть** (jar — `plugins/`, конфиги рядом): MinerTrack 2.1.1.2,
+Attribute Swap Fixer 1.0, Fast Leaf Decay 2.1.0, Simple Voice Radio 0.0.8,
+NotEnoughGlints 1.5, BetterReplay 1.5.0, Simple Voice Chat 2.6.24,
+VoiceConnector2 2.0, Voicechat WorldGuard 1.0.2, Drone 1.2.1; PacketEvents
+2.13 → 2.14. Headpat, Faster Happy Ghasts и Female Gender уже стояли — Headpat
+получил клиентский мод в модпаке (`headpat` + библиотека `cicada`).
+
+**Своё вместо плагина:** `docs/lottery.sk` (вместо LotterySix — Vault),
+`docs/role_colors.sk` (вместо ChatColors), `docs/mob_despawn.sk` (вместо
+Let Me Despawn — нет под Paper 26.1), `docs/voice_zones.sk` (Voicechat
+WorldGuard не видит Plasmo). Рулетка уже была в `casino.sk`.
+
+**Правки:** MinerTrack без автокика; NotEnoughGlints `required: false`;
+рация — `mode: chunk`; CarbonChat — `%luckperms_prefix%` в local/global;
+`shadow.sk` прячет tabprefix; `menu_roles.sk` зовёт `rc_apply`; мастер —
+действия `mtcheck`, `lotbuy`, `radiogive`; DiscordSRV — вход только с
+привязкой, обход `[kosyvx]`. LuckPerms `restricted_admin`: `-drone.*`,
+MinerTrack смотреть, повторы смотреть (применено на сервере, сверено `lp export`).
+PAPI-расширение `LuckPerms` поставлено `papi ecloud download`.
+
+**Меню:** казино — лотерея; голос — рация, SVC, зоны тишины; профиль —
+привязка Discord, клавиши; помощник — X-Ray, повторы; новый раздел
+`admin_tech` «Надзор и техника». `check_menus.py`: 0 проблем, `check_messages.py`: 0.
+
+**Проверено:** сервер поднялся, все плагины включились, Skript — 40 скриптов
+без ошибок. **НЕ проверено с игроком:** тег роли в чате/TAB, зоны тишины,
+деспавн, лотерея — в сети никого не было.
+⚠ Пробросить 24454/UDP на роутере (SVC). ⚠ Раздать новый `.mrpack`.

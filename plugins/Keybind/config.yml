@@ -1,0 +1,20 @@
+# Keybind 1.0.3 — клавиша на клиенте -> команда на сервере.
+# Нужна вторая половина: клиентский мод Keybind (Fabric) в модпаке, без него
+# клавиши не регистрируются вовсе.
+
+# Пауза между любыми действиями (мс)
+global-cooldown: 500
+
+actions:
+  # Стрелка вниз открывает главное меню.
+  # ⚠ Именно консольно и через `dm open`, а не `command: "menu"`: плагин зовёт
+  # performCommand, а open_command у DeluxeMenus ловится из ЧАТА — мимо чата
+  # /menu не срабатывает (та же грабля, что с кнопками меню, см. CLAUDE.md).
+  # Прав консоль не добавляет: /menu и так открыт всем.
+  menu:
+    command: "dm open ekb_main {player}"
+    display-name: "Меню EKB SHIELD"
+    default-key: "DOWN"
+    permission: ""
+    cooldown: 1000
+    console: true

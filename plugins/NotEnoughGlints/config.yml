@@ -1,0 +1,37 @@
+# When true (default), pick the 1.4.5 packs that match this server's Minecraft
+# version (26.1–26.2 vs 26.3+). Existing 1.3 URLs in this file are ignored.
+# Set to false to use the custom resource-pack / datapack URLs below.
+auto-select-packs: true
+
+# ── Resource Pack ──────────────────────────────────────────────────────────────
+# Sent to players when they join. Downloaded directly from Modrinth by the client.
+# url / sha1 / sha512 / uuid are only used when auto-select-packs is false.
+# required, prompt, and skip-if-fabric-mod always apply.
+resource-pack:
+  url: "https://cdn.modrinth.com/data/RRCbhkMA/versions/gaXladiT/NotEnoughGlintsResource-1.4.5-mc26.1-26.2.zip?mr_download_reason=standalone"
+  # SHA-1 from Modrinth — used by Minecraft for pack verification
+  sha1: "e3a810bbac4050146442da21e5fbd5635cfe4334"
+  # SHA-512 from Modrinth — logged at startup for integrity reference
+  sha512: "f6eabec83377bedf757731545ec7d40be1516f37d4af633a889ac5ca28d5a45d7105da882df0dab57fa163c0fd147b90c275901c2031231ea53c3e61e1c91793"
+  # Stable UUID — prevents clients from re-downloading on every relog
+  uuid: "3e7fc4a2-1b0d-5f8e-9c2a-6d4b7f1e0a3c"
+  # Whether clients MUST accept the pack to play
+  # EKB SHIELD: НЕ обязательный. Наш пак уже обязательный (require-resource-pack),
+  # второй обязательный с чужого CDN = второй повод выкинуть игрока на входе.
+  # Отказался — рецепты работают, цветной блеск просто не виден.
+  required: false
+  # Skip the pack prompt when the client has the Fabric Not Enough Glints mod
+  skip-if-fabric-mod: true
+  # Message shown in the pack download prompt
+  prompt: "Цветной блеск зачарований (NotEnoughGlints). Необязательно."
+
+# ── Datapack ───────────────────────────────────────────────────────────────────
+# Downloaded by the server on first run (or if the versioned cache file is missing).
+# Auto-select caches:
+#   plugins/NotEnoughGlints/not_enough_glints_datapack-1.4.5-mc26.1-26.2.zip
+#   plugins/NotEnoughGlints/not_enough_glints_datapack-1.4.5-mc26.3.zip
+# url is only used when auto-select-packs is false (cached as not_enough_glints_datapack-custom.zip).
+datapack:
+  url: "https://cdn.modrinth.com/data/RRCbhkMA/versions/gaXladiT/NotEnoughGlintsData-1.4.5-mc26.1-26.2.zip?mr_download_reason=standalone"
+  # Internal ID used to identify the datapack on this server
+  id: "not_enough_glints"

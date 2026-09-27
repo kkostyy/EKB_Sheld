@@ -237,6 +237,18 @@ items:
     left_click_commands:
       - '[player] spark tps'
 
+  'tech':
+    material: OBSERVER
+    slot: 43
+    display_name: '&3&lНадзор и техника'
+    lore:
+      - '&7X-Ray, повторы, теги ролей, лотерея,'
+      - '&7рации, горячие клавиши и дрон.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_admin_tech'
+
   'header':
     material: NETHER_STAR
     slot: 4

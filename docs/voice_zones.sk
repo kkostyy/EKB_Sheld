@@ -1,0 +1,117 @@
+# EKB SHIELD — voice_zones.sk
+# Зоны тишины: регион WorldGuard, в котором голосовой чат молчит.
+#
+# Почему скрипт. Просили Voicechat WorldGuard — он ставится, но его флаги
+# (`voicechat-enabled`, `-muted`, `-distance`) понимает только Simple Voice
+# Chat. Основной голос у нас Plasmo Voice, и для него плагин не делает
+# ничего. Скрипт закрывает оба сразу одним списком регионов: входя в зону,
+# игрок теряет право говорить —
+#   • Plasmo Voice: `pv.activation.proximity` (голос рядом);
+#   • Simple Voice Chat: `voicechat.speak`.
+# Слушать он при этом может: тишина — это «здесь не говорят», а не «здесь
+# глухие».
+#
+# ⚠ Участники и владельцы региона говорят. Так зал Суда делается зоной
+# тишины для зала, а судья, добавленный в регион, ведёт заседание голосом.
+#
+# ⚠ Право снимается ЯВНОЙ нодой `false`, а возвращается `unset`, а не
+# `true`: оба права по умолчанию есть у всех, и `unset` возвращает ровно
+# прежнее состояние (та же логика, что с кочевником в menu_roles.sk).
+#
+# ⚠ Флаг {vz::in::<uuid>} переживает выход с сервера намеренно: если сервер
+# упал, пока игрок стоял в зоне, нода `false` осталась в LuckPerms. При
+# следующем входе скрипт видит флаг и возвращает голос, если игрок уже не
+# в зоне.
+#
+# Команды (Администрация):
+#   /voicezone add   — сделать зоной тишины регион, в котором стоишь
+#   /voicezone del   — вернуть в нём голос
+#   /voicezone list           — список зон
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &3&l[ГОЛОС] &r
+    admin: ekb.menu.admin
+
+function vz_in(p: player) :: boolean:
+    set {_regs::*} to regions at {_p}
+    loop {_regs::*}:
+        set {_rg} to loop-value
+        set {_id} to "%{_rg}%"
+        if {vz::zone::%{_id}%} is true:
+            # Сравниваем с самим регионом, а не с его id строкой: условие
+            # членства ждёт тип region, текстовую переменную оно не приведёт.
+            if {_p} is not a member of {_rg}:
+                if {_p} is not the owner of {_rg}:
+                    return true
+    return false
+
+function vz_mute(p: player, on: boolean):
+    set {_k} to "%uuid of {_p}%"
+    if {_on} is true:
+        set {vz::in::%{_k}%} to true
+        make console execute command "lp user %{_p}% permission set pv.activation.proximity false"
+        make console execute command "lp user %{_p}% permission set voicechat.speak false"
+        send "{@prefix}&7Зона тишины: здесь голосом не говорят." to {_p}
+        send "&8 Слышать ты можешь, говорить — нет. Чат работает." to {_p}
+    else:
+        delete {vz::in::%{_k}%}
+        make console execute command "lp user %{_p}% permission unset pv.activation.proximity"
+        make console execute command "lp user %{_p}% permission unset voicechat.speak"
+        send "{@prefix}&7Ты вышел из зоны тишины — голос снова работает." to {_p}
+
+every 2 seconds:
+    if size of {vz::zone::*} > 0:
+        loop all players:
+            set {_in} to vz_in(loop-player)
+            if {vz::in::%uuid of loop-player%} is true:
+                if {_in} is false:
+                    vz_mute(loop-player, false)
+            else:
+                if {_in} is true:
+                    vz_mute(loop-player, true)
+
+on join:
+    if {vz::in::%uuid of player%} is true:
+        wait 2 seconds
+        if player is online:
+            if vz_in(player) is false:
+                vz_mute(player, false)
+
+# ⚠ Регион берётся ПОД НОГАМИ админа, а не по имени из аргумента. Ключ
+# зоны — строковый вид региона Skript ("%region%"), и он не обязан
+# совпадать с голым id (Казна поэтому сравнивает через contains). Когда и
+# запись, и проверка строят ключ одним выражением, расходиться нечему.
+command /voicezone [<text>]:
+    description: Зоны тишины голосового чата (регион под ногами)
+    permission: {@admin}
+    executable by: players
+    trigger:
+        set {_a} to arg-1
+        if {_a} is "add":
+            set {_regs::*} to regions at player
+            if size of {_regs::*} is 0:
+                send "{@prefix}&cЗдесь нет региона WorldGuard. Встань внутрь нужного."
+                stop
+            loop {_regs::*}:
+                set {vz::zone::%loop-value%} to true
+                send "{@prefix}&aЗона тишины: &f%loop-value%"
+            send "&8 Говорить в ней могут только участники и владельцы региона."
+            stop
+        if {_a} is "del":
+            set {_regs::*} to regions at player
+            set {_n} to 0
+            loop {_regs::*}:
+                if {vz::zone::%loop-value%} is true:
+                    delete {vz::zone::%loop-value%}
+                    add 1 to {_n}
+                    send "{@prefix}&7Голос возвращён: &f%loop-value%"
+            if {_n} is 0:
+                send "{@prefix}&7Ты не стоишь в зоне тишины."
+            stop
+        send "{@prefix}&fЗоны тишины:"
+        if size of {vz::zone::*} is 0:
+            send "&8 пока нет. Встань в регион и нажми &b/voicezone add"
+        else:
+            loop {vz::zone::*}:
+                send "&8 • &f%loop-index%"

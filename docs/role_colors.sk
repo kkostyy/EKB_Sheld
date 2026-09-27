@@ -1,0 +1,129 @@
+# EKB SHIELD — role_colors.sk
+# Цвет и тег роли в чате, в списке игроков и над головой — автоматически.
+#
+# Зачем без плагина. Просили ChatColors, но он даёт игроку САМОМУ выбрать
+# цвет текста, а нужно было другое: чтобы судью, врача и шерифа было видно
+# по роли. Роль здесь — право LuckPerms (`ekb.menu.judge`, `ekb.duty.*`),
+# а не группа, поэтому ни TAB, ни CarbonChat сами её не узнают. Скрипт
+# переводит роль в ПРЕФИКС LuckPerms (meta prefix, приоритет {@weight}),
+# а дальше его показывают штатно:
+#   • TAB — `%luckperms-prefix%` в groups.yml (tabprefix и tagprefix);
+#   • CarbonChat — `%luckperms_prefix%` в формате каналов (нужно расширение
+#     PlaceholderAPI `LuckPerms`: `papi ecloud download LuckPerms`).
+#
+# Роль у человека может быть не одна — показывается старшая по списку в
+# rc_tag(). Администрация идёт первой: у группы admin стоит `*`, и проверка
+# любой роли для неё отвечает «да».
+#
+# ⚠ Теневое Сообщество НЕ показывается никогда. Подполье по определению
+# вне государства и вне списков, тег «[Тень]» над головой был бы доносом.
+#
+# ⚠ Личина (shadow.sk) перебивает tabprefix/tagprefix своими командами
+# `tab player …` — поверх нашего префикса, поэтому маска роль не выдаёт.
+#
+# ⚠ Префикс пишется командой LuckPerms только когда тег ИЗМЕНИЛСЯ
+# ({rc::tag::<uuid>}): иначе каждые пять минут журнал LuckPerms получал бы
+# по строке на каждого игрока.
+#
+# Когда пересчитывается: при входе, после клика в /ekbroles (menu_roles.sk
+# зовёт rc_apply), раз в 5 минут по онлайну — это ловит роли, выданные
+# руками через /lp, — и по /rolecolor.
+#
+# Требует menu_roles.sk (rl_has). Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &e&l[РОЛИ] &r
+    weight: 90
+    admin: ekb.menu.admin
+
+# ---------------------------------------------------------------------------
+# Роль -> тег
+# ---------------------------------------------------------------------------
+
+# Порядок — это и есть приоритет: первая найденная роль побеждает.
+# Условия по одному на строку намеренно (грабля составных условий 2.16.2).
+function rc_tag(p: player) :: text:
+    if {_p} has permission "group.admin":
+        return "&4[Админ] "
+    if {_p} has permission "group.restricted_admin":
+        return "&c[Помощник] "
+    if rl_has({_p}, "judge") is true:
+        return "&6[Судья] "
+    if rl_has({_p}, "sheriff") is true:
+        return "&9[Шериф] "
+    if rl_has({_p}, "detective") is true:
+        return "&3[Следователь] "
+    if rl_has({_p}, "doctor") is true:
+        return "&c[Врач] "
+    if rl_has({_p}, "mayor") is true:
+        return "&e[Глава] "
+    if rl_has({_p}, "council") is true:
+        return "&e[Советник] "
+    if rl_has({_p}, "treasurer") is true:
+        return "&e[Казначей] "
+    if rl_has({_p}, "guard") is true:
+        return "&9[Страж] "
+    if rl_has({_p}, "journalist") is true:
+        return "&f[Пресса] "
+    if rl_has({_p}, "streamer") is true:
+        return "&5[Стример] "
+    if rl_has({_p}, "youtuber") is true:
+        return "&5[Ютубер] "
+    if rl_has({_p}, "builder") is true:
+        return "&a[Бригадир] "
+    if rl_has({_p}, "postman") is true:
+        return "&a[Почтальон] "
+    if rl_has({_p}, "clerk") is true:
+        return "&a[Приказчик] "
+    if rl_has({_p}, "barman") is true:
+        return "&a[Бармен] "
+    if rl_has({_p}, "dealer") is true:
+        return "&a[Крупье] "
+    if rl_has({_p}, "citizen") is true:
+        return "&2[Гражданин] "
+    if rl_has({_p}, "capital") is true:
+        return "&b[Спавн] "
+    if {_p} has permission "ekb.menu.nomad":
+        return "&7[Кочевник] "
+    return ""
+
+# Поставить префикс, если он поменялся. force — переписать безусловно.
+function rc_apply(p: player, force: boolean):
+    set {_k} to "%uuid of {_p}%"
+    set {_t} to rc_tag({_p})
+    set {_old} to {rc::tag::%{_k}%}
+    if {_old} is not set:
+        set {_old} to "-"
+    if {_force} is true:
+        set {_old} to "-"
+    if {_old} is not {_t}:
+        set {rc::tag::%{_k}%} to {_t}
+        if {_t} is "":
+            make console execute command "lp user %{_p}% meta removeprefix {@weight}"
+        else:
+            make console execute command "lp user %{_p}% meta setprefix {@weight} ""%{_t}%"""
+
+on join:
+    # LuckPerms грузит пользователя асинхронно — сразу после входа права
+    # могут быть ещё не все.
+    wait 2 seconds
+    if player is online:
+        rc_apply(player, false)
+
+every 5 minutes:
+    loop all players:
+        rc_apply(loop-player, false)
+
+command /rolecolor [<player>]:
+    description: Пересчитать тег роли (свой или чужой)
+    permission: {@admin}
+    trigger:
+        set {_p} to arg-1
+        if {_p} is not set:
+            if sender is a player:
+                set {_p} to player
+        if {_p} is not set:
+            send "{@prefix}&cУкажи игрока: &b/rolecolor <ник>"
+            stop
+        rc_apply({_p}, true)
+        send "{@prefix}&7Тег &f%{_p}%&7: %rc_tag({_p})%&r&7(пусто — без тега)."

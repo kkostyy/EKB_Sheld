@@ -1,0 +1,243 @@
+# EKB SHIELD — lottery.sk
+# Лотерея Спавна: билеты за алмазы, розыгрыш раз в сутки, всё через Казну.
+#
+# Зачем своё, а не LotterySix. Плагин считает деньги через Vault — то есть
+# через EssentialsX $, валюту, которой на этом сервере нет, — и выигрыш там
+# печатается из воздуха. Здесь, как в casino.sk, билет ложится в КАЗНУ
+# физическим алмазом, а выигрыш достаётся из неё же.
+#
+# Правила:
+#   • билет — {@price}💎, не больше {@max_tickets} на человека за тираж
+#     (шанс пропорционален билетам, и потолок не даёт одному богачу выкупить
+#     тираж целиком);
+#   • розыгрыш раз в сутки, победитель один, получает {@share}% банка;
+#     остальное остаётся в Казне — это доход города, как перевес казино;
+#   • участников меньше {@min_players} — тираж переносится вместе с банком
+#     и билетами: разыгрывать банк между одним человеком и им же незачем.
+#
+# ⚠ Банк — это ЧИСЛО, а не отдельный сундук: сами алмазы лежат в Казне
+# вместе со всем остальным. Мэрия может их потратить, и тогда выигрыш
+# ложится долгом ({lot::owe::<uuid>}) и выдаётся, когда Казна пополнится, —
+# при входе игрока или по /lottery claim. Терять чужой выигрыш из-за пустой
+# кассы город права не имеет (тот же принцип, что в casino.sk).
+#
+# ⚠ Выплата идёт пачками по 64: tr_payout проверяет ОДИН свободный слот, а
+# `give` кладёт через addItem и молча теряет то, что не влезло. Банк больше
+# стака иначе испарялся бы на выдаче.
+#
+# ⚠ Розыгрыш — объявление на площади, поэтому broadcast (правило «адресное
+# лично, объявления публично»). Покупка билета — личное сообщение.
+#
+# Требует treasury.sk (tr_pay, tr_payout, tr_ready).
+# Ставится в plugins/Skript/scripts/
+
+options:
+    prefix: &6&l[ЛОТЕРЕЯ] &r
+    line: &8&m----------------------------------------
+    price: 1
+    max_tickets: 16
+    period: 86400        # секунд между тиражами (сутки)
+    share: 80            # процент банка победителю
+    min_players: 2
+    admin: ekb.menu.admin
+
+# Хранилище:
+#   {lot::next}              — unix-время следующего тиража
+#   {lot::n}                 — номер тиража
+#   {lot::pot}               — банк, алмазов
+#   {lot::t::<uuid>}         — билетов у игрока в текущем тираже
+#   {lot::name::<uuid>}      — ник (для объявления, если игрок не в сети)
+#   {lot::owe::<uuid>}       — невыплаченный выигрыш
+#   {lot::last}              — строка о прошлом тираже
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+function lot_now() :: number:
+    return floor(unix timestamp of now)
+
+function lot_left() :: number:
+    if {lot::next} is not set:
+        set {lot::next} to lot_now() + {@period}
+    set {_r} to {lot::next} - lot_now()
+    if {_r} < 0:
+        set {_r} to 0
+    return {_r}
+
+function lot_when() :: text:
+    set {_r} to lot_left()
+    set {_h} to floor({_r} / 3600)
+    set {_m} to floor(mod({_r}, 3600) / 60)
+    return "%{_h}% ч %{_m}% мин"
+
+function lot_pot() :: number:
+    if {lot::pot} is not set:
+        return 0
+    return {lot::pot}
+
+function lot_mine(p: player) :: number:
+    set {_n} to {lot::t::%uuid of {_p}%}
+    if {_n} is not set:
+        return 0
+    return {_n}
+
+function lot_online(u: text) :: player:
+    loop all players:
+        if "%uuid of loop-player%" is {_u}:
+            return loop-player
+
+# Выдать игроку всё, что ему должна лотерея. Пачками по 64 — см. шапку.
+function lot_settle(p: player):
+    set {_k} to "%uuid of {_p}%"
+    set {_o} to {lot::owe::%{_k}%}
+    if {_o} is set:
+        set {_paid} to 0
+        set {_err} to ""
+        loop 100 times:
+            if {_err} is "":
+                if {_o} > 0:
+                    set {_c} to {_o}
+                    if {_c} > 64:
+                        set {_c} to 64
+                    set {_r} to tr_payout({_p}, {_c})
+                    if {_r} is "ok":
+                        set {_o} to {_o} - {_c}
+                        add {_c} to {_paid}
+                    else:
+                        set {_err} to {_r}
+        if {_o} > 0:
+            set {lot::owe::%{_k}%} to {_o}
+        else:
+            delete {lot::owe::%{_k}%}
+        if {_paid} > 0:
+            send "{@prefix}&aВыплачен выигрыш лотереи: &b%{_paid}%💎&a." to {_p}
+            send "[ЛОТЕРЕЯ] %{_p}% получил %{_paid}% алмазов выигрыша" to console
+        if {_o} > 0:
+            send "{@prefix}&eЗа тобой ещё &b%{_o}%💎&e выигрыша, выдать сейчас нельзя:" to {_p}
+            send "&7 %{_err}%" to {_p}
+            send "&8 Повторить: &b/lottery claim" to {_p}
+
+# ---------------------------------------------------------------------------
+# Тираж
+# ---------------------------------------------------------------------------
+
+function lot_draw(by: text):
+    set {lot::next} to lot_now() + {@period}
+    set {_players} to size of {lot::t::*}
+    if {_players} < {@min_players}:
+        if lot_pot() > 0:
+            broadcast "{@prefix}&7Тираж перенесён: участников меньше {@min_players}. Банк &b%lot_pot()%💎&7 ждёт следующего."
+        send "[ЛОТЕРЕЯ] тираж перенесён (%{_by}%): участников %{_players}%" to console
+    else:
+        set {_total} to 0
+        loop {lot::t::*}:
+            add loop-value to {_total}
+        set {_r} to random integer between 1 and {_total}
+        loop {lot::t::*}:
+            if {_win} is not set:
+                set {_r} to {_r} - loop-value
+                if {_r} <= 0:
+                    set {_win} to loop-index
+        set {_pot} to lot_pot()
+        set {_prize} to floor({_pot} * {@share} / 100)
+        set {_name} to {lot::name::%{_win}%}
+        set {_wt} to {lot::t::%{_win}%}
+        add 1 to {lot::n}
+        broadcast "{@line}"
+        broadcast "{@prefix}&fТираж №%{lot::n}% разыгран."
+        broadcast "&7 Победитель: &e&l%{_name}% &7(%{_wt}% из %{_total}% билетов)"
+        broadcast "&7 Выигрыш: &b%{_prize}%💎 &8из банка %{_pot}%💎"
+        broadcast "&8 Следующий тираж через сутки — &b/lottery"
+        broadcast "{@line}"
+        send "[ЛОТЕРЕЯ] тираж %{lot::n}% (%{_by}%): %{_name}% выиграл %{_prize}% из %{_pot}%, билетов %{_total}%, участников %{_players}%" to console
+        set {lot::last} to "№%{lot::n}%: %{_name}% — %{_prize}%💎"
+        add {_prize} to {lot::owe::%{_win}%}
+        delete {lot::t::*}
+        set {lot::pot} to 0
+        set {_p} to lot_online({_win})
+        if {_p} is set:
+            lot_settle({_p})
+
+every 1 minute:
+    if lot_left() <= 0:
+        lot_draw("по расписанию")
+
+on join:
+    if {lot::owe::%uuid of player%} is set:
+        wait 3 seconds
+        if player is online:
+            lot_settle(player)
+
+# ---------------------------------------------------------------------------
+# Команда
+# ---------------------------------------------------------------------------
+
+command /lottery [<text>] [<integer>]:
+    description: Лотерея Спавна: /lottery, /lottery buy [N], /lottery claim
+    aliases: /лотерея, /lotto
+    executable by: players
+    trigger:
+        set {_a} to arg-1
+        set {_n} to arg-2
+        if {_a} is not set:
+            set {_a} to "info"
+
+        if {_a} is "купить":
+            set {_a} to "buy"
+        if {_a} is "buy":
+            if {_n} is not set:
+                set {_n} to 1
+            if {_n} < 1:
+                send "{@prefix}&cЧисло билетов — от 1."
+                stop
+            set {_have} to lot_mine(player)
+            if {_have} + {_n} > {@max_tickets}:
+                send "{@prefix}&cНе больше &f{@max_tickets}&c билетов на тираж. У тебя уже &f%{_have}%&c."
+                stop
+            if tr_ready() is false:
+                send "{@prefix}&cКазна Спавна не назначена — касса лотереи закрыта."
+                stop
+            set {_cost} to {_n} * {@price}
+            set {_r} to tr_pay(player, {_cost})
+            if {_r} is not "ok":
+                send "{@prefix}%{_r}%"
+                stop
+            set {_k} to "%uuid of player%"
+            set {lot::t::%{_k}%} to {_have} + {_n}
+            set {lot::name::%{_k}%} to "%player%"
+            set {lot::pot} to lot_pot() + {_cost}
+            send "{@prefix}&aКуплено билетов: &f%{_n}%&a. Теперь у тебя &f%{lot::t::%{_k}%}%&a."
+            send "&7 Банк: &b%lot_pot()%💎&7, тираж через &f%lot_when()%&7."
+            send "[ЛОТЕРЕЯ] %player% купил %{_n}% билет(ов), банк %lot_pot()%" to console
+            play sound "entity.experience_orb.pickup" with volume 0.8 to player
+            stop
+
+        if {_a} is "claim":
+            if {lot::owe::%uuid of player%} is not set:
+                send "{@prefix}&7Лотерея тебе ничего не должна."
+                stop
+            lot_settle(player)
+            stop
+
+        if {_a} is "draw":
+            if player does not have permission "{@admin}":
+                send "{@prefix}&cРозыгрыш вне расписания — только Администрация."
+                stop
+            lot_draw("вручную: %player%")
+            stop
+
+        # info
+        set {_total} to 0
+        loop {lot::t::*}:
+            add loop-value to {_total}
+        send "{@line}"
+        send "{@prefix}&fЛотерея Спавна"
+        send "&7 Банк: &b%lot_pot()%💎 &8— победителю {@share}%%"
+        send "&7 Тираж через: &f%lot_when()%"
+        send "&7 Участников: &f%size of {lot::t::*}%&7, билетов: &f%{_total}%"
+        send "&7 Твоих билетов: &f%lot_mine(player)%&7 из {@max_tickets}"
+        if {lot::last} is set:
+            send "&8 Прошлый тираж — %{lot::last}%"
+        send "&8 Купить: &b/lottery buy [N]&8 — билет {@price}💎"
+        send "{@line}"

@@ -486,6 +486,10 @@ function rl_toggle(p: player, target: text, id: text):
             # LuckPerms применяет изменение не мгновенно — перерисовываем позже
             wait 20 ticks
             rl_sync({_p}, {_target}, {_id})
+            # Тег роли в чате и TAB (role_colors.sk). После rl_sync: снятие
+            # последней госроли возвращает кочевника, и тег должен это видеть.
+            if {_t} is online:
+                rc_apply({_t}, false)
             rl_roles({_p}, {_target})
 
 # Кочевник и государственная должность — взаимоисключающие состояния.

@@ -192,7 +192,7 @@ items:
 
   'roles':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
-    slot: 40
+    slot: 39
     display_name: '&d&lРоли и права'
     lore:
       - '&7Выбираешь голову игрока и щёлкаешь'
@@ -202,6 +202,34 @@ items:
       - '&aЛКМ &8— открыть раздачу ролей'
     left_click_commands:
       - '[player] ekbroles'
+
+  'xray':
+    material: DIAMOND_ORE
+    slot: 40
+    display_name: '&b&lПодозрения X-Ray'
+    lore:
+      - '&7MinerTrack копит подозрения и никого'
+      - '&7не кикает: решает проверка, а не счётчик.'
+      - ''
+      - '&8Уведомления приходят тебе сами.'
+      - ''
+      - '&aЛКМ &8— история игрока'
+    left_click_commands:
+      - '[close]'
+      - '[player] ekbdo mtcheck'
+
+  'replays':
+    material: ENDER_EYE
+    slot: 41
+    display_name: '&5&lЗаписи BetterReplay'
+    lore:
+      - '&7Повтор записанного Администрацией.'
+      - '&8Смотреть — можно, писать и удалять — главный админ.'
+      - ''
+      - '&aЛКМ &8— список записей'
+    left_click_commands:
+      - '[close]'
+      - '[player] replay list'
 
   'header':
     material: PLAYER_HEAD

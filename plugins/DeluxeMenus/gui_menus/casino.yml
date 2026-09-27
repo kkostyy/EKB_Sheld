@@ -61,9 +61,42 @@ items:
       - '[close]'
       - '[player] casinostats'
 
+  'lottery':
+    material: PAPER
+    slot: 29
+    display_name: '&6&lЛотерея Спавна'
+    lore:
+      - '&7Билет &b1💎&7, тираж раз в сутки.'
+      - '&7Победитель забирает &f80%&7 банка,'
+      - '&7остальное остаётся Казне.'
+      - ''
+      - '&8Шанс — по числу билетов, но не больше 16 на тираж.'
+      - ''
+      - '&aЛКМ &8— банк и мои билеты'
+      - '&aПКМ &8— купить билеты'
+    left_click_commands:
+      - '[close]'
+      - '[player] lottery'
+    right_click_commands:
+      - '[close]'
+      - '[player] ekbdo lotbuy'
+
+  'lottery_claim':
+    material: CHEST
+    slot: 30
+    display_name: '&e&lЗабрать выигрыш'
+    lore:
+      - '&7Если Казна была пуста в день тиража,'
+      - '&7выигрыш лежит долгом — он не сгорает.'
+      - ''
+      - '&aЛКМ &8— получить'
+    left_click_commands:
+      - '[close]'
+      - '[player] lottery claim'
+
   'dice':
     material: DROPPER
-    slot: 30
+    slot: 31
     display_name: '&c&lИгра в кости'
     lore:
       - '&7Ставка &b2💎&7, выигрыш &b5💎&7.'
@@ -76,7 +109,7 @@ items:
 
   'menu':
     material: POTION
-    slot: 31
+    slot: 32
     display_name: '&e&lЧто наливают'
     lore:
       - '&7Цены полные, по прайс-листу.'
@@ -89,7 +122,7 @@ items:
 
   'shop':
     material: BREWING_STAND
-    slot: 32
+    slot: 33
     display_name: '&6&lСтойка бара'
     lore:
       - '&7Все 13 напитков с ценами.'

@@ -6,6 +6,21 @@
   "summary": "Клиентский набор разрешённых модов для сервера EKB SHIELD (Fabric)",
   "files": [
     {
+      "path": "mods/fabric-api.jar",
+      "hashes": {
+        "sha1": "16c30dfcceaed1ac3b6ac84cbd348a906dc5093e",
+        "sha512": "fa0308b42e9cd0dc3ff946f246d199d74547e0c946d7e3c9780a2537155307baf25129f69bd1349273babf879ffb4608b7e4af0740938f9c0f7b371b1c67d6ca"
+      },
+      "env": {
+        "client": "required",
+        "server": "optional"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/P7dR8mSH/versions/3dM0X6ou/fabric-api-0.155.3%2B26.1.2.jar"
+      ],
+      "fileSize": 2521340
+    },
+    {
       "path": "mods/sodium.jar",
       "hashes": {
         "sha1": "d107b02081262e243e80559192a2de86007155d6",
@@ -154,6 +169,51 @@
         "https://cdn.modrinth.com/data/bcOsQHnC/versions/aQwYQ589/Female-Gender-Mod-5.0.0-Beta.5%2Bmc26.1-fabric.jar"
       ],
       "fileSize": 1169359
+    },
+    {
+      "path": "mods/keybind.jar",
+      "hashes": {
+        "sha1": "268138d9a371baa53a89695ad33718e07ce817db",
+        "sha512": "e3afbc78febccc54299d9855173a994613f659514b7a4c26c7740e1362e5eb9ebe034b27311be2ae230ea8f52a0ad53849ef2085c2711b81589eb8e6cd0dff55"
+      },
+      "env": {
+        "client": "required",
+        "server": "unsupported"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/yuttqmXl/versions/2uF7TMAy/Fabric-Keybind-26-1.0.3.jar"
+      ],
+      "fileSize": 54966
+    },
+    {
+      "path": "mods/headpats.jar",
+      "hashes": {
+        "sha1": "7adda44c82e30ef98e538b0333f7881f18f37e64",
+        "sha512": "b3e4915b2a37b746867e0a7d27e6cf87b9e39f9c854e5c84464da1aff4cb009fc08bded7081fee9e334d8e67a7227ebde777b2a7c40a2112293007bfac6d899b"
+      },
+      "env": {
+        "client": "required",
+        "server": "optional"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/vETxChiy/versions/PLEHRRPS/headpats-1.0.7%2B26.1.2.jar"
+      ],
+      "fileSize": 208568
+    },
+    {
+      "path": "mods/cicada.jar",
+      "hashes": {
+        "sha1": "1a6b35f8df2cfb469afc0829c604864b63fd2070",
+        "sha512": "15df839ad90dbc246ffd53481a7cf3a178ccbbfaf48fa140a5e24406fdbb501962b989018e692c2e810855c7f697e4db83fecf34a80cb614df963058b0281a4e"
+      },
+      "env": {
+        "client": "required",
+        "server": "optional"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/IwCkru1D/versions/4mer2Cys/cicada-lib-0.15.3%2B26.1.jar"
+      ],
+      "fileSize": 360541
     }
   ],
   "dependencies": {

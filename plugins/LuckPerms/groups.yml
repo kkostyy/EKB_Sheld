@@ -173,6 +173,21 @@ groups:
       - -ekb.deathnote.admin    # Тетрадь Смерти — только главный админ
       - -ekb.artifact.admin     # То же для шести особых артефактов
       - -plugman.admin          # Запрет на управление плагинами
+      # --- 27.09.2026: дрон-камикадзе — забава ТОЛЬКО главного админа ---
+      # drone.* по умолчанию у op, а операторы есть и среди помощников.
+      - -drone.use
+      - -drone.admin
+      - -drone.reload
+      # --- MinerTrack: видеть подозрения и логи, но не кикать ---
+      - minertrack.use
+      - minertrack.notify
+      - minertrack.check
+      - minertrack.logs
+      - -minertrack.kick
+      - -minertrack.reset
+      # --- BetterReplay: смотреть записи можно, писать/удалять — нет ---
+      - replay.list
+      - replay.play
       - ekb.menu.helper         # /menu -> раздел помощника администратора
       - brewery.admin
 

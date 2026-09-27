@@ -72,6 +72,7 @@ command /disguise:
             make player execute command "skin clear"
             execute console command "tab player %player% customtabname"
             execute console command "tab player %player% tagprefix"
+            execute console command "tab player %player% tabprefix"
             send "{@prefix}&7Личина снята. Ты снова &f%player%&7."
             stop
 
@@ -79,6 +80,10 @@ command /disguise:
         make player execute command "skin set %sh_skin()%"
         execute console command "tab player %player% customtabname &8%{_alias}%"
         execute console command "tab player %player% tagprefix &8[%{_alias}%] "
+        # Тег роли (role_colors.sk) в списке прячется тоже: «[Судья] Ворон-42»
+        # выдал бы маску с головой. Пустой префикс — это «&8», а не пустая
+        # строка: без значения TAB сбросит свойство обратно к группе.
+        execute console command "tab player %player% tabprefix &8"
         send "{@prefix}Личина надета. В списке игроков ты — &8%{_alias}%&r."
         send "{@prefix}&7Скин подменён, в таб-листе только псевдоним."
         send "{@prefix}&cНик над головой скрыть нельзя: TAB такого не умеет, а Суду"

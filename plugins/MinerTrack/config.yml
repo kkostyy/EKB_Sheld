@@ -1,0 +1,142 @@
+#### MinerTrack Anti-Xray Configuration - config.yml ##############################
+#
+#   Welcome to MinerTrack anti-xray configuration file.
+#   This file defines global settings specifically optimized for anti-xray detection.
+#
+#  Useful Links:
+#  Get Update: https://modrinth.com/plugin/minertrack
+#  View Source: https://github.com/At87668/MinerTrack
+#  Report Issue: https://github.com/At87668/MinerTrack/issues
+#  Pull Requset: https://github.com/At87668/MinerTrack/pulls
+#  Visit Wiki: https://minertrack.pages.dev/wiki/
+#  Join Discord: https://discord.gg/MzTea2W9cb
+#  Support Project: https://patreon.com/Author87668/join
+#
+#  Anyway, thanks for using MinerTrack anti-xray! ❤
+#
+##################################################################################
+
+# ! NOTE: DON'T EDIT CONFIG VERSION !
+_config-version: 3
+
+# Check for updates on startup (recommended for latest optimizations).
+check_update: false
+# Available options: stable/beta/alpha. Using the pre-release version will receive updates from more stable versions.
+check_update_channel: "stable"
+
+# Visual effect when a player is kicked using /minertrack kick (default: true)
+kick_strike_lightning: true
+
+# Log Violations (default: true)
+# Logs all detections in /plugins/MinerTrack/logs for easier monitoring.
+log_file: true
+
+# Auto-delete outdated logs after specified days (-1 to disable auto-deletion)
+delete_time: 30
+
+# Deny Bypass Permission - force checks on all players, including Operators.
+disable_bypass_permission: false
+
+# Discord WebHook
+# Placeholders: %player% %player_uuid% %player_vl% %ore_type% %ore_count% %mined_veins% %pos_x% %pos_y% %pos_z% %world% %timestamp%
+DiscordWebHook:
+  enable: false
+  WebHookURL: ''
+  vl-required: 4 # If a player's violation level is greater than this value, an alert is sent.
+  vl-add-message:
+    color: 0xFF5733
+    title: "X-Ray Alert"
+    text:
+      - 'Player Name: %player%'
+      - 'Player UUID: %player_uuid%'
+      - 'Player Violation Level: %player_vl%'
+      - ''
+      - 'Mining Ore: %ore_type%x%ore_count%'
+      - 'Mined Veins: %mined_veins%'
+      - ''
+      - 'World: %world%'
+      - 'Pos: %pos_x% %pos_y% %pos_z%'
+      - ''
+      - '%timestamp%'
+  # If the custom Json format below is enabled, this Json body format will be used to send to the WebHookURL configured above
+  custom-json:
+    enable: false
+    format: |
+      {
+        "title": "X-Ray Alert",
+        "data": {
+          "player": {
+            "name": "%player%",
+            "uuid": "%player_uuid%",
+            "violation_level": %player_vl%
+          },
+          "mining": {
+            "ore_type": "%ore_type%",
+            "ore_count": %ore_count%,
+            "mined_veins": %mined_veins%
+          },
+          "location": {
+            "world": %world%,
+            "x": %pos_x%,
+            "y": %pos_y%,
+            "z": %pos_z%
+          },
+          "timestamp": "%timestamp%"
+        }
+      }
+
+# XRay Settings
+xray:
+  # World identifiers use the canonical Minecraft namespace format
+  # (minecraft:<key>). The Minecraft dimension keys are:
+  #   minecraft:overworld     — the normal world
+  #   minecraft:the_nether    — the nether
+  #   minecraft:the_end       — the end
+  # World folder names (e.g. "world", "world_nether") are translated to
+  # these ids at runtime, so the same config works regardless of how the
+  # server admin named the on-disk world folders.
+  #
+  # 'all_unnamed_world' is a special wildcard token meaning "any world
+  # not explicitly listed above". Worlds matching it inherit the same
+  # group config (overworld.yml by default).
+  #
+  # Configuration will be loaded from 'Configuration/file_name.yml'.
+  worlds:
+    'overworld': # It means overworld.yml
+      - minecraft:overworld
+      - all_unnamed_world
+    'nether':
+      - minecraft:the_nether
+    'end':
+      - minecraft:the_end
+
+  # Violation level decay settings (Unit: minute)
+  decay:
+    interval: 3         # The interval between decay tasks (in minutes)
+    amount: 1           # The value of each linear falloff
+    use_factor: false   # Whether to enable nonlinear attenuation
+    factor: 0.9         # Nonlinear decay scale (only works when use_factor=true)
+
+  # Commands executed at specified violation thresholds
+  # Format is as follows:
+  #
+  # One VL, one command:
+  # 'VL': 'Command that need to be executed'
+  #
+  # One VL, multiple commands:
+  # 'VL':
+  #   - 'Command 1'
+  #   - 'Command 2'
+  #   - 'More commands...'
+  commands:
+    2: 'minertrack notify &f%player% &7triggered &fX-Ray &7detection [&cVL: 2&7]'
+    4: 'minertrack notify &f%player% &7triggered &fX-Ray &7detection [&cVL: 4&7]'
+    # EKB SHIELD: автокика НЕТ. Подозрение — повод для проверки, а не приговор:
+    # шахтёр, наткнувшийся на три жилы подряд в пещере, выглядит как X-Ray.
+    # Наказывает Суд по логу (plugins/MinerTrack/logs) и CoreProtect.
+    # ⚠ Никакого `say`: подозрение не объявляется на весь сервер.
+    5:
+      - 'minertrack notify &f%player% &cдостиг VL 5 &7— проверь: &b/co lookup u:%player% a:-block'
+
+# ONLY DEVELOPER SHOULD OPEN THE DEBUG MODE
+debug: false
