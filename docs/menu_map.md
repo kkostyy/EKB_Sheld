@@ -4,7 +4,7 @@
 Руками не править: карта правилась вручную и поэтому врала
 (стояло 32 меню и 360 кнопок, когда в игре было 40 и 430).
 
-- меню: **68**, кнопок: **895**
+- меню: **69**, кнопок: **917**
 - правка меню: `menus_spec.py` → `py -3 build_menus.py --install` → `/dm reload`
 - проверка: `py -3 check_menus.py`
 
@@ -68,7 +68,8 @@ EKB SHIELD   /menu /меню
 │  │  │  └─ Настольные игры   /tables /настолки   [ekb.menu.admin]
 │  │  ├─ Предметы и вещества   /items /предметы   [ekb.menu.admin]
 │  │  ├─ Мир и границы   [ekb.menu.admin]
-│  │  └─ Сервис сервера   [ekb.menu.admin]
+│  │  ├─ Сервис сервера   [ekb.menu.admin]
+│  │  └─ Надзор и техника   /admintech   [ekb.menu.admin]
 │  ├─ Помощник администратора   /helpermenu /хмену   [ekb.menu.helper]
 │  ├─ Судья   /judge /судья   [ekb.menu.judge]
 │  ├─ Врач Клиники   /doctor /врач   [ekb.menu.doctor]
@@ -102,7 +103,7 @@ EKB SHIELD   /menu /меню
 - **Закрыть**
 
 ### Администрация
-*`admin.yml` · 20 кнопок · `/adminmenu`, `/амену` · право `ekb.menu.admin`*
+*`admin.yml` · 21 кнопок · `/adminmenu`, `/амену` · право `ekb.menu.admin`*
 
 - **Администрация (САП)**
 - **Наблюдение за игроком** — `/ekbmenu spec`
@@ -122,17 +123,20 @@ EKB SHIELD   /menu /меню
 - **Чужие инвентари** — `/ekbmenu inv`, ПКМ: `/ekbmenu ender`
 - **Ваниш** — `/sv`
 - **TPS** — `/spark tps`
+- **Надзор и техника** — → ekb_admin_tech
 - **Назад** — → ekb_duty
 - **Закрыть**
 
 ### Бар и кости
-*`casino.yml` · 10 кнопок · `/casino`, `/казино`*
+*`casino.yml` · 12 кнопок · `/casino`, `/казино`*
 
 - **Азартный уголок Бармена**
 - **Рулетка** — `/roulette`
 - **Игровые автоматы** — `/slots`
 - **Орёл или решка** — `/coinflip`
 - **Мой счёт** — `/casinostats`
+- **Лотерея Спавна** — `/lottery`, ПКМ: `/ekbdo lotbuy`
+- **Забрать выигрыш** — `/lottery claim`
 - **Игра в кости** — `/dice`
 - **Что наливают** — `/barmenu`
 - **Стойка бара** — → ekb_barshop
@@ -193,13 +197,17 @@ EKB SHIELD   /menu /меню
 - **Закрыть**
 
 ### Голосовая связь
-*`voice.yml` · 12 кнопок · `/voice`, `/голос`, `/рация`*
+*`voice.yml` · 16 кнопок · `/voice`, `/голос`, `/рация`*
 
 - **Голосовая связь**
 - **Как это работает**
 - **Шёпот**
 - **Группы (рация)** — `/groups`
 - **Датчик скалка слышит голос**
+- **Рация**
+- **Simple Voice Chat**
+- **Зоны тишины** — `/voicezone add`, ПКМ: `/voicezone del`  `[ekb.menu.admin]`
+- **Список зон тишины** — `/voicezone list`  `[ekb.menu.admin]`
 - **Музыкальные пластинки** — `/disc`
 - **Объявление голосом** — `/vbroadcast`  `[ekb.menu.admin]`  `[ekb.menu.helper]`
 - **Приоритетный голос**  `[ekb.menu.admin]`  `[ekb.menu.helper]`
@@ -423,6 +431,21 @@ EKB SHIELD   /menu /меню
 - **Назад** — → ekb_admin
 - **Закрыть**
 
+### Надзор и техника
+*`admin_tech.yml` · 11 кнопок · `/admintech` · право `ekb.menu.admin`*
+
+- **Надзор и техника**
+- **История X-Ray** — `/ekbdo mtcheck`, ПКМ: `/mtrack help`
+- **BetterReplay** — `/replay list`, ПКМ: `/replay`
+- **Тег роли** — `/rolecolor`
+- **Тираж вне расписания** — `/lottery draw`
+- **Выдать рацию** — `/ekbdo radiogive`
+- **Горячие клавиши** — `/kbind manage`
+- **Дрон-камикадзе** — `/drone black`, ПКМ: `/drone white`
+- **Глушилка РЭБ** — `/drone jammer`, ПКМ: `/drone detector`
+- **Назад** — → ekb_admin
+- **Закрыть**
+
 ### Напитки
 *`drinks.yml` · 17 кнопок · `/drinks`, `/напитки`, `/bar`, `/бар` · право `ekb.menu.admin`*
 
@@ -507,7 +530,7 @@ EKB SHIELD   /menu /меню
 - **Закрыть**
 
 ### Помощник администратора
-*`helper.yml` · 15 кнопок · `/helpermenu`, `/хмену` · право `ekb.menu.helper`*
+*`helper.yml` · 17 кнопок · `/helpermenu`, `/хмену` · право `ekb.menu.helper`*
 
 - **Помощник администратора**
 - **Инспектор CoreProtect** — `/co i`
@@ -522,6 +545,8 @@ EKB SHIELD   /menu /меню
 - **Что тебе закрыто**
 - **Наблюдатель** — `/gmsp`, ПКМ: `/gms`
 - **Роли и права** — `/ekbroles`
+- **Подозрения X-Ray** — `/ekbdo mtcheck`
+- **Записи BetterReplay** — `/replay list`
 - **Назад** — → ekb_duty
 - **Закрыть**
 
@@ -565,7 +590,7 @@ EKB SHIELD   /menu /меню
 - **Закрыть**
 
 ### Профиль
-*`profile.yml` · 22 кнопок · `/profile`, `/профиль`*
+*`profile.yml` · 24 кнопок · `/profile`, `/профиль`*
 
 - **Профиль**
 - **Голосовая связь** — → ekb_voice
@@ -583,6 +608,8 @@ EKB SHIELD   /menu /меню
 - **Нести на руках** — `/ekbdo carry`
 - **Сообщить о баге** — `/bugreport`
 - **Мои жалобы** — `/myreports`, ПКМ: текст в чат
+- **Привязка Discord** — `/discord link`
+- **Горячие клавиши** — `/kbind list`
 - **Чёрный список** — `/ekbdo ignore`
 - **Гражданство** — → ekb_citizen  `[ekb.menu.citizen]`
 - **Житель Спавна** — → ekb_capital  `[ekb.menu.capital]`
