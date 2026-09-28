@@ -27,7 +27,8 @@ scoreboard-teams:
   # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Sorting-players-in-tablist
   # EKB SHIELD: порядок = иерархия LuckPerms из plugins/LuckPerms/groups.yml
   sorting-types:
-    - "GROUPS:admin,restricted_admin,default"
+    # 28.09.2026: роли стали группами LuckPerms (синхронизация с Discord), порядок = вес
+    - "GROUPS:admin,restricted_admin,judge,sheriff,mayor,council,treasurer,guard,doctor,detective,clerk,builder,postman,barman,dealer,journalist,capital,citizen,streamer,youtuber,nomad,default"
     - "PLACEHOLDER_A_TO_Z:%player%"
   case-sensitive-sorting: true
   can-see-friendly-invisibles: false
@@ -86,6 +87,7 @@ scoreboard:
         - "&7Игрок"
         - "&8» &f%player%"
         - "&8» &7Роль: &f%group%"
+        - "&8» &7Наиграно: &f%playerTime_total_hours%&7 ч"   # PlayerTime через PlaceholderAPI
         - ""
         - "&7Мир"
         - "&8» &7Измерение: &f%world%"

@@ -109,7 +109,7 @@ items:
       - '&aЛКМ &8— написать письмо'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo mailsend'
+      - '[player] ekbdo mailsend<delay=2>'
 
   'status':
     material: GLASS_BOTTLE
@@ -121,7 +121,7 @@ items:
       - '&aЛКМ &8— /addiction'
     left_click_commands:
       - '[close]'
-      - '[player] addiction'
+      - '[player] addiction<delay=2>'
 
   'header':
     material: SHIELD

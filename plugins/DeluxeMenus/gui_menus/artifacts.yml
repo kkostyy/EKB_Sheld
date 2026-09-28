@@ -131,7 +131,7 @@ items:
       - '&aЛКМ &8— как списать'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo artifactrelease'
+      - '[player] ekbdo artifactrelease<delay=2>'
 
   'header':
     material: NETHER_STAR

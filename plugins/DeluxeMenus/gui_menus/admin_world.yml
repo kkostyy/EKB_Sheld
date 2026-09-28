@@ -25,7 +25,7 @@ items:
       - '&aЛКМ &8— открыть список'
     left_click_commands:
       - '[close]'
-      - '[player] spawnbuild'
+      - '[player] spawnbuild<delay=2>'
 
   'status':
     material: COMPASS
@@ -37,7 +37,7 @@ items:
       - '&aЛКМ &8— /function ekb:status'
     left_click_commands:
       - '[close]'
-      - '[player] function ekb:status'
+      - '[player] function ekb:status<delay=2>'
 
   'auto_on':
     material: LIME_DYE
@@ -49,7 +49,7 @@ items:
       - '&aЛКМ &8— /function ekb:auto_on'
     left_click_commands:
       - '[close]'
-      - '[player] function ekb:auto_on'
+      - '[player] function ekb:auto_on<delay=2>'
 
   'auto_off':
     material: GRAY_DYE
@@ -63,7 +63,7 @@ items:
       - '&aЛКМ &8— /function ekb:auto_off'
     left_click_commands:
       - '[close]'
-      - '[player] function ekb:auto_off'
+      - '[player] function ekb:auto_off<delay=2>'
 
   'chunky':
     material: DIAMOND_PICKAXE
@@ -105,7 +105,7 @@ items:
       - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[close]'
-      - '[player] weather clear'
+      - '[player] weather clear<delay=2>'
 
   'header':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2E1MTRiY2NhOGEwNDlhYWRlY2QxNDhhZTA0MzU3YWQwZDUzMzVkYjMwMDMzYTdiM2RkYjU3MWZkNjBkMTc1OCJ9fX0=

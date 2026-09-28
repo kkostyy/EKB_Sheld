@@ -102,7 +102,7 @@ items:
       - '&aЛКМ &8— как выдать остальные'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo givegun'
+      - '[player] ekbdo givegun<delay=2>'
 
   'header':
     material: CROSSBOW

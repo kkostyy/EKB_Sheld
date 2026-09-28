@@ -43,10 +43,10 @@ items:
           permission: coreprotect.rollback
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo bloodnight'
+      - '[player] ekbdo bloodnight<delay=2>'
     right_click_commands:
       - '[close]'
-      - '[player] bloodnight отмена'
+      - '[player] bloodnight отмена<delay=2>'
 
   'header':
     material: REDSTONE_BLOCK

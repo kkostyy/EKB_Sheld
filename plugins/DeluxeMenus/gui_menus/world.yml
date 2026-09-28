@@ -6,67 +6,21 @@ size: 54
 
 items:
 
-  'map':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzk5MjRiY2ZkN2VjNmVhNDM3NDM4Yjc1YjcyZWU0MWEyYjU3MTA0ZGJhMjVlY2FmYTYxMThlNjhlMWI4MWM5ZCJ9fX0=
-    slot: 13
-    display_name: '&b&lВеб-карта'
-    lore:
-      - '&7squaremap: границы государств, дороги, Спавн.'
-      - '&8Порт 8080 на IP сервера.'
-
-  'borders':
+  'world_map':
     material: FILLED_MAP
-    slot: 20
-    display_name: '&a&lГраницы государств'
+    slot: 13
+    display_name: '&b&lКарта и границы'
     lore:
-      - '&7Кто какую землю заявил и каким цветом'
-      - '&7она закрашена на карте.'
-      - '&8Граница не защищает: спор о меже — в Суд.'
+      - '&7Веб-карта, границы государств,'
+      - '&7граница мира.'
       - ''
-      - '&aЛКМ &8— показать список'
+      - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[player] borders'
-
-  'border':
-    material: OAK_FENCE_GATE
-    slot: 22
-    display_name: '&6&lГраница мира'
-    lore:
-      - '&74000 → 20000 блоков по достижениям.'
-      - '&7Нижний мир — всегда 1/8 от Обычного.'
-      - ''
-      - '&aЛКМ &8— стадии в чат'
-    left_click_commands:
-      - '[message] &6&lГраницы: &71 — 4000 &8· &72 — 8000 (Ад) &8· &73 — 12000 (крепость)'
-      - '[message] &6&lГраницы: &74 — 16000 (Край) &8· &75 — 20000 (дракон)'
-      - '[message] &8Конституция 4.4–4.5'
-
-  'online':
-    material: CLOCK
-    slot: 24
-    display_name: '&a&lКто в сети'
-    lore:
-      - '&7Сейчас: &a%server_online%&7/&f%server_max_players%'
-      - ''
-      - '&aЛКМ &8— список игроков'
-    left_click_commands:
-      - '[player] list'
-
-  'towns':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjI1YjI3Y2U2MmNhODg3NDM4NDBhOTVkMWMzOTg2OGY0M2NhNjA2OTZhODRmNTY0ZmJkN2RkYTI1OWJlMDBmZSJ9fX0=
-    slot: 28
-    display_name: '&e&lГорода сервера'
-    lore:
-      - '&aЛКМ &8— список городов'
-      - '&aПКМ &8— сильнейшие города'
-    left_click_commands:
-      - '[player] clan list'
-    right_click_commands:
-      - '[player] topclans'
+      - '[openguimenu] ekb_world_map'
 
   'spawn':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmVlZjdlNTZjZGU3NDA3NzJkZmI3NmRkZDJmNTg0YmU4OTA3Yjg1OTc2NjhlNDAyNjM0OTg2NDY5MjMwYWE0OSJ9fX0=
-    slot: 29
+    slot: 20
     display_name: '&b&lСпавн'
     lore:
       - '&7База САП — нейтральная безопасная зона.'
@@ -78,7 +32,7 @@ items:
 
   'town':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjI1YjI3Y2U2MmNhODg3NDM4NDBhOTVkMWMzOTg2OGY0M2NhNjA2OTZhODRmNTY0ZmJkN2RkYTI1OWJlMDBmZSJ9fX0=
-    slot: 30
+    slot: 22
     display_name: '&a&lГород'
     lore:
       - '&7Основать, позвать жителей,'
@@ -88,21 +42,9 @@ items:
     left_click_commands:
       - '[openguimenu] ekb_town'
 
-  'press':
-    material: WRITTEN_BOOK
-    slot: 31
-    display_name: '&6&lГазета'
-    lore:
-      - '&7Выпуски, копии, экстренные новости.'
-      - '&8Тот же раздел лежит в Мире.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    left_click_commands:
-      - '[openguimenu] ekb_press'
-
   'bloodnight':
     material: REDSTONE_BLOCK
-    slot: 32
+    slot: 24
     display_name: '&4&lКровавый Сон'
     lore:
       - '&7Ночь без правил и без логов.'
@@ -112,9 +54,21 @@ items:
     left_click_commands:
       - '[openguimenu] ekb_bloodnight'
 
+  'press':
+    material: WRITTEN_BOOK
+    slot: 30
+    display_name: '&6&lГазета'
+    lore:
+      - '&7Выпуски, копии, экстренные новости.'
+      - '&8Тот же раздел лежит в Мире.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_press'
+
   'discord':
     material: LAPIS_LAZULI
-    slot: 33
+    slot: 31
     display_name: '&9&lDiscord'
     lore:
       - '&7Иски, объявления войн, уставы городов.'

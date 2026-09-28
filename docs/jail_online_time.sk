@@ -40,6 +40,7 @@ options:
 #   {jail_pending::%uuid%}    — приговор вынесен оффлайн, изъять при входе
 #   {jail_release::%uuid%}    — освобождён, но ещё не выбрал, куда выйти
 #   {jail_warn_cd::%uuid%}    — антиспам предупреждений в камере
+#   {jail_pose::%uuid%}       — положение минуту назад (AFK — срок вдвое дольше)
 #   {jail_menu::%uuid%}       — открыто меню выбора (клики отменяются)
 #   {jail_confirm::%судья%}   — чей ящик судья собрался стереть
 #   {court-location}          — крыльцо Суда, /setcourtpoint
@@ -166,6 +167,7 @@ command /sentence <offlineplayer> <number> [<text>]:
         set {jail_name::%{_k}%} to {_n}
         set {jail_remaining::%{_k}%} to arg-2 * 60
         set {jail_active::%{_k}%} to true
+        delete {jail_pose::%{_k}%}
 
         # История приговоров: по ней видно рецидив, а УК его прямо
         # учитывает («при повторном — срок удваивается», ст. 4.2).
@@ -221,15 +223,44 @@ command /freeearly <offlineplayer>:
             set {_cnt} to size of {jail_seized::%{_k}%::*}
             send "{@prefix}&7В судейском ящике лежит &f%{_cnt}%&7 предметов. Вернуть: &b/jailitems give %{_n}%" to sender
 
-# Каждую минуту уменьшаем срок только у тех, кто сейчас в сети
+# Снимок взгляда заключённого: ТОЛЬКО поворот головы, без координат.
+# Совпал с прошломинутным — за минуту человек ни разу не шевельнул мышью.
+#
+# ⚠ Координаты не сравниваются намеренно (28.09.2026). Раньше в снимок
+# входили x/y/z, и лазейка была готовая: встать в поток воды — тело
+# сносит, координаты каждую минуту разные, срок идёт как у активного.
+# Вода, лава, поршни и чужой толчок двигают тело, но не поворачивают
+# взгляд; автокликер — тоже. Кто реально играет, тот крутит камерой.
+function jail_pose(p: player) :: text:
+    set {_l} to location of {_p}
+    return "%yaw of {_l}%|%pitch of {_l}%"
+
+# Каждую минуту уменьшаем срок только у тех, кто сейчас в сети.
+#
+# ⚠ AFK сидит ВДВОЕ дольше: минута без движения засчитывается как полминуты.
+# Срок по УК — онлайн-часы, а не часы с открытым клиентом; иначе проще всего
+# зайти, отойти от компьютера и «отсидеть» ночь. Совсем не останавливаем
+# намеренно: неподвижный — ещё не обязательно отошедший (читает, говорит в
+# голос), и замороженный срок был бы наказанием за молчание.
+# Снимок снимается ПОСЛЕ телепорта в камеру: телепорт сам ставит игрока в
+# точку тюрьмы с её поворотом, и сравнивать надо с этим положением.
+# Без событий движения: `on any move` — самое частое событие сервера, а
+# здесь хватает одного сравнения строк раз в минуту.
 every 1 minute:
     loop all players:
         set {_k} to "%uuid of loop-player%"
         if {jail_active::%{_k}%} is true:
             if {jail_remaining::%{_k}%} > 0:
-                remove 60 from {jail_remaining::%{_k}%}
+                set {_pose} to jail_pose(loop-player)
+                if {jail_pose::%{_k}%} is {_pose}:
+                    remove 30 from {jail_remaining::%{_k}%}
+                    send "{@prefix}&7Ты не двигаешься — срок идёт вдвое медленнее." to loop-player
+                else:
+                    remove 60 from {jail_remaining::%{_k}%}
                 teleport loop-player to {jail-location}  # удержание в тюрьме
+                set {jail_pose::%{_k}%} to jail_pose(loop-player)
             else:
+                delete {jail_pose::%{_k}%}
                 set {jail_active::%{_k}%} to false
                 delete {jail_remaining::%{_k}%}
                 send "{@prefix}Твой срок ОНЛАЙН-заключения истёк. Ты свободен." to loop-player
@@ -254,6 +285,9 @@ on join:
         set {_m} to {jail_remaining::%{_k}%} / 60
         send "{@prefix}У тебя ещё %{_m}% минут ОНЛАЙН-срока." to player
         send "{@prefix}&7В камере нельзя ничего ломать и ставить." to player
+        send "{@prefix}&7Стоишь без движения — срок идёт вдвое медленнее." to player
+        # Снимок до входа ничего не значит: после телепорта поза другая.
+        delete {jail_pose::%{_k}%}
     else if {jail_release::%{_k}%} is set:
         wait 1 tick
         jail_release_menu(player)
@@ -508,9 +542,23 @@ command /setjailpoint:
 
 # Показать точку тюрьмы и список отбывающих срок
 command /jailinfo:
-    permission: coreprotect.rollback
     description: Точка тюрьмы и текущие заключённые
     trigger:
+        # Смотреть, кто сидит, — дело и Суда, и Шерифа, и помощника: список
+        # ничего не меняет. Раньше команда была под coreprotect.rollback, и
+        # кнопка «Тюрьма» у шерифа молчала.
+        set {_ok} to false
+        if sender is not a player:
+            set {_ok} to true
+        else if player has permission "coreprotect.rollback":
+            set {_ok} to true
+        else if player has permission "ekb.duty.sheriff":
+            set {_ok} to true
+        else if player has permission "ekb.menu.helper":
+            set {_ok} to true
+        if {_ok} is false:
+            send "{@prefix}&cСписок заключённых — для Суда, Шерифа и Администрации."
+            stop
         if {jail-location} is not set:
             send "{@prefix}&cТочка тюрьмы не задана. Встань на месте тюрьмы и выполни /setjailpoint" to sender
             stop

@@ -10,9 +10,23 @@ open_requirement:
 
 items:
 
+  'tps':
+    material: CLOCK
+    slot: 13
+    display_name: '&a&lTPS и здоровье сервера'
+    lore:
+      - '&7Нагрузка, тики, память.'
+      - '&8Профилировщик spark сам грузит сервер,'
+      - '&8поэтому помощнику админа он закрыт.'
+      - ''
+      - '&aЛКМ &8— /spark tps'
+    left_click_commands:
+      - '[close]'
+      - '[player] spark tps<delay=2>'
+
   'near':
     material: RECOVERY_COMPASS
-    slot: 13
+    slot: 20
     display_name: '&b&lКто рядом'
     lore:
       - '&7Игроки вокруг тебя с дистанцией и координатами.'
@@ -23,21 +37,7 @@ items:
       - '&aЛКМ &8— показать (радиус 64)'
     left_click_commands:
       - '[close]'
-      - '[player] near'
-
-  'tps':
-    material: CLOCK
-    slot: 20
-    display_name: '&a&lTPS и здоровье сервера'
-    lore:
-      - '&7Нагрузка, тики, память.'
-      - '&8Профилировщик spark сам грузит сервер,'
-      - '&8поэтому помощнику админа он закрыт.'
-      - ''
-      - '&aЛКМ &8— /spark tps'
-    left_click_commands:
-      - '[close]'
-      - '[player] spark tps'
+      - '[player] near<delay=2>'
 
   'save':
     material: ENDER_CHEST
@@ -67,11 +67,11 @@ items:
       - '&aЛКМ &8— выполнить'
     left_click_commands:
       - '[close]'
-      - '[player] lp editor'
+      - '[player] lp editor<delay=2>'
 
   'skript':
     material: PAPER
-    slot: 30
+    slot: 29
     display_name: '&6&lСкрипты (Skript)'
     lore:
       - '&8/sk reload all &7— перечитать все'
@@ -87,7 +87,7 @@ items:
 
   'menus':
     material: ITEM_FRAME
-    slot: 31
+    slot: 30
     display_name: '&e&lМеню (DeluxeMenus)'
     lore:
       - '&7Перечитать конфиги меню после правок.'
@@ -95,11 +95,11 @@ items:
       - '&aЛКМ &8— /dm reload'
     left_click_commands:
       - '[close]'
-      - '[player] dm reload'
+      - '[player] dm reload<delay=2>'
 
   'host':
     material: COMMAND_BLOCK
-    slot: 32
+    slot: 31
     display_name: '&c&lС консоли хоста'
     lore:
       - '&7Это не игровые команды — они запускаются'
@@ -109,6 +109,15 @@ items:
       - '&8.\backup.ps1 &7— бэкап миров с ротацией'
       - '&8.\expand_border.ps1 <1..5> &7— стадия границы'
       - '&8start.bat &7— запуск, &8stop &7— остановка'
+
+  'ahelp':
+    material: KNOWLEDGE_BOOK
+    slot: 32
+    display_name: '&b&lСправочник'
+    lore:
+      - '&aЛКМ &8— все команды в чат'
+    left_click_commands:
+      - '[player] ahelp'
 
   'header':
     material: REDSTONE_TORCH

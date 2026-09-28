@@ -259,8 +259,26 @@ command /shopegg:
 # 7603 закрыть, 7604 рамка. Блоки 7100 (выбор игрока), 7200 (имущество),
 # 7300 (роли), 7400 (контракты), 7500 (строй) заняты другими меню на Skript.
 
+# ⚠ С 28.09.2026 ассортимент и цены — ДАННЫЕ, а не код: их правит
+# Приказчик или Администрация окном `/skupka edit`, как торговца Shopkeepers.
+# Прайс ниже — только ЗАТРАВКА: засевается один раз (флаг {sm::cfg}), и
+# перезагрузка скрипта больше не затирает то, что настроили в игре. Раньше
+# `set {sm::kinds::*}` стоял прямо в on script load и сбрасывал список при
+# каждом `sk reload`.
+#   {sm::batchn::N} — партия (шт) позиции N, {sm::payn::N} — алмазов за партию
 on script load:
-    set {sm::kinds::*} to cobblestone, stone, cobbled deepslate, deepslate, granite, diorite, andesite, tuff, blackstone, basalt, netherrack, end stone, calcite, dripstone block, sand, red sand, gravel, glass, quartz block, glowstone, sea lantern, coal, charcoal, iron ingot, copper ingot, gold ingot, lapis lazuli, obsidian, magma block, soul sand, soul soil, prismarine, packed ice, gunpowder and redstone
+    if {sm::cfg} is not set:
+        sm_seed()
+
+function sm_seed():
+    set {_seed::*} to cobblestone, stone, cobbled deepslate, deepslate, granite, diorite, andesite, tuff, blackstone, basalt, netherrack, end stone, calcite, dripstone block, sand, red sand, gravel, glass, quartz block, glowstone, sea lantern, coal, charcoal, iron ingot, copper ingot, gold ingot, lapis lazuli, obsidian, magma block, soul sand, soul soil, prismarine, packed ice, gunpowder and redstone
+    delete {sm::kinds::*}
+    loop {_seed::*}:
+        set {sm::kinds::%loop-index%} to loop-value
+        set {sm::batchn::%loop-index%} to sm_batch_seed(loop-value)
+        set {sm::payn::%loop-index%} to sm_pay_seed(loop-value)
+    set {sm::cfg} to 1
+    send "[РЫНОК] прайс скупщика засеян: %size of {sm::kinds::*}% позиций" to console
 
 # Партия -> алмазы, пересчитано из docs/price_list.md как 50% прайса.
 #
@@ -288,7 +306,7 @@ on script load:
 # ресурсы в 4-5 раз. Когда она наступит, железо, золото, порох и редстоун
 # отсюда надо убрать или учетверить партии — иначе скупщик станет выгоднее
 # рынка и высосет Казну.
-function sm_batch(i: item) :: number:
+function sm_batch_seed(i: item) :: number:
     # тир камня: 16💎 за шалкер -> 216 шт за алмаз, округлено до 256
     if {_i} is cobblestone or stone or cobbled deepslate or deepslate:
         return 256
@@ -332,10 +350,34 @@ function sm_batch(i: item) :: number:
         return 96
     return 0
 
-function sm_pay(i: item) :: number:
+function sm_pay_seed(i: item) :: number:
     if {_i} is gold ingot:
         return 3
     return 1
+
+# Номер позиции в ассортименте ("" — скупщик такое не берёт).
+function sm_idx(i: item) :: text:
+    loop {sm::kinds::*}:
+        if loop-value is {_i}:
+            return loop-index
+    return ""
+
+# Партия и цена — из настроек, которые правит /skupka edit.
+function sm_batch(i: item) :: number:
+    set {_k} to sm_idx({_i})
+    if {_k} is "":
+        return 0
+    if {sm::batchn::%{_k}%} is not set:
+        return 0
+    return {sm::batchn::%{_k}%}
+
+function sm_pay(i: item) :: number:
+    set {_k} to sm_idx({_i})
+    if {_k} is "":
+        return 1
+    if {sm::payn::%{_k}%} is not set:
+        return 1
+    return {sm::payn::%{_k}%}
 
 function sm_title(i: item) :: text:
     if {_i} is cobblestone:
@@ -702,6 +744,13 @@ command /skupka [<text>]:
         if arg-1 is set:
             set {_mode} to arg-1
 
+        if {_mode} is "edit" or "настроить" or "настройка":
+            if sme_can(player) is false:
+                send "{@prefix}&cНастраивает скупщика Приказчик Мэрии или Администрация."
+                stop
+            sme_open(player, 1)
+            stop
+
         if tr_ready() is false:
             send "{@prefix}&cКазна Спавна не назначена — скупщик не работает. Позови Администрацию."
             stop
@@ -946,3 +995,187 @@ command /lots:
             send "&7На доске пусто. Выставить своё: &b/lot <цена>"
         else:
             send "&8Сделка идёт лично. Продажа ниже минимума Прайс-листа — демпинг, Ст. 7.3 УК: изъятие товара и штраф 64💎."
+
+
+# ---------------------------------------------------------------------------
+# Настройка скупщика окном — как торговца Shopkeepers (28.09.2026)
+# ---------------------------------------------------------------------------
+#
+# Раньше ассортимент и цены правились в коде, и поменять цену меди значило
+# переписать функцию и перезагрузить скрипт. Теперь `/skupka edit` открывает
+# окно, устроенное как редактор торговца Shopkeepers: верхний ряд пары —
+# что скупщик берёт (количество в стопке — партия), нижний — сколько
+# алмазов за неё. Клик меняет число, предмет с курсора в пустую клетку —
+# новая позиция, Q по товару — убрать позицию.
+#
+# ⚠ Товару в окне CustomModelData НЕ ставится: у бумаги, палки, бутылки
+# в ресурспаке range_dispatch по CMD, и метка окна нарисовала бы чужую
+# модель (коноплю вместо бумаги). Клетки опознаются картой слотов
+# {sme::slot::<uuid>::<слот>}, а само окно — маркером CMD 7610 в слоте 49.
+# ⚠ Стопка не бывает больше 64: партия 256 показывается стопкой 64, а точное
+# число — в названии. Так же и цена.
+#
+# CMD окна: 7610 маркер/справка, 7611 назад, 7612 вперёд, 7613 закрыть,
+# 7615 заглушка, 7616 пустая клетка под новую позицию.
+
+function sme_can(p: player) :: boolean:
+    if {_p} has permission "{@clerk}":
+        return true
+    if {_p} has permission "ekb.menu.admin":
+        return true
+    return false
+
+function sme_pane(t: item, cmd: number, title: text) :: item:
+    set custom model data of {_t} to {_cmd}
+    set name of {_t} to {_title}
+    return {_t}
+
+function sme_open(p: player, page: number):
+    set {_u} to "%uuid of {_p}%"
+    delete {sme::slot::%{_u}%::*}
+    set {_n} to 0
+    loop {sm::kinds::*}:
+        add 1 to {_n}
+        set {_o::%{_n}%} to loop-index
+    # +1: на последней странице всегда есть пустая клетка под новую позицию
+    set {_pages} to ceil(({_n} + 1) / 18)
+    if {_page} > {_pages}:
+        set {_page} to {_pages}
+    if {_page} < 1:
+        set {_page} to 1
+    set {sme::page::%{_u}%} to {_page}
+    set {_inv} to chest inventory with 6 rows named "&8Скупщик: настройка %{_page}%/%{_pages}%"
+    set {_nop} to sme_pane(1 of gray stained glass pane, 7615, " ")
+    set {_free} to sme_pane(1 of light gray stained glass pane, 7616, "&7Свободно")
+    set lore of {_free} to "&8Положи сюда предмет с курсора —", "&8он станет новой позицией." and "&8Сколько в стопке — такая и партия."
+    loop 18 times:
+        set {_j} to loop-number - 1
+        set {_gs} to (floor({_j} / 9) * 18) + mod({_j}, 9)
+        set {_ps} to {_gs} + 9
+        set {_pos} to (({_page} - 1) * 18) + loop-number
+        set {_k} to {_o::%{_pos}%}
+        if {_k} is set:
+            set {_kind} to {sm::kinds::%{_k}%}
+            set {_b} to {sm::batchn::%{_k}%}
+            set {_pay} to {sm::payn::%{_k}%}
+            set {_g} to {_kind}
+            set item amount of {_g} to min({_b}, 64)
+            set name of {_g} to "&f%sm_title({_kind})%&7 — партия &f%{_b}%&7 шт."
+            set lore of {_g} to "&aЛКМ &8+1   &aShift+ЛКМ &8+16", "&cПКМ &8−1   &cShift+ПКМ &8−16" and "&4Q &8— убрать позицию"
+            set {_d} to 1 of diamond
+            set item amount of {_d} to min({_pay}, 64)
+            set name of {_d} to "&b%{_pay}%💎&7 за партию"
+            set lore of {_d} to "&aЛКМ &8+1   &aShift+ЛКМ &8+8" and "&cПКМ &8−1   &cShift+ПКМ &8−8"
+            set slot {_gs} of {_inv} to {_g}
+            set slot {_ps} of {_inv} to {_d}
+            set {sme::slot::%{_u}%::%{_gs}%} to "g:%{_k}%"
+            set {sme::slot::%{_u}%::%{_ps}%} to "p:%{_k}%"
+        else:
+            set slot {_gs} of {_inv} to {_free}
+            set slot {_ps} of {_inv} to {_nop}
+            set {sme::slot::%{_u}%::%{_gs}%} to "new"
+    loop integers from 36 to 53:
+        set slot loop-number of {_inv} to {_nop}
+    if {_page} > 1:
+        set slot 45 of {_inv} to sme_pane(1 of arrow, 7611, "&7◄ Назад")
+    if {_page} < {_pages}:
+        set slot 53 of {_inv} to sme_pane(1 of arrow, 7612, "&7Вперёд ►")
+    set {_help} to sme_pane(1 of book, 7610, "&e&lКак настраивать")
+    set lore of {_help} to "&7Верхняя клетка пары — что берёт скупщик,", "&7нижняя — сколько алмазов за партию.", "&7Клик по числу — больше или меньше.", "&7Предмет с курсора в пустую клетку — новая позиция.", "&7Q по товару — убрать позицию." and "&8Цены действуют сразу. Деньги — из Казны."
+    set slot 49 of {_inv} to {_help}
+    set slot 50 of {_inv} to sme_pane(1 of barrier, 7613, "&cЗакрыть")
+    open {_inv} to {_p}
+
+on inventory click:
+    set {_top} to current inventory of player
+    if (amount of slots of {_top}) >= 54:
+        if sm_cmd(slot 49 of {_top}) is 7610:
+            cancel event
+            # ⚠ Клик по своему рюкзаку приходит с тем же номером слота, что
+            # и клетка окна (та же грабля, что в /skupka и /jailprop).
+            if clicked inventory is not {_top}:
+                stop
+            set {_u} to "%uuid of player%"
+            set {_s} to index of event-slot
+            set {_c} to sm_cmd(event-item)
+            set {_page} to {sme::page::%{_u}%}
+            if {_c} is 7613:
+                close player's inventory
+                stop
+            if {_c} is 7611:
+                wait 1 tick
+                sme_open(player, {_page} - 1)
+                stop
+            if {_c} is 7612:
+                wait 1 tick
+                sme_open(player, {_page} + 1)
+                stop
+            set {_m} to {sme::slot::%{_u}%::%{_s}%}
+            if {_m} is not set:
+                stop
+            if {_m} is "new":
+                set {_cur} to cursor slot of player
+                if {_cur} is air:
+                    send "{@prefix}&7Возьми предмет на курсор и кликни по пустой клетке."
+                    stop
+                set {_amt} to item amount of {_cur}
+                set {_new} to 1 of (type of {_cur})
+                if sm_idx({_new}) is not "":
+                    send "{@prefix}&7Это уже есть в ассортименте — меняй его партию кликом."
+                    stop
+                set {_max} to 0
+                loop {sm::kinds::*}:
+                    set {_i} to loop-index parsed as number
+                    if {_i} > {_max}:
+                        set {_max} to {_i}
+                set {_k} to "%{_max} + 1%"
+                set {sm::kinds::%{_k}%} to {_new}
+                set {sm::batchn::%{_k}%} to {_amt}
+                set {sm::payn::%{_k}%} to 1
+                send "{@prefix}&aСкупщик теперь берёт &f%sm_title({_new})%&a: партия &f%{_amt}%&a шт. за &b1💎&a."
+                al_add("%player%", "скупщик: новая позиция %sm_title({_new})% (%{_amt}% шт. за 1)", "")
+                wait 1 tick
+                sme_open(player, {_page})
+                stop
+            set {_parts::*} to {_m} split at ":"
+            set {_k} to {_parts::2}
+            if {sm::kinds::%{_k}%} is not set:
+                stop
+            set {_title} to sm_title({sm::kinds::%{_k}%})
+            if {_parts::1} is "g":
+                if click type is drop key or drop key with control:
+                    delete {sm::kinds::%{_k}%}
+                    delete {sm::batchn::%{_k}%}
+                    delete {sm::payn::%{_k}%}
+                    send "{@prefix}&cСкупщик больше не берёт &f%{_title}%&c."
+                    al_add("%player%", "скупщик: убрана позиция %{_title}%", "")
+                    wait 1 tick
+                    sme_open(player, {_page})
+                    stop
+                set {_d} to 0
+                if click type is left mouse button:
+                    set {_d} to 1
+                if click type is left mouse button with shift:
+                    set {_d} to 16
+                if click type is right mouse button:
+                    set {_d} to -1
+                if click type is right mouse button with shift:
+                    set {_d} to -16
+                set {_v} to max(1, {sm::batchn::%{_k}%} + {_d})
+                set {sm::batchn::%{_k}%} to {_v}
+            else:
+                set {_d} to 0
+                if click type is left mouse button:
+                    set {_d} to 1
+                if click type is left mouse button with shift:
+                    set {_d} to 8
+                if click type is right mouse button:
+                    set {_d} to -1
+                if click type is right mouse button with shift:
+                    set {_d} to -8
+                set {_v} to max(1, {sm::payn::%{_k}%} + {_d})
+                set {sm::payn::%{_k}%} to {_v}
+            send "[РЫНОК] %player% настроил скупщика: %{_title}% — %{sm::batchn::%{_k}%}% шт. за %{sm::payn::%{_k}%}% алм." to console
+            wait 1 tick
+            sme_open(player, {_page})
+

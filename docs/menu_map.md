@@ -4,7 +4,7 @@
 Руками не править: карта правилась вручную и поэтому врала
 (стояло 32 меню и 360 кнопок, когда в игре было 40 и 430).
 
-- меню: **69**, кнопок: **917**
+- меню: **90**, кнопок: **1005**
 - правка меню: `menus_spec.py` → `py -3 build_menus.py --install` → `/dm reload`
 - проверка: `py -3 check_menus.py`
 
@@ -15,71 +15,92 @@
 ```
 EKB SHIELD   /menu /меню
 ├─ Профиль   /profile /профиль
-│  ├─ Голосовая связь   /voice /голос /рация
-│  ├─ Скины по цвету   /skincolor /скиныцвет
-│  │  ├─ Скины: красные
-│  │  ├─ Скины: оранжевые
-│  │  ├─ Скины: жёлтые
-│  │  ├─ Скины: зелёные
-│  │  ├─ Скины: голубые
-│  │  ├─ Скины: синие
-│  │  ├─ Скины: фиолетовые
-│  │  ├─ Скины: розовые
-│  │  ├─ Скины: коричневые
-│  │  ├─ Скины: бежевые и телесные (1/2)
-│  │  │  └─ Скины: бежевые и телесные (2/2)
-│  │  ├─ Скины: белые (1/2)
-│  │  │  └─ Скины: белые (2/2)
-│  │  ├─ Скины: серые
-│  │  └─ Скины: чёрные (1/3)
-│  │     └─ Скины: чёрные (2/3)
-│  │        └─ Скины: чёрные (3/3)
-│  ├─ Контракты   /contracts /контракты
-│  ├─ Личина   /masks /маски
-│  ├─ Теневой Рынок   /blackmarket   [ekb.shadow.member]
+│  ├─ Моё состояние   /mystate /состояние
+│  ├─ Внешность   /look /внешность
+│  │  ├─ Скины по цвету   /skincolor /скиныцвет
+│  │  │  ├─ Скины: красные
+│  │  │  ├─ Скины: оранжевые
+│  │  │  ├─ Скины: жёлтые
+│  │  │  ├─ Скины: зелёные
+│  │  │  ├─ Скины: голубые
+│  │  │  ├─ Скины: синие
+│  │  │  ├─ Скины: фиолетовые
+│  │  │  ├─ Скины: розовые
+│  │  │  ├─ Скины: коричневые
+│  │  │  ├─ Скины: бежевые и телесные (1/2)
+│  │  │  │  └─ Скины: бежевые и телесные (2/2)
+│  │  │  ├─ Скины: белые (1/2)
+│  │  │  │  └─ Скины: белые (2/2)
+│  │  │  ├─ Скины: серые
+│  │  │  └─ Скины: чёрные (1/3)
+│  │  │     └─ Скины: чёрные (2/3)
+│  │  │        └─ Скины: чёрные (3/3)
+│  │  └─ Личина   /masks /маски
+│  ├─ Связь   /comm /связь
+│  │  └─ Голосовая связь   /voice /голос /рация
+│  │     ├─ Как устроен голос   /voiceinfo
+│  │     └─ Голос: служебное   /voicestaff
+│  ├─ Действия   /acts /действия
 │  ├─ Гражданин государства   /citizen /гражданин   [ekb.menu.citizen]
 │  ├─ Житель Спавна (город САП)   /capital /спавн   [ekb.menu.capital]
 │  │  └─ Стойка бара   /barshop /стойка
-│  └─ Кочевник   /nomad /кочевник
+│  ├─ Кочевник   /nomad /кочевник
+│  │  └─ Путеводитель кочевника   /nomadguide
+│  ├─ Контракты   /contracts /контракты
+│  ├─ Теневой Рынок   /blackmarket   [ekb.shadow.member]
+│  └─ Поддержка   /support /поддержка
+├─ Мир   /world /мир
+│  ├─ Карта и границы   /worldmap
+│  ├─ Город   /town /город
+│  │  ├─ Уровни власти
+│  │  ├─ Настройки города
+│  │  │  └─ Дипломатия   /diplomacy
+│  │  ├─ Наёмники САП   /mercs /наёмники
+│  │  └─ О городах   /towninfo
+│  ├─ Кровавый Сон
+│  └─ Газета   /press /пресса
 ├─ Торговля   /trade /торговля /shops
 │  ├─ Торговая Коллегия   /market /коллегия
+│  ├─ Мои лавки   /myshops
 │  ├─ Ламповая Почта   /pochta /почта
-│  └─ Бар и кости   /casino /казино
-├─ Мир   /world /мир
-│  ├─ Город   /town /город
-│  │  ├─ Настройки города
-│  │  ├─ Уровни власти
-│  │  └─ Наёмники САП   /mercs /наёмники
-│  ├─ Газета   /press /пресса
-│  └─ Кровавый Сон
+│  ├─ Бар и кости   /casino /казино
+│  │  ├─ Касса и счёт   /casinocash
+│  │  └─ Бар   /barcounter
+│  └─ Цены и правила   /tradeinfo
 ├─ Законы   /laws /законы
 │  ├─ Шериф   /sheriff /шериф   [ekb.duty.sheriff]
 │  └─ Криминалистика   /forensics /улики
 ├─ Служба   /duty /служба
-│  ├─ Администрация   /adminmenu /амену   [ekb.menu.admin]
-│  │  ├─ Суд и логи   [ekb.menu.admin]
-│  │  ├─ Тюрьма   [ekb.menu.admin]
-│  │  ├─ Каталог вещей   /allitems /вещи /newitems /новое   [ekb.menu.admin]
-│  │  │  ├─ Конопля   /herbs /конопля   [ekb.menu.admin]
-│  │  │  ├─ Напитки   /drinks /напитки /bar /бар   [ekb.menu.admin]
-│  │  │  ├─ Особые артефакты   /artifacts /артефакты   [ekb.menu.admin]
-│  │  │  ├─ Тёмная Тетрадь Смерти   /deathnotemenu   [ekb.deathnote.admin]
-│  │  │  ├─ Стволы   /guns /стволы   [ekb.menu.admin]
-│  │  │  └─ Настольные игры   /tables /настолки   [ekb.menu.admin]
-│  │  ├─ Предметы и вещества   /items /предметы   [ekb.menu.admin]
-│  │  ├─ Мир и границы   [ekb.menu.admin]
-│  │  ├─ Сервис сервера   [ekb.menu.admin]
-│  │  └─ Надзор и техника   /admintech   [ekb.menu.admin]
-│  ├─ Помощник администратора   /helpermenu /хмену   [ekb.menu.helper]
+│  ├─ Должности Спавна   /spawnduty
+│  │  ├─ Строительная бригада   /brigade /бригада   [ekb.duty.builder]
+│  │  ├─ Почта   /postman /почтальон   [ekb.duty.postman]
+│  │  ├─ Приказчик Мэрии   /clerk /приказчик   [ekb.duty.clerk]
+│  │  ├─ Бармен   /barman /бармен   [ekb.duty.barman]
+│  │  ├─ Крупье   /dealer /крупье   [ekb.duty.dealer]
+│  │  └─ Следователь   /detective /следователь   [ekb.duty.detective]
 │  ├─ Судья   /judge /судья   [ekb.menu.judge]
 │  ├─ Врач Клиники   /doctor /врач   [ekb.menu.doctor]
-│  ├─ Строительная бригада   /brigade /бригада   [ekb.duty.builder]
-│  ├─ Почта   /postman /почтальон   [ekb.duty.postman]
-│  ├─ Приказчик Мэрии   /clerk /приказчик   [ekb.duty.clerk]
-│  ├─ Бармен   /barman /бармен   [ekb.duty.barman]
-│  ├─ Крупье   /dealer /крупье   [ekb.duty.dealer]
-│  ├─ Следователь   /detective /следователь   [ekb.duty.detective]
-│  └─ Тёмное ремесло   /assassin /ремесло
+│  ├─ Тёмное ремесло   /assassin /ремесло
+│  ├─ Помощник администратора   /helpermenu /хмену   [ekb.menu.helper]
+│  │  ├─ Проверка   /helperlogs   [ekb.menu.helper]
+│  │  └─ Режим   /helpermode   [ekb.menu.helper]
+│  └─ Администрация   /adminmenu /амену   [ekb.menu.admin]
+│     ├─ Наблюдение   /adminwatch   [ekb.menu.admin]
+│     ├─ Суд и логи   [ekb.menu.admin]
+│     ├─ Тюрьма   [ekb.menu.admin]
+│     ├─ Мир и границы   [ekb.menu.admin]
+│     ├─ Каталог вещей   /allitems /вещи /newitems /новое   [ekb.menu.admin]
+│     │  ├─ Конопля   /herbs /конопля   [ekb.menu.admin]
+│     │  ├─ Напитки   /drinks /напитки /bar /бар   [ekb.menu.admin]
+│     │  ├─ Особые артефакты   /artifacts /артефакты   [ekb.menu.admin]
+│     │  ├─ Тёмная Тетрадь Смерти   /deathnotemenu   [ekb.deathnote.admin]
+│     │  ├─ Стволы   /guns /стволы   [ekb.menu.admin]
+│     │  ├─ Настольные игры   /tables /настолки   [ekb.menu.admin]
+│     │  └─ Техника   /gadgets /техника   [ekb.menu.admin]
+│     ├─ Предметы и вещества   /items /предметы   [ekb.menu.admin]
+│     ├─ Точки и установка   /adminsetup   [ekb.menu.admin]
+│     ├─ Сервис сервера   [ekb.menu.admin]
+│     └─ Надзор и техника   /admintech   [ekb.menu.admin]
 ├─ С чего начать   /start /начать
 └─ Вызвать службу   /call /вызов
 ```
@@ -91,55 +112,56 @@ EKB SHIELD   /menu /меню
 
 - **EKB SHIELD**
 - **Профиль** — → ekb_profile
-- **Торговля** — → ekb_trade
 - **Мир** — → ekb_world
+- **Торговля** — → ekb_trade
 - **Законы** — → ekb_laws
 - **Службы** — → ekb_duty
 - **С чего начать** — → ekb_start
 - **Кто в сети** — `/list`
 - **Канал чата** — `/l`, ПКМ: `/g`
 - **Табло сбоку** — `/hud`
-- **Вызвать службу** — → ekb_calls, ПКМ: `/ekbdo report`
+- **Вызвать службу** — → ekb_calls, ПКМ: `/ekbdo report<delay=2>`
 - **Закрыть**
 
 ### Администрация
-*`admin.yml` · 21 кнопок · `/adminmenu`, `/амену` · право `ekb.menu.admin`*
+*`admin.yml` · 13 кнопок · `/adminmenu`, `/амену` · право `ekb.menu.admin`*
 
 - **Администрация (САП)**
-- **Наблюдение за игроком** — `/ekbmenu spec`
-- **Досье на игрока** — `/ekbmenu dossier`
+- **Наблюдение** — → ekb_admin_watch
 - **Суд и логи** — → ekb_admin_court
 - **Тюрьма** — → ekb_admin_jail
+- **Роли и права** — `/ekbroles`
+- **Мир и границы** — → ekb_admin_world
 - **Каталог вещей** — → ekb_allitems
 - **Вещества и механики** — → ekb_admin_items
-- **Мир и границы** — → ekb_admin_world
+- **Точки и установка** — → ekb_admin_setup
 - **Сервис** — → ekb_admin_service
-- **Казна: установка** — текст в чат, ПКМ: `/treasury`
-- **Склад: установка** — текст в чат, ПКМ: `/depot`
-- **Границы государств** — текст в чат, ПКМ: `/borders`
-- **Теневой Рынок: точка** — `/setshadowpoint`, ПКМ: `/ekbdo shadowskin`
-- **Роли и права** — `/ekbroles`
-- **Справочник** — `/ahelp`
-- **Чужие инвентари** — `/ekbmenu inv`, ПКМ: `/ekbmenu ender`
-- **Ваниш** — `/sv`
-- **TPS** — `/spark tps`
 - **Надзор и техника** — → ekb_admin_tech
 - **Назад** — → ekb_duty
+- **Закрыть**
+
+### Бар
+*`casino_bar.yml` · 5 кнопок · `/barcounter`*
+
+- **Бар**
+- **Что наливают** — `/barmenu`
+- **Стойка бара** — → ekb_barshop
+- **Назад** — → ekb_casino
 - **Закрыть**
 
 ### Бар и кости
 *`casino.yml` · 12 кнопок · `/casino`, `/казино`*
 
 - **Азартный уголок Бармена**
-- **Рулетка** — `/roulette`
-- **Игровые автоматы** — `/slots`
-- **Орёл или решка** — `/coinflip`
-- **Мой счёт** — `/casinostats`
-- **Лотерея Спавна** — `/lottery`, ПКМ: `/ekbdo lotbuy`
-- **Забрать выигрыш** — `/lottery claim`
+- **Большой зал** — `/casinohall`
+- **Рулетка** — `/roulette<delay=2>`
+- **Игровые автоматы** — `/slots<delay=2>`
+- **Орёл или решка** — `/coinflip<delay=2>`
 - **Игра в кости** — `/dice`
-- **Что наливают** — `/barmenu`
-- **Стойка бара** — → ekb_barshop
+- **Лотерея Спавна** — `/lottery<delay=2>`, ПКМ: `/ekbdo lotbuy<delay=2>`
+- **Касса и счёт** — → ekb_casino_cash
+- **Бар** — → ekb_casino_bar
+- **Открыть / закрыть казино** — `/casinoclose<delay=2>`, ПКМ: `/casinoopen<delay=2>`  `[ekb.duty.dealer]`  `[ekb.duty.clerk]`  `[ekb.menu.admin]`
 - **Назад** — → ekb_trade
 - **Закрыть**
 
@@ -153,7 +175,18 @@ EKB SHIELD   /menu /меню
 - **Прайс в чат** — `/barmenu`
 - **Как варить своё** — текст в чат
 - **Мои лавки** — `/shopkeeper list`
-- **Назад** — → ekb_duty
+- **Назад** — → ekb_duty_spawn
+- **Закрыть**
+
+### Внешность
+*`profile_look.yml` · 7 кнопок · `/look`, `/внешность`*
+
+- **Внешность**
+- **Скины** — `/skins`, ПКМ: `/skin clear`
+- **Скины по цвету** — → ekb_skinscolor
+- **Скин по нику** — `/ekbdo skinset<delay=2>`
+- **Личина** — → ekb_masks
+- **Назад** — → ekb_profile
 - **Закрыть**
 
 ### Врач Клиники
@@ -162,12 +195,12 @@ EKB SHIELD   /menu /меню
 - **Клиника**
 - **Осмотр пациента** — `/ekbmenu info`
 - **Курс лечения** — `/ekbmenu heal`
-- **Облегчить симптомы**
 - **Вытрезвитель** — `/ekbmenu sober`
-- **Как устроена зависимость**
-- **Порядок приёма**
+- **Облегчить симптомы**
 - **Выезд к пациенту**
 - **Прайс Клиники** — → ekb_laws
+- **Порядок приёма**
+- **Как устроена зависимость**
 - **Назад** — → ekb_duty
 - **Закрыть**
 
@@ -191,46 +224,49 @@ EKB SHIELD   /menu /меню
 - **Свежий выпуск** — `/news`
 - **Купить копию** — `/newsbuy`
 - **Сдать выпуск** — `/newsissue`  `[ekb.duty.journalist]`
-- **Экстренная новость** — `/ekbdo newsflash`  `[ekb.duty.journalist]`
-- **Анонс эфира** — `/ekbdo onair`  `[ekb.media.streamer]`  `[ekb.media.youtuber]`
+- **Экстренная новость** — `/ekbdo newsflash<delay=2>`  `[ekb.duty.journalist]`
+- **Анонс эфира** — `/ekbdo onair<delay=2>`  `[ekb.media.streamer]`  `[ekb.media.youtuber]`
 - **Назад** — → ekb_world
 - **Закрыть**
 
-### Голосовая связь
-*`voice.yml` · 16 кнопок · `/voice`, `/голос`, `/рация`*
+### Голос: служебное
+*`voice_staff.yml` · 8 кнопок · `/voicestaff`*
 
-- **Голосовая связь**
-- **Как это работает**
-- **Шёпот**
-- **Группы (рация)** — `/groups`
-- **Датчик скалка слышит голос**
-- **Рация**
-- **Simple Voice Chat**
+- **Для Администрации**
 - **Зоны тишины** — `/voicezone add`, ПКМ: `/voicezone del`  `[ekb.menu.admin]`
 - **Список зон тишины** — `/voicezone list`  `[ekb.menu.admin]`
-- **Музыкальные пластинки** — `/disc`
-- **Объявление голосом** — `/vbroadcast`  `[ekb.menu.admin]`  `[ekb.menu.helper]`
+- **Объявление голосом** — `/vbroadcast<delay=2>`  `[ekb.menu.admin]`  `[ekb.menu.helper]`
 - **Приоритетный голос**  `[ekb.menu.admin]`  `[ekb.menu.helper]`
 - **Слух в спектаторе**  `[ekb.menu.admin]`
-- **Чего не хватает**
-- **Назад** — → ekb_profile
+- **Назад** — → ekb_voice
+- **Закрыть**
+
+### Голосовая связь
+*`voice.yml` · 9 кнопок · `/voice`, `/голос`, `/рация`*
+
+- **Голосовая связь**
+- **Шёпот**
+- **Рация**
+- **Группы (рация)** — `/groups<delay=2>`
+- **Музыкальные пластинки** — `/disc<delay=2>`
+- **Как это устроено** — → ekb_voice_info
+- **Для Администрации** — → ekb_voice_staff  `[ekb.menu.admin]`  `[ekb.menu.helper]`
+- **Назад** — → ekb_profile_comm
 - **Закрыть**
 
 ### Город
-*`town.yml` · 14 кнопок · `/town`, `/город`*
+*`town.yml` · 12 кнопок · `/town`, `/город`*
 
 - **Город**
 - **Мой город** — `/clan info`
-- **Основатель города** — `/ekbdo clancreate`
-- **Настройки города** — → ekb_town_settings
-- **Жители** — `/ekbdo claninvite`, ПКМ: `/ekbdo clankick`
+- **Жители** — `/ekbdo claninvite<delay=2>`, ПКМ: `/ekbdo clankick<delay=2>`
 - **Чат города** — `/cc toggle`, ПКМ: текст в чат
-- **Уровни власти** — → ekb_town_gov
 - **Форма правления** — `/regime`, ПКМ: `/regime list`
-- **Очки города** — `/clan points`, ПКМ: `/clan playerpoints`
-- **Города сервера** — `/clan list`, ПКМ: `/topclans`
+- **Уровни власти** — → ekb_town_gov
+- **Настройки города** — → ekb_town_settings
 - **Наёмники САП** — → ekb_mercenaries
-- **Почему нет /clan home**
+- **Основатель города** — `/ekbdo clancreate<delay=2>`
+- **О городах** — → ekb_town_info
 - **Назад** — → ekb_world
 - **Закрыть**
 
@@ -244,9 +280,42 @@ EKB SHIELD   /menu /меню
 - **Неактивность**
 - **Защита в Суде** — → ekb_laws
 - **Торговля**
-- **Связь с другими** — `/ekbdo mailsend`
-- **Моё состояние** — `/addiction`
+- **Связь с другими** — `/ekbdo mailsend<delay=2>`
+- **Моё состояние** — `/addiction<delay=2>`
 - **Назад** — → ekb_profile
+- **Закрыть**
+
+### Действия
+*`profile_act.yml` · 5 кнопок · `/acts`, `/действия`*
+
+- **Действия**
+- **Поза** — `/gsit`, ПКМ: `/glay`
+- **Нести на руках** — `/ekbdo carry<delay=2>`
+- **Назад** — → ekb_profile
+- **Закрыть**
+
+### Дипломатия
+*`town_diplomacy.yml` · 6 кнопок · `/diplomacy`*
+
+- **Дипломатия**
+- **Союзники** — `/ekbdo clanally<delay=2>`
+- **Враги** — `/ekbdo clanenemy<delay=2>`
+- **PvP между своими** — `/clan pvp`
+- **Назад** — → ekb_town_settings
+- **Закрыть**
+
+### Должности Спавна
+*`duty_spawn.yml` · 10 кнопок · `/spawnduty`*
+
+- **Должности Спавна**
+- **Шериф Спавна** — → ekb_sheriff  `[ekb.duty.sheriff]`
+- **Бригадир строителей** — → ekb_builder  `[ekb.duty.builder]`
+- **Почтальон** — → ekb_postman  `[ekb.duty.postman]`
+- **Приказчик Мэрии** — → ekb_clerk  `[ekb.duty.clerk]`
+- **Бармен** — → ekb_barman  `[ekb.duty.barman]`
+- **Крупье** — → ekb_dealer  `[ekb.duty.dealer]`
+- **Следователь** — → ekb_detective  `[ekb.duty.detective]`
+- **Назад** — → ekb_duty
 - **Закрыть**
 
 ### Житель Спавна (город САП)
@@ -258,7 +327,7 @@ EKB SHIELD   /menu /меню
 - **Клиника** — `/addiction`
 - **Бар** — → ekb_barshop
 - **Ламповая Почта** — → ekb_pochta
-- **Суд и тюрьма** — `/ekbdo report`
+- **Суд и тюрьма** — `/ekbdo report<delay=2>`
 - **Законы** — → ekb_laws
 - **Назад** — → ekb_main
 - **Закрыть**
@@ -270,15 +339,47 @@ EKB SHIELD   /menu /меню
 - **Конституция** — текст в чат
 - **Уголовный кодекс** — текст в чат
 - **Как судят** — текст в чат
+- **Подать иск** — текст в чат
 - **Цены** — текст в чат
 - **Шериф Спавна** — → ekb_sheriff
 - **Криминалистика** — → ekb_forensics
-- **Подать иск** — текст в чат
 - **Назад** — → ekb_main
 - **Закрыть**
 
+### Как устроен голос
+*`voice_info.yml` · 7 кнопок · `/voiceinfo`*
+
+- **Как это устроено**
+- **Как это работает**
+- **Датчик скалка слышит голос**
+- **Simple Voice Chat**
+- **Чего не хватает**
+- **Назад** — → ekb_voice
+- **Закрыть**
+
+### Карта и границы
+*`world_map.yml` · 6 кнопок · `/worldmap`*
+
+- **Карта и границы**
+- **Веб-карта**
+- **Границы государств** — `/borders`
+- **Граница мира** — текст в чат
+- **Назад** — → ekb_world
+- **Закрыть**
+
+### Касса и счёт
+*`casino_cash.yml` · 7 кнопок · `/casinocash`*
+
+- **Касса и счёт**
+- **Касса жетонов** — `/chips buy 16<delay=2>`, ПКМ: `/chips sell all<delay=2>`
+- **Мой счёт** — `/casinostats<delay=2>`
+- **Забрать выигрыш** — `/lottery claim<delay=2>`
+- **Тираж вне расписания** — `/lottery draw<delay=2>`  `[ekb.menu.admin]`
+- **Назад** — → ekb_casino
+- **Закрыть**
+
 ### Каталог вещей
-*`allitems.yml` · 9 кнопок · `/allitems`, `/вещи`, `/newitems`, `/новое` · право `ekb.menu.admin`*
+*`allitems.yml` · 10 кнопок · `/allitems`, `/вещи`, `/newitems`, `/новое` · право `ekb.menu.admin`*
 
 - **Каталог вещей сервера**
 - **Конопля** — → ekb_herbs
@@ -287,6 +388,7 @@ EKB SHIELD   /menu /меню
 - **Тетрадь Смерти** — → ekb_deathnote
 - **Стволы** — → ekb_guns
 - **Настольные игры** — → ekb_tables
+- **Техника** — → ekb_gadgets
 - **Назад** — → ekb_admin_items
 - **Закрыть**
 
@@ -315,31 +417,26 @@ EKB SHIELD   /menu /меню
 - **Закрыть**
 
 ### Контракты
-*`contracts.yml` · 8 кнопок · `/contracts`, `/контракты`*
+*`contracts.yml` · 9 кнопок · `/contracts`, `/контракты`*
 
 - **Контракты на устранение**
 - **Доска контрактов** — `/ctmenu board`, ПКМ: `/contract board`
 - **Заказать устранение** — `/ctmenu`
 - **Мои дела** — `/contract mine`
+- **Голову — почтой** — `/contract mail`
 - **Что говорит закон** — текст в чат
-- **Если ты видел убийство** — `/ekbdo report`
+- **Если ты видел убийство** — `/ekbdo report<delay=2>`
 - **Назад** — → ekb_profile
 - **Закрыть**
 
 ### Кочевник
-*`nomad.yml` · 13 кнопок · `/nomad`, `/кочевник`*
+*`nomad.yml` · 7 кнопок · `/nomad`, `/кочевник`*
 
 - **Кочевник**
-- **Кто такой кочевник**
-- **Нейтральные земли**
-- **Как стать гражданином**
-- **Статус беженца**
-- **Чего избегать**
-- **Жизнь в дороге**
-- **Торговля и заработок**
-- **Меня можно нанять** — `/hire status`
-- **Закрыть себя от найма** — `/hire off`
-- **Моё состояние** — `/addiction`
+- **Путеводитель** — → ekb_nomad_guide
+- **Меня можно нанять** — `/hire status<delay=2>`
+- **Закрыть себя от найма** — `/hire off<delay=2>`
+- **Моё состояние** — `/addiction<delay=2>`
 - **Назад** — → ekb_profile
 - **Закрыть**
 
@@ -349,8 +446,8 @@ EKB SHIELD   /menu /меню
 - **Криминалистическая экспертиза**
 - **Осмотреть место** — `/expertise`
 - **Открытые происшествия** — `/crimescenes`  `[coreprotect.rollback]`
-- **Подать обвинение** — `/ekbdo report`
-- **Логи CoreProtect** — `/co i`, ПКМ: `/ekbdo colookup`  `[coreprotect.lookup]`
+- **Подать обвинение** — `/ekbdo report<delay=2>`
+- **Логи CoreProtect** — `/co i<delay=2>`, ПКМ: `/ekbdo colookup<delay=2>`  `[coreprotect.lookup]`
 - **Назад** — → ekb_duty
 - **Закрыть**
 
@@ -360,7 +457,7 @@ EKB SHIELD   /menu /меню
 - **Кровавый Сон**
 - **Что это и когда** — `/bloodnight`
 - **Как подготовиться**
-- **Назначить Сон** — `/ekbdo bloodnight`, ПКМ: `/bloodnight отмена`  `[coreprotect.rollback]`
+- **Назначить Сон** — `/ekbdo bloodnight<delay=2>`, ПКМ: `/bloodnight отмена<delay=2>`  `[coreprotect.rollback]`
 - **Назад** — → ekb_world
 - **Закрыть**
 
@@ -375,15 +472,15 @@ EKB SHIELD   /menu /меню
 - **Домино и нарды** — `/givetable domino`, ПКМ: `/givetable nardy`
 - **Кости заведения** — `/dice`
 - **Как вести стол**
-- **Назад** — → ekb_duty
+- **Назад** — → ekb_duty_spawn
 - **Закрыть**
 
 ### Ламповая Почта
 *`pochta.yml` · 7 кнопок · `/pochta`, `/почта`*
 
 - **Ламповая Почта**
-- **Отправить письмо** — `/ekbdo mailsend`
-- **Отправить посылку** — `/ekbdo parcel`
+- **Отправить письмо** — `/ekbdo mailsend<delay=2>`
+- **Отправить посылку** — `/ekbdo parcel<delay=2>`
 - **Мой ящик** — `/mailbox`
 - **Выбросить письма** — `/mailclear`
 - **Назад** — → ekb_trade
@@ -397,22 +494,18 @@ EKB SHIELD   /menu /меню
 - **Чего Личина НЕ даёт**
 - **Обычные скины** — `/skins`, ПКМ: `/skin clear`
 - **Теневой Рынок** — → ekb_blackmarket
-- **Назад** — → ekb_profile
+- **Назад** — → ekb_profile_look
 - **Закрыть**
 
 ### Мир
-*`world.yml` · 13 кнопок · `/world`, `/мир`*
+*`world.yml` · 9 кнопок · `/world`, `/мир`*
 
 - **Мир**
-- **Веб-карта**
-- **Границы государств** — `/borders`
-- **Граница мира** — текст в чат
-- **Кто в сети** — `/list`
-- **Города сервера** — `/clan list`, ПКМ: `/topclans`
+- **Карта и границы** — → ekb_world_map
 - **Спавн** — → ekb_capital
 - **Город** — → ekb_town
-- **Газета** — → ekb_press
 - **Кровавый Сон** — → ekb_bloodnight
+- **Газета** — → ekb_press
 - **Discord** — текст в чат
 - **Назад** — → ekb_main
 - **Закрыть**
@@ -421,28 +514,53 @@ EKB SHIELD   /menu /меню
 *`admin_world.yml` · 10 кнопок · право `ekb.menu.admin`*
 
 - **Мир и границы**
-- **Право стройки в городе** — `/spawnbuild`
-- **Стадия границы** — `/function ekb:status`
-- **Расширять автоматически** — `/function ekb:auto_on`
-- **Только объявлять** — `/function ekb:auto_off`
+- **Право стройки в городе** — `/spawnbuild<delay=2>`
+- **Стадия границы** — `/function ekb:status<delay=2>`
+- **Расширять автоматически** — `/function ekb:auto_on<delay=2>`
+- **Только объявлять** — `/function ekb:auto_off<delay=2>`
 - **Прогенерация (Chunky)** — текст в чат
 - **Ручное расширение**
-- **Погода и время** — `/weather clear`
+- **Погода и время** — `/weather clear<delay=2>`
+- **Назад** — → ekb_admin
+- **Закрыть**
+
+### Мои лавки
+*`trade_shops.yml` · 6 кнопок · `/myshops`*
+
+- **Мои лавки**
+- **Мои лавки** — `/shopkeeper list`
+- **Запасное яйцо торговца** — `/shopegg`
+- **Открыть ларёк** — текст в чат
+- **Назад** — → ekb_trade
+- **Закрыть**
+
+### Моё состояние
+*`profile_me.yml` · 6 кнопок · `/mystate`, `/состояние`*
+
+- **Моё состояние**
+- **Состояние** — `/addiction`
+- **Время в игре** — текст в чат
+- **Куда выйти из тюрьмы** — `/freedom`
+- **Назад** — → ekb_profile
+- **Закрыть**
+
+### Наблюдение
+*`admin_watch.yml` · 7 кнопок · `/adminwatch` · право `ekb.menu.admin`*
+
+- **Наблюдение**
+- **Наблюдение за игроком** — `/ekbmenu spec`
+- **Досье на игрока** — `/ekbmenu dossier`
+- **Чужие инвентари** — `/ekbmenu inv`, ПКМ: `/ekbmenu ender`
+- **Ваниш** — `/sv`
 - **Назад** — → ekb_admin
 - **Закрыть**
 
 ### Надзор и техника
-*`admin_tech.yml` · 11 кнопок · `/admintech` · право `ekb.menu.admin`*
+*`admin_tech.yml` · 5 кнопок · `/admintech` · право `ekb.menu.admin`*
 
 - **Надзор и техника**
-- **История X-Ray** — `/ekbdo mtcheck`, ПКМ: `/mtrack help`
-- **BetterReplay** — `/replay list`, ПКМ: `/replay`
-- **Тег роли** — `/rolecolor`
-- **Тираж вне расписания** — `/lottery draw`
-- **Выдать рацию** — `/ekbdo radiogive`
-- **Горячие клавиши** — `/kbind manage`
-- **Дрон-камикадзе** — `/drone black`, ПКМ: `/drone white`
-- **Глушилка РЭБ** — `/drone jammer`, ПКМ: `/drone detector`
+- **Тег роли** — `/rolecolor<delay=2>`
+- **Горячие клавиши** — `/kbind manage<delay=2>`
 - **Назад** — → ekb_admin
 - **Закрыть**
 
@@ -484,19 +602,17 @@ EKB SHIELD   /menu /меню
 - **Закрыть**
 
 ### Настройки города
-*`town_settings.yml` · 13 кнопок*
+*`town_settings.yml` · 11 кнопок*
 
 - **Настройки города**
 - **Граница государства** — текст в чат, ПКМ: `/borders`
+- **Префикс города** — `/ekbdo clanprefix<delay=2>`
 - **Чат города** — `/clanchat`
-- **Префикс города** — `/ekbdo clanprefix`
-- **Союзники** — `/ekbdo clanally`
-- **Враги** — `/ekbdo clanenemy`
-- **PvP между своими** — `/clan pvp`
-- **Передать город** — `/ekbdo clantransfer`
-- **Распустить город** — текст в чат
 - **Должности в городе** — → ekb_town_gov
 - **Казна города** — `/treasury`
+- **Дипломатия** — → ekb_town_diplomacy
+- **Передать город** — `/ekbdo clantransfer<delay=2>`
+- **Распустить город** — текст в чат
 - **Назад** — → ekb_town
 - **Закрыть**
 
@@ -513,6 +629,16 @@ EKB SHIELD   /menu /меню
 - **Назад** — → ekb_town
 - **Закрыть**
 
+### О городах
+*`town_info.yml` · 6 кнопок · `/towninfo`*
+
+- **О городах**
+- **Очки города** — `/clan points`, ПКМ: `/clan playerpoints`
+- **Города сервера** — `/clan list`, ПКМ: `/topclans`
+- **Почему нет /clan home**
+- **Назад** — → ekb_town
+- **Закрыть**
+
 ### Особые артефакты
 *`artifacts.yml` · 12 кнопок · `/artifacts`, `/артефакты` · право `ekb.menu.admin`*
 
@@ -525,28 +651,30 @@ EKB SHIELD   /menu /меню
 - **Маска Безликого** — `/giveartifact mask`
 - **Кто чем владеет** — `/artifact list`
 - **Найти экземпляры** — `/artifact find`
-- **Списать пропавший** — `/ekbdo artifactrelease`
+- **Списать пропавший** — `/ekbdo artifactrelease<delay=2>`
 - **Назад** — → ekb_admin_items
 - **Закрыть**
 
+### Поддержка
+*`profile_help.yml` · 5 кнопок · `/support`, `/поддержка`*
+
+- **Поддержка**
+- **Сообщить о баге** — `/bugreport<delay=2>`
+- **Мои жалобы** — `/myreports`, ПКМ: текст в чат
+- **Назад** — → ekb_profile
+- **Закрыть**
+
 ### Помощник администратора
-*`helper.yml` · 17 кнопок · `/helpermenu`, `/хмену` · право `ekb.menu.helper`*
+*`helper.yml` · 10 кнопок · `/helpermenu`, `/хмену` · право `ekb.menu.helper`*
 
 - **Помощник администратора**
-- **Инспектор CoreProtect** — `/co i`
-- **Поиск по логам** — `/ekbdo colookup`
-- **Заглянуть в инвентарь** — `/ekbmenu inv`, ПКМ: `/ekbmenu ender`
-- **Право стройки в городе** — `/spawnbuild`
-- **Ваниш** — `/sv`
-- **Служебные телепорты** — `/ekbdo tpto`, ПКМ: `/ekbdo tphere`
-- **TPS сервера** — `/spark tps`
-- **Бар** — `/ekbdo brewset`
-- **Режим игры** — `/gmc`, ПКМ: `/gms`
-- **Что тебе закрыто**
-- **Наблюдатель** — `/gmsp`, ПКМ: `/gms`
+- **Логи и записи** — → ekb_helper_logs
+- **Режим и перемещение** — → ekb_helper_mode
+- **Право стройки в городе** — `/spawnbuild<delay=2>`
 - **Роли и права** — `/ekbroles`
-- **Подозрения X-Ray** — `/ekbdo mtcheck`
-- **Записи BetterReplay** — `/replay list`
+- **Бар** — `/ekbdo brewset<delay=2>`
+- **TPS сервера** — `/spark tps<delay=2>`
+- **Что тебе закрыто**
 - **Назад** — → ekb_duty
 - **Закрыть**
 
@@ -555,11 +683,11 @@ EKB SHIELD   /menu /меню
 
 - **Почтальон**
 - **Заявки на доставку** — `/calls`
-- **Отправить письмо** — `/ekbdo mailsend`
+- **Отправить письмо** — `/ekbdo mailsend<delay=2>`
 - **Очистить свою почту** — `/mailclear`
 - **Комплект Ламповой Почты**
 - **Куда нести** — `/clan list`
-- **Назад** — → ekb_duty
+- **Назад** — → ekb_duty_spawn
 - **Закрыть**
 
 ### Предметы и вещества
@@ -570,7 +698,7 @@ EKB SHIELD   /menu /меню
 - **Зависимость** — `/ekbmenu heal`, ПКМ: `/ekbmenu info`
 - **Особые артефакты** — → ekb_artifacts
 - **Голограммы рынка** — `/markethologramlist`, ПКМ: текст в чат
-- **Чара: Бур 3×3** — `/drillbook`
+- **Чара: Бур 3×3** — `/drillbook<delay=2>`
 - **Каталог голов** — `/headdb`
 - **Назад** — → ekb_admin
 - **Закрыть**
@@ -582,39 +710,65 @@ EKB SHIELD   /menu /меню
 - **Склад стройматериалов** — `/depot`
 - **Казна Спавна** — `/treasury`, ПКМ: `/treasurylog`
 - **Арендаторы** — `/arenda список`
-- **Скупщик** — `/skupka`, ПКМ: `/skupka прайс`
+- **Скупщик** — `/skupka`, ПКМ: `/skupka edit`
 - **Доска лотов** — `/lots`
 - **Заявки в Мэрию** — `/calls`
 - **Торговая Коллегия** — → ekb_market
-- **Назад** — → ekb_duty
+- **Назад** — → ekb_duty_spawn
+- **Закрыть**
+
+### Проверка
+*`helper_logs.yml` · 8 кнопок · `/helperlogs` · право `ekb.menu.helper`*
+
+- **Логи и записи**
+- **Инспектор CoreProtect** — `/co i<delay=2>`
+- **Поиск по логам** — `/ekbdo colookup<delay=2>`
+- **Подозрения X-Ray** — `/ekbdo mtcheck<delay=2>`
+- **Записи BetterReplay** — `/replay list<delay=2>`
+- **Заглянуть в инвентарь** — `/ekbmenu inv`, ПКМ: `/ekbmenu ender`
+- **Назад** — → ekb_helper
 - **Закрыть**
 
 ### Профиль
-*`profile.yml` · 24 кнопок · `/profile`, `/профиль`*
+*`profile.yml` · 13 кнопок · `/profile`, `/профиль`*
 
 - **Профиль**
-- **Голосовая связь** — → ekb_voice
-- **Скины** — `/skins`, ПКМ: `/skin clear`
-- **Скины по цвету** — → ekb_skinscolor
-- **Скин по нику** — `/ekbdo skinset`
-- **Куда выйти из тюрьмы** — `/freedom`
-- **Состояние** — `/addiction`
-- **Почта** — текст в чат, ПКМ: `/mailclear`
-- **Контракты** — → ekb_contracts
-- **Личина** — → ekb_masks
-- **Теневое Сообщество** — → ekb_blackmarket  `[ekb.shadow.member]`
-- **Анонс эфира** — `/ekbdo onair`  `[ekb.media.streamer]`  `[ekb.media.youtuber]`
-- **Поза** — `/gsit`, ПКМ: `/glay`
-- **Нести на руках** — `/ekbdo carry`
-- **Сообщить о баге** — `/bugreport`
-- **Мои жалобы** — `/myreports`, ПКМ: текст в чат
-- **Привязка Discord** — `/discord link`
-- **Горячие клавиши** — `/kbind list`
-- **Чёрный список** — `/ekbdo ignore`
+- **Моё состояние** — → ekb_profile_me
+- **Внешность** — → ekb_profile_look
+- **Связь** — → ekb_profile_comm
+- **Действия** — → ekb_profile_act
 - **Гражданство** — → ekb_citizen  `[ekb.menu.citizen]`
 - **Житель Спавна** — → ekb_capital  `[ekb.menu.capital]`
 - **Кочевник** — → ekb_nomad
+- **Контракты** — → ekb_contracts
+- **Теневое Сообщество** — → ekb_blackmarket  `[ekb.shadow.member]`
+- **Поддержка** — → ekb_profile_help
 - **Назад** — → ekb_main
+- **Закрыть**
+
+### Путеводитель кочевника
+*`nomad_guide.yml` · 10 кнопок · `/nomadguide`*
+
+- **Путеводитель**
+- **Кто такой кочевник**
+- **Нейтральные земли**
+- **Как стать гражданином**
+- **Статус беженца**
+- **Чего избегать**
+- **Жизнь в дороге**
+- **Торговля и заработок**
+- **Назад** — → ekb_nomad
+- **Закрыть**
+
+### Режим
+*`helper_mode.yml` · 7 кнопок · `/helpermode` · право `ekb.menu.helper`*
+
+- **Режим и перемещение**
+- **Ваниш** — `/sv<delay=2>`
+- **Режим игры** — `/gmc`, ПКМ: `/gms`
+- **Наблюдатель** — `/gmsp`, ПКМ: `/gms`
+- **Служебные телепорты** — `/ekbdo tpto<delay=2>`, ПКМ: `/ekbdo tphere<delay=2>`
+- **Назад** — → ekb_helper
 - **Закрыть**
 
 ### С чего начать
@@ -627,22 +781,37 @@ EKB SHIELD   /menu /меню
 - **4. Заработать первые алмазы** — → ekb_trade
 - **5. Найти город или основать свой** — → ekb_town
 - **6. Открыть лавку** — → ekb_trade
+- **7. Знать, куда идти за правдой** — `/ekbdo report<delay=2>`
 - **Где мы вообще** — → ekb_world
-- **7. Знать, куда идти за правдой** — `/ekbdo report`
 - **Назад** — → ekb_main
 - **Закрыть**
 
+### Связь
+*`profile_comm.yml` · 10 кнопок · `/comm`, `/связь`*
+
+- **Связь**
+- **Голосовая связь** — → ekb_voice
+- **Голосовое сообщение** — `/vm<delay=2>`, ПКМ: `/ekbdo vmdirect<delay=2>`
+- **Почта** — текст в чат, ПКМ: `/mailclear`
+- **Привязка Discord** — `/discord link<delay=2>`
+- **Горячие клавиши** — `/kbind list<delay=2>`
+- **Чёрный список** — `/ekbdo ignore<delay=2>`
+- **Анонс эфира** — `/ekbdo onair<delay=2>`  `[ekb.media.streamer]`  `[ekb.media.youtuber]`
+- **Назад** — → ekb_profile
+- **Закрыть**
+
 ### Сервис сервера
-*`admin_service.yml` · 10 кнопок · право `ekb.menu.admin`*
+*`admin_service.yml` · 11 кнопок · право `ekb.menu.admin`*
 
 - **Сервис сервера**
-- **Кто рядом** — `/near`
-- **TPS и здоровье сервера** — `/spark tps`
+- **TPS и здоровье сервера** — `/spark tps<delay=2>`
+- **Кто рядом** — `/near<delay=2>`
 - **Сохранить мир**
-- **Права (LuckPerms)** — `/lp editor`
+- **Права (LuckPerms)** — `/lp editor<delay=2>`
 - **Скрипты (Skript)** — текст в чат
-- **Меню (DeluxeMenus)** — `/dm reload`
+- **Меню (DeluxeMenus)** — `/dm reload<delay=2>`
 - **С консоли хоста**
+- **Справочник** — `/ahelp`
 - **Назад** — → ekb_admin
 - **Закрыть**
 
@@ -663,7 +832,7 @@ EKB SHIELD   /menu /меню
 - **Белые** — → ekb_skins_white
 - **Серые** — → ekb_skins_gray
 - **Чёрные** — → ekb_skins_black
-- **Назад** — → ekb_profile
+- **Назад** — → ekb_profile_look
 - **Закрыть**
 
 ### Скины: бежевые и телесные (1/2)
@@ -1067,29 +1236,23 @@ EKB SHIELD   /menu /меню
 - **Открытые происшествия** — `/crimescenes`
 - **Осмотреть место** — `/expertise`
 - **Инспектор блоков** — `/co i`
-- **Подать обвинение** — `/ekbdo report`
+- **Подать обвинение** — `/ekbdo report<delay=2>`
 - **Раздел криминалистики** — → ekb_forensics
-- **Назад** — → ekb_duty
+- **Назад** — → ekb_duty_spawn
 - **Закрыть**
 
 ### Служба
-*`duty.yml` · 17 кнопок · `/duty`, `/служба`*
+*`duty.yml` · 11 кнопок · `/duty`, `/служба`*
 
 - **Служба**
-- **Администрация** — → ekb_admin  `[ekb.menu.admin]`
-- **Помощник админа** — → ekb_helper  `[ekb.menu.helper]`
+- **Вызвать службу** — → ekb_calls
+- **Должности Спавна** — → ekb_duty_spawn  `[ekb.duty.sheriff]`  `[ekb.duty.builder]`  `[ekb.duty.postman]`  `[ekb.duty.clerk]`  `[ekb.duty.barman]`  `[ekb.duty.dealer]`  `[ekb.duty.detective]`  `[ekb.menu.admin]`
 - **Судья** — → ekb_judge  `[ekb.menu.judge]`
 - **Врач Клиники** — → ekb_doctor  `[ekb.menu.doctor]`
-- **Шериф Спавна** — → ekb_sheriff  `[ekb.duty.sheriff]`
-- **Бригадир строителей** — → ekb_builder  `[ekb.duty.builder]`
-- **Почтальон** — → ekb_postman  `[ekb.duty.postman]`
-- **Приказчик Мэрии** — → ekb_clerk  `[ekb.duty.clerk]`
-- **Бармен** — → ekb_barman  `[ekb.duty.barman]`
-- **Крупье** — → ekb_dealer  `[ekb.duty.dealer]`
-- **Следователь** — → ekb_detective  `[ekb.duty.detective]`
-- **Газета** — → ekb_press
+- **Газета** — → ekb_press  `[ekb.duty.journalist]`  `[ekb.menu.admin]`
 - **Тёмное ремесло** — → ekb_assassin
-- **Вызвать службу** — → ekb_calls
+- **Помощник админа** — → ekb_helper  `[ekb.menu.helper]`
+- **Администрация** — → ekb_admin  `[ekb.menu.admin]`
 - **Назад** — → ekb_main
 - **Закрыть**
 
@@ -1104,7 +1267,7 @@ EKB SHIELD   /menu /меню
 - **Патроны 762** — `/givegun 762 64`
 - **Патроны 9mm** — `/givegun 9mm 64`
 - **Патроны shell** — `/givegun shell 64`
-- **Все 70 стволов** — `/ekbdo givegun`
+- **Все 70 стволов** — `/ekbdo givegun<delay=2>`
 - **Назад** — → ekb_allitems
 - **Закрыть**
 
@@ -1126,7 +1289,7 @@ EKB SHIELD   /menu /меню
 - **Ликёр Егермейстер** — `/barbuy jagermeister`
 - **Егермейстер Охотничий** — `/barbuy jager_dark`
 - **О зависимости** — `/addiction`
-- **Назад** — → ekb_casino
+- **Назад** — → ekb_casino_bar
 - **Закрыть**
 
 ### Строительная бригада
@@ -1138,17 +1301,19 @@ EKB SHIELD   /menu /меню
 - **Схемы**
 - **Крупный подряд** — → ekb_mercenaries
 - **Границы работ**
-- **Назад** — → ekb_duty
+- **Назад** — → ekb_duty_spawn
 - **Закрыть**
 
 ### Суд и логи
-*`admin_court.yml` · 8 кнопок · право `ekb.menu.admin`*
+*`admin_court.yml` · 10 кнопок · право `ekb.menu.admin`*
 
 - **Суд и логи**
-- **Инспектор CoreProtect** — `/co i`
-- **Поиск по логам** — `/ekbdo colookup`
-- **Выгрузка в Discord** — `/ekbdo courtlog`
-- **Откат** — `/ekbdo corollback`, ПКМ: `/ekbdo corestore`
+- **Инспектор CoreProtect** — `/co i<delay=2>`
+- **Поиск по логам** — `/ekbdo colookup<delay=2>`
+- **История X-Ray** — `/ekbdo mtcheck<delay=2>`, ПКМ: `/mtrack help<delay=2>`
+- **BetterReplay** — `/replay list<delay=2>`, ПКМ: `/replay<delay=2>`
+- **Выгрузка в Discord** — `/ekbdo courtlog<delay=2>`
+- **Откат** — `/ekbdo corollback<delay=2>`, ПКМ: `/ekbdo corestore<delay=2>`
 - **Дела в Discord**
 - **Назад** — → ekb_admin
 - **Закрыть**
@@ -1158,13 +1323,13 @@ EKB SHIELD   /menu /меню
 
 - **Судебная Коллегия**
 - **Дела**
-- **Сбор доказательств** — `/co i`
-- **Приобщить логи к делу** — `/ekbdo courtlog`
-- **Приговор** — `/ekbmenu jail`, ПКМ: `/jailinfo`
-- **Имущество осуждённых** — `/jailprop`, ПКМ: `/ekbmenu items`
-- **Освободить** — `/ekbmenu free`, ПКМ: `/jailinfo`
-- **Откат по решению Суда** — `/ekbdo corollback`, ПКМ: `/ekbdo corestore`
-- **Жалобы игроков** — `/reports`
+- **Жалобы игроков** — `/reports<delay=2>`
+- **Сбор доказательств** — `/co i<delay=2>`
+- **Приобщить логи к делу** — `/ekbdo courtlog<delay=2>`
+- **Приговор** — `/ekbmenu jail`, ПКМ: `/jailinfo<delay=2>`  `[coreprotect.rollback]`
+- **Имущество осуждённых** — `/jailprop`, ПКМ: `/ekbmenu items`  `[coreprotect.rollback]`
+- **Освободить** — `/ekbmenu free`, ПКМ: `/jailinfo<delay=2>`  `[coreprotect.rollback]`
+- **Откат по решению Суда** — `/ekbdo corollback<delay=2>`, ПКМ: `/ekbdo corestore<delay=2>`  `[coreprotect.rollback]`
 - **Статьи УК** — → ekb_laws
 - **Назад** — → ekb_duty
 - **Закрыть**
@@ -1178,6 +1343,16 @@ EKB SHIELD   /menu /меню
 - **Чем это грозит**
 - **Белая доска лотов** — `/lots`
 - **Назад** — → ekb_profile
+- **Закрыть**
+
+### Техника
+*`gadgets.yml` · 6 кнопок · `/gadgets`, `/техника` · право `ekb.menu.admin`*
+
+- **Техника**
+- **Дрон-камикадзе** — `/drone black<delay=2>`, ПКМ: `/drone white<delay=2>`
+- **Глушилка РЭБ** — `/drone jammer<delay=2>`, ПКМ: `/drone detector<delay=2>`
+- **Выдать рацию** — `/ekbdo radiogive<delay=2>`
+- **Назад** — → ekb_allitems
 - **Закрыть**
 
 ### Торговая Коллегия
@@ -1194,34 +1369,42 @@ EKB SHIELD   /menu /меню
 - **Закрыть**
 
 ### Торговля
-*`trade.yml` · 15 кнопок · `/trade`, `/торговля`, `/shops`*
+*`trade.yml` · 11 кнопок · `/trade`, `/торговля`, `/shops`*
 
 - **Торговля**
-- **Мои лавки** — `/shopkeeper list`
-- **Запасное яйцо торговца** — `/shopegg`
-- **Открыть ларёк** — текст в чат
-- **Валюта**
-- **Каталог голов** — `/headdb`
 - **Торговая Коллегия** — → ekb_market
-- **Теневой Рынок** — → ekb_blackmarket  `[ekb.shadow.member]`
-- **Наём кочевников** — `/hire`
+- **Мои лавки** — → ekb_trade_shops
+- **Наём кочевников** — `/hire<delay=2>`
 - **Ламповая Почта** — → ekb_pochta
 - **Бар и кости** — → ekb_casino
-- **Прайс-лист** — → ekb_laws
-- **Запреты рынка**
+- **Каталог голов** — `/headdb`
+- **Теневой Рынок** — → ekb_blackmarket  `[ekb.shadow.member]`
+- **Цены и правила** — → ekb_trade_info
 - **Назад** — → ekb_main
+- **Закрыть**
+
+### Точки и установка
+*`admin_setup.yml` · 8 кнопок · `/adminsetup` · право `ekb.menu.admin`*
+
+- **Точки и установка**
+- **Казна: установка** — текст в чат, ПКМ: `/treasury`
+- **Склад: установка** — текст в чат, ПКМ: `/depot`
+- **Границы государств** — текст в чат, ПКМ: `/borders`
+- **Теневой Рынок: точка** — `/setshadowpoint<delay=2>`, ПКМ: `/ekbdo shadowskin<delay=2>`
+- **Скупщик: товары и цены** — `/skupka edit`
+- **Назад** — → ekb_admin
 - **Закрыть**
 
 ### Тюрьма
 *`admin_jail.yml` · 9 кнопок · право `ekb.menu.admin`*
 
 - **Тюрьма**
-- **Кто сидит** — `/jailinfo`
+- **Кто сидит** — `/jailinfo<delay=2>`
 - **Посадить** — `/ekbmenu jail`
 - **Освободить досрочно** — `/ekbmenu free`
 - **Судейский ящик** — `/jailprop`, ПКМ: `/ekbmenu items`
-- **Точка тюрьмы** — `/setjailpoint`
-- **Крыльцо Суда** — `/setcourtpoint`
+- **Точка тюрьмы** — `/setjailpoint<delay=2>`
+- **Крыльцо Суда** — `/setcourtpoint<delay=2>`
 - **Назад** — → ekb_admin
 - **Закрыть**
 
@@ -1236,8 +1419,8 @@ EKB SHIELD   /menu /меню
 - **Полный обыск** — `/dnscan`
 - **Состояние** — `/deathnote info`
 - **Изъять** — `/ekbmenu reclaim`
-- **Кулдаун** — `/ekbdo dncooldown`
-- **Счётчик выданных** — `/ekbdo dncount`
+- **Кулдаун** — `/ekbdo dncooldown<delay=2>`
+- **Счётчик выданных** — `/ekbdo dncount<delay=2>`
 - **Назад** — → ekb_admin_items
 - **Закрыть**
 
@@ -1256,7 +1439,7 @@ EKB SHIELD   /menu /меню
 *`town_gov.yml` · 11 кнопок*
 
 - **Уровни власти в городе**
-- **Глава города** — `/ekbdo clantransfer`
+- **Глава города** — `/ekbdo clantransfer<delay=2>`
 - **Советник** — текст в чат
 - **Казначей** — текст в чат
 - **Страж** — текст в чат
@@ -1267,6 +1450,16 @@ EKB SHIELD   /menu /меню
 - **Назад** — → ekb_town
 - **Закрыть**
 
+### Цены и правила
+*`trade_info.yml` · 6 кнопок · `/tradeinfo`*
+
+- **Цены и правила**
+- **Валюта**
+- **Прайс-лист** — → ekb_laws
+- **Запреты рынка**
+- **Назад** — → ekb_trade
+- **Закрыть**
+
 ### Шериф
 *`sheriff.yml` · 8 кнопок · `/sheriff`, `/шериф` · право `ekb.duty.sheriff`*
 
@@ -1274,7 +1467,7 @@ EKB SHIELD   /menu /меню
 - **Заявки на патруль** — `/calls`
 - **Осмотр места** — `/co i`
 - **Кто сидит** — `/jailinfo`
-- **Передать в Суд** — `/ekbdo report`
+- **Передать в Суд** — `/ekbdo report<delay=2>`
 - **Что считается нарушением** — → ekb_laws
-- **Назад** — → ekb_duty
+- **Назад** — → ekb_duty_spawn
 - **Закрыть**

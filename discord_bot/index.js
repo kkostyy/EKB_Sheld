@@ -20,12 +20,53 @@ function saveCases(db) {
   fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2), "utf8");
 }
 
+// GuildMembers — привилегированный интент: без галочки «Server Members Intent»
+// в Developer Portal бот не стартует вовсе (Disallowed intents).
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers],
 });
 
-client.once("ready", () => {
+// ---------- Кочевник по умолчанию ----------
+// В игре кочевник — состояние по умолчанию (ekb.menu.nomad на группе default),
+// и Discord должен говорить то же самое: вошёл человек — он Кочевник, пока
+// Администрация не выдала гражданство. Роль ищется по NOMAD_ROLE_ID, а без
+// него — по имени, как её создаёт setup-guild.js («… Nomad»).
+function findNomadRole(guild) {
+  if (process.env.NOMAD_ROLE_ID) return guild.roles.cache.get(process.env.NOMAD_ROLE_ID) || null;
+  return guild.roles.cache.find((r) => r.name.includes("Nomad")) || null;
+}
+
+async function giveNomad(member, why) {
+  if (member.user.bot) return;
+  const role = findNomadRole(member.guild);
+  if (!role) {
+    console.warn("[Кочевник] роль Nomad не найдена — задай NOMAD_ROLE_ID в .env");
+    return;
+  }
+  if (member.roles.cache.has(role.id)) return;
+  try {
+    await member.roles.add(role, why);
+    console.log(`[Кочевник] ${member.user.tag}: выдана роль (${why})`);
+  } catch (e) {
+    // Обычно это иерархия: роль бота должна стоять ВЫШЕ роли Nomad.
+    console.warn(`[Кочевник] ${member.user.tag}: не выдать — ${e.message}`);
+  }
+}
+
+client.on("guildMemberAdd", (member) => giveNomad(member, "новый участник"));
+
+client.once("clientReady", async () => {
   console.log(`Бот Суда EKB SHIELD запущен как ${client.user.tag}`);
+
+  // Догоняем тех, кто зашёл, пока бот лежал. Трогаем только людей БЕЗ
+  // единой роли: у кого роль есть, тот уже распределён руками, и навесить
+  // ему Кочевника поверх Гражданина значило бы спорить с Администрацией.
+  const guild = client.guilds.cache.get(process.env.GUILD_ID);
+  if (!guild) return;
+  const members = await guild.members.fetch();
+  for (const m of members.values()) {
+    if (m.roles.cache.size <= 1) await giveNomad(m, "без роли при запуске бота");
+  }
 });
 
 client.on("interactionCreate", async (interaction) => {

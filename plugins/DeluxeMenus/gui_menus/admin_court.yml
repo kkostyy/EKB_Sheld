@@ -21,7 +21,7 @@ items:
       - '&aЛКМ &8— /co i'
     left_click_commands:
       - '[close]'
-      - '[player] co i'
+      - '[player] co i<delay=2>'
 
   'lookup':
     material: BOOK
@@ -36,11 +36,45 @@ items:
       - '&aЛКМ &8— выбрать игрока и срок'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo colookup'
+      - '[player] ekbdo colookup<delay=2>'
+
+  'xray':
+    material: DIAMOND_ORE
+    slot: 22
+    display_name: '&b&lИстория X-Ray'
+    lore:
+      - '&7Автокика нет: подозрение — повод'
+      - '&7проверить CoreProtect, а не приговор.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока'
+      - '&aПКМ &8— все команды'
+    left_click_commands:
+      - '[close]'
+      - '[player] ekbdo mtcheck<delay=2>'
+    right_click_commands:
+      - '[close]'
+      - '[player] mtrack help<delay=2>'
+
+  'replays':
+    material: ENDER_EYE
+    slot: 24
+    display_name: '&5&lBetterReplay'
+    lore:
+      - '&7Запись игроков на сервере, без модов.'
+      - '&7Для разбора спорных дел Суда.'
+      - ''
+      - '&aЛКМ &8— список записей'
+      - '&aПКМ &8— команды записи'
+    left_click_commands:
+      - '[close]'
+      - '[player] replay list<delay=2>'
+    right_click_commands:
+      - '[close]'
+      - '[player] replay<delay=2>'
 
   'courtlog':
     material: WRITABLE_BOOK
-    slot: 22
+    slot: 30
     display_name: '&b&lВыгрузка в Discord'
     lore:
       - '&8/courtlog <игрок> <минуты> <радиус> <дело>'
@@ -52,11 +86,11 @@ items:
       - '&aЛКМ &8— собрать выгрузку по шагам'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo courtlog'
+      - '[player] ekbdo courtlog<delay=2>'
 
   'rollback':
     material: TNT
-    slot: 24
+    slot: 31
     display_name: '&c&lОткат'
     lore:
       - '&8/co rollback u:<ник> t:<время> r:<радиус>'
@@ -69,14 +103,14 @@ items:
       - '&aПКМ &8— вернуть откат обратно'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo corollback'
+      - '[player] ekbdo corollback<delay=2>'
     right_click_commands:
       - '[close]'
-      - '[player] ekbdo corestore'
+      - '[player] ekbdo corestore<delay=2>'
 
   'discord':
     material: LAPIS_LAZULI
-    slot: 31
+    slot: 32
     display_name: '&9&lДела в Discord'
     lore:
       - '&8/иск &7— подача (игроки)'

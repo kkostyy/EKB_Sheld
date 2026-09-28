@@ -187,7 +187,16 @@ command /addiction [<text>] [<offlineplayer>] [<text>] [<number>]:
             addict_show(player, "%uuid of player%", "Твоё состояние")
             stop
 
-        if sender does not have permission "coreprotect.rollback":
+        # Врач лечит по своему праву. До 28.09.2026 здесь стоял только
+        # coreprotect.rollback (гейт судьи и главного админа), и окно врача
+        # `/ekbmenu heal` вызывало эту команду от имени врача впустую:
+        # «Это дело врача» — врачу же.
+        set {_ok} to false
+        if sender has permission "coreprotect.rollback":
+            set {_ok} to true
+        if sender has permission "ekb.menu.doctor":
+            set {_ok} to true
+        if {_ok} is false:
             send "{@prefix}&cЭто дело врача." to sender
             stop
 

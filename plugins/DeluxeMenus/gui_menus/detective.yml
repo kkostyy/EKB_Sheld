@@ -60,7 +60,7 @@ items:
       - '&aЛКМ &8— как подать'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo report'
+      - '[player] ekbdo report<delay=2>'
 
   'full':
     material: CHEST
@@ -86,7 +86,7 @@ items:
     slot: 45
     display_name: '&7Назад'
     left_click_commands:
-      - '[openguimenu] ekb_duty'
+      - '[openguimenu] ekb_duty_spawn'
 
   'close':
     material: BARRIER

@@ -23,9 +23,21 @@ items:
     right_click_commands:
       - '[player] borders'
 
+  'prefix':
+    material: NAME_TAG
+    slot: 20
+    display_name: '&e&lПрефикс города'
+    lore:
+      - '&7Тег города в чате и в списке игроков.'
+      - ''
+      - '&aЛКМ &8— как сменить'
+    left_click_commands:
+      - '[close]'
+      - '[player] ekbdo clanprefix<delay=2>'
+
   'clanchat':
     material: PAPER
-    slot: 20
+    slot: 22
     display_name: '&a&lЧат города'
     lore:
       - '&7Отдельный канал для своих.'
@@ -35,88 +47,9 @@ items:
     left_click_commands:
       - '[player] clanchat'
 
-  'prefix':
-    material: NAME_TAG
-    slot: 22
-    display_name: '&e&lПрефикс города'
-    lore:
-      - '&7Тег города в чате и в списке игроков.'
-      - ''
-      - '&aЛКМ &8— как сменить'
-    left_click_commands:
-      - '[close]'
-      - '[player] ekbdo clanprefix'
-
-  'ally':
-    material: GOLDEN_APPLE
-    slot: 24
-    display_name: '&a&lСоюзники'
-    lore:
-      - '&7До 4 союзов. Союзники не бьют друг друга,'
-      - '&7если PvP города выключено.'
-      - ''
-      - '&aЛКМ &8— как заключить'
-    left_click_commands:
-      - '[close]'
-      - '[player] ekbdo clanally'
-
-  'enemy':
-    material: IRON_SWORD
-    slot: 28
-    display_name: '&c&lВраги'
-    lore:
-      - '&7До 2 враждующих городов.'
-      - '&4Война без объявления в Discord за 24 часа —'
-      - '&4нарушение Конституции 1.2.'
-      - ''
-      - '&aЛКМ &8— как объявить'
-    left_click_commands:
-      - '[close]'
-      - '[player] ekbdo clanenemy'
-
-  'pvp':
-    material: SHIELD
-    slot: 29
-    display_name: '&6&lPvP между своими'
-    lore:
-      - '&7Бьют ли жители города друг друга.'
-      - '&7Выключено — удар по своему не проходит.'
-      - ''
-      - '&aЛКМ &8— переключить'
-    left_click_commands:
-      - '[player] clan pvp'
-
-  'transfer':
-    material: GOLDEN_HELMET
-    slot: 30
-    display_name: '&6&lПередать город'
-    lore:
-      - '&7Новый глава получает всё, старый становится жителем.'
-      - '&4В демократии смена главы мимо голосования —'
-      - '&4узурпация, статья 3a Конституции.'
-      - ''
-      - '&aЛКМ &8— как передать'
-    left_click_commands:
-      - '[close]'
-      - '[player] ekbdo clantransfer'
-
-  'disband':
-    material: TNT
-    slot: 31
-    display_name: '&4&lРаспустить город'
-    lore:
-      - '&cБезвозвратно: город, союзы и очки исчезают.'
-      - '&7Постройки и сундуки остаются — их никто не трогает,'
-      - '&7но защиты у них и не было.'
-      - ''
-      - '&aЛКМ &8— как распустить'
-    left_click_commands:
-      - '[message] &4&lРОСПУСК: &7/clan disband'
-      - '[message] &cКоманда сработает сразу, подтверждения нет.'
-
   'roles':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTFiMGE1YmJjNjk3YzBjNDJhNmNmMWI5YzRjNDQzNWIwNzMyMmZjZTViYjI3ZDgyYjY5MzA4NDNlNWFiN2EwOSJ9fX0=
-    slot: 32
+    slot: 24
     display_name: '&d&lДолжности в городе'
     lore:
       - '&7Советник, казначей, страж — это права,'
@@ -128,7 +61,7 @@ items:
 
   'treasury':
     material: CHEST
-    slot: 33
+    slot: 29
     display_name: '&b&lКазна города'
     lore:
       - '&7Казна города — обычный сундук с алмазами'
@@ -139,6 +72,45 @@ items:
       - '&aЛКМ &8— казна Спавна для сравнения'
     left_click_commands:
       - '[player] treasury'
+
+  'town_diplomacy':
+    material: WHITE_BANNER
+    slot: 30
+    display_name: '&b&lДипломатия'
+    lore:
+      - '&7Союзники, враги, PvP между своими.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_town_diplomacy'
+
+  'transfer':
+    material: GOLDEN_HELMET
+    slot: 31
+    display_name: '&6&lПередать город'
+    lore:
+      - '&7Новый глава получает всё, старый становится жителем.'
+      - '&4В демократии смена главы мимо голосования —'
+      - '&4узурпация, статья 3a Конституции.'
+      - ''
+      - '&aЛКМ &8— как передать'
+    left_click_commands:
+      - '[close]'
+      - '[player] ekbdo clantransfer<delay=2>'
+
+  'disband':
+    material: TNT
+    slot: 32
+    display_name: '&4&lРаспустить город'
+    lore:
+      - '&cБезвозвратно: город, союзы и очки исчезают.'
+      - '&7Постройки и сундуки остаются — их никто не трогает,'
+      - '&7но защиты у них и не было.'
+      - ''
+      - '&aЛКМ &8— как распустить'
+    left_click_commands:
+      - '[message] &4&lРОСПУСК: &7/clan disband'
+      - '[message] &cКоманда сработает сразу, подтверждения нет.'
 
   'header':
     material: COMPARATOR

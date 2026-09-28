@@ -25,7 +25,24 @@ MODS = [
     ("mods/female-gender.jar", "female-gender"),        # <- Female-Gender-Mod-Plugin
     ("mods/keybind.jar", "keybind"),
     ("mods/headpats.jar", "headpat"),                   # <- headpats-plugin (погладить игрока)
-    ("mods/cicada.jar", "cicada"),                      # библиотека, её требует headpats                    # <- Keybind (стрелка вниз = /menu)
+    ("mods/cicada.jar", "cicada"),
+
+    # --- Просмотр рецептов (добавлено 28.09.2026) ---
+    # REI, а не JEI и не EMI: под 26.1.2 у REI есть release, у JEI только
+    # beta, у EMI нет сборки вовсе. Ставится ОДИН просмотрщик — два сразу
+    # дерутся за один и тот же угол экрана и за клавиши R/U.
+    # Нашу вкладку креатива REI подхватывает сам: она зарегистрирована
+    # штатно через fabric-creative-tab-api-v1, а REI собирает предметы
+    # вкладок через то же событие modifyOutputEvent.
+    # ⚠ Рецептов конопли и напитков в нём не будет и быть не может: их
+    # крафт — станции Skript и котлы BreweryX, а не рецепты реестра.
+    ("mods/rei.jar", "rei"),
+    ("mods/architectury.jar", "architectury-api"),      # библиотека, её требует REI
+    ("mods/cloth-config.jar", "cloth-config"),          # библиотека, её требует REI
+    # Библиотека конфигов, её требует Armor Poser (`forgeconfigapiport >= 26.1`).
+    # Без неё клиент не стартует вовсе: «Incompatible mods found!» — так
+    # упала сборка у друга владельца 28.09.2026.
+    ("mods/forge-config-api-port.jar", "forge-config-api-port"),
 ]
 
 def get(url):

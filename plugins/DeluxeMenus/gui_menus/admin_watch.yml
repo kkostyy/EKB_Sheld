@@ -1,0 +1,183 @@
+menu_title: '&8Наблюдение'
+open_command:
+  - adminwatch
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.admin
+      deny_commands:
+        - '[message] &cЭто меню Администрации.'
+
+items:
+
+  'spec':
+    material: ENDER_EYE
+    slot: 13
+    display_name: '&5&lНаблюдение за игроком'
+    lore:
+      - '&7Головы тех, кто в сети. Клик по голове —'
+      - '&7и ты рядом с ним: сразу в ванише'
+      - '&7и в спектаторе, без подтверждения.'
+      - ''
+      - '&7Обратно на своё место — &b/specback'
+      - '&8Только главный админ: судье и помощнику'
+      - '&8невидимая слежка не выдаётся.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока'
+    left_click_commands:
+      - '[player] ekbmenu spec'
+
+  'dossier':
+    material: WRITTEN_BOOK
+    slot: 20
+    display_name: '&b&lДосье на игрока'
+    lore:
+      - '&7Всё об игроке одним окном: тюрьма,'
+      - '&7приговоры, зависимость, должности,'
+      - '&7право стройки, наём, подполье.'
+      - ''
+      - '&8Раньше это были семь разных команд.'
+      - ''
+      - '&aЛКМ &8— выбрать игрока'
+    left_click_commands:
+      - '[player] ekbmenu dossier'
+
+  'inv':
+    material: ENDER_CHEST
+    slot: 22
+    display_name: '&5&lЧужие инвентари'
+    lore:
+      - '&7Изъятие краденого — только по суду.'
+      - ''
+      - '&aЛКМ &8— инвентарь игрока'
+      - '&aПКМ &8— эндер-сундук'
+    left_click_commands:
+      - '[player] ekbmenu inv'
+    right_click_commands:
+      - '[player] ekbmenu ender'
+
+  'vanish':
+    material: POTION
+    slot: 24
+    display_name: '&8&lВаниш'
+    lore:
+      - '&aЛКМ &8— стать невидимым'
+    left_click_commands:
+      - '[player] sv'
+
+  'header':
+    material: SPYGLASS
+    slot: 4
+    display_name: '&b&lНаблюдение'
+    lore:
+      - '&7Смотреть — не значит вмешиваться.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_admin'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

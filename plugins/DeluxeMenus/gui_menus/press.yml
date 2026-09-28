@@ -61,7 +61,7 @@ items:
           permission: ekb.duty.journalist
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo newsflash'
+      - '[player] ekbdo newsflash<delay=2>'
 
   'onair':
     material: REDSTONE_TORCH
@@ -83,7 +83,7 @@ items:
           permission: ekb.media.youtuber
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo onair'
+      - '[player] ekbdo onair<delay=2>'
 
   'header':
     material: WRITTEN_BOOK

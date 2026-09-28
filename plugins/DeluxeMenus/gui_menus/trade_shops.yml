@@ -1,0 +1,159 @@
+menu_title: '&8Мои лавки'
+open_command:
+  - myshops
+size: 54
+
+items:
+
+  'myshops':
+    material: VILLAGER_SPAWN_EGG
+    slot: 13
+    display_name: '&e&lМои лавки'
+    lore:
+      - '&7До 3 лавок на игрока.'
+      - ''
+      - '&aЛКМ &8— список моих лавок'
+    left_click_commands:
+      - '[player] shopkeeper list'
+
+  'shopegg':
+    material: VILLAGER_SPAWN_EGG
+    slot: 20
+    display_name: '&a&lЗапасное яйцо торговца'
+    lore:
+      - '&7Этим яйцом кликают по сундуку с товаром.'
+      - ''
+      - '&aПри первой аренде палатки оно выдаётся'
+      - '&aбесплатно — сюда идут, если потеряли.'
+      - '&b16💎 &7россыпью, уходят в Казну Спавна.'
+      - '&8Выдаёт сам плагин — у его яйца своя метка.'
+      - ''
+      - '&aЛКМ &8— купить запасное'
+    left_click_commands:
+      - '[player] shopegg'
+
+  'howto':
+    material: CHEST
+    slot: 22
+    display_name: '&a&lОткрыть ларёк'
+    lore:
+      - '&aЛКМ &8— инструкция в чат'
+    left_click_commands:
+      - '[message] &a&lЛАРЁК: &71) сундук на Рынке &8→ &72) товар внутрь'
+      - '[message] &73) яйцо торговца кликом по сундуку &8→ &74) продавец рядом (до 15 блоков)'
+      - '[message] &75) ПКМ по продавцу — цены. Торгует только тем, что в сундуке.'
+
+  'header':
+    material: VILLAGER_SPAWN_EGG
+    slot: 4
+    display_name: '&a&lМои лавки'
+    lore:
+      - '&7Лавка торгует из твоего сундука.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_trade'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

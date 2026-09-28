@@ -15,7 +15,7 @@ items:
       - '&aЛКМ &8— обязанности в чат'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo clantransfer'
+      - '[player] ekbdo clantransfer<delay=2>'
 
   'council':
     material: IRON_HELMET

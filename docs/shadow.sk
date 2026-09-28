@@ -56,6 +56,25 @@ function sh_skin() :: text:
         return "Steve"
     return {shadow::skin}
 
+function sh_is_on(p: player) :: boolean:
+    if {shadow::on::%uuid of {_p}%} is true:
+        return true
+    return false
+
+# Надеть Личину. Отдельной функцией потому, что её надевает не только
+# /disguise, но и contracts.sk — исполнитель, несущий голову заказчику,
+# идёт к нему в Личине всегда (см. `on right click on player` там).
+function sh_put_on(p: player):
+    set {shadow::on::%uuid of {_p}%} to true
+    set {_alias} to ct_alias("%{_p}%")
+    make {_p} execute command "skin set %sh_skin()%"
+    execute console command "tab player %{_p}% customtabname &8%{_alias}%"
+    execute console command "tab player %{_p}% tagprefix &8[%{_alias}%] "
+    # Тег роли (role_colors.sk) в списке прячется тоже: «[Судья] Ворон-42»
+    # выдал бы маску с головой. Пустой префикс — это «&8», а не пустая
+    # строка: без значения TAB сбросит свойство обратно к группе.
+    execute console command "tab player %{_p}% tabprefix &8"
+
 command /disguise:
     description: Надеть или снять Личину: чужой скин и псевдоним вместо ника в списке
     aliases: /личина
@@ -76,14 +95,7 @@ command /disguise:
             send "{@prefix}&7Личина снята. Ты снова &f%player%&7."
             stop
 
-        set {shadow::on::%{_k}%} to true
-        make player execute command "skin set %sh_skin()%"
-        execute console command "tab player %player% customtabname &8%{_alias}%"
-        execute console command "tab player %player% tagprefix &8[%{_alias}%] "
-        # Тег роли (role_colors.sk) в списке прячется тоже: «[Судья] Ворон-42»
-        # выдал бы маску с головой. Пустой префикс — это «&8», а не пустая
-        # строка: без значения TAB сбросит свойство обратно к группе.
-        execute console command "tab player %player% tabprefix &8"
+        sh_put_on(player)
         send "{@prefix}Личина надета. В списке игроков ты — &8%{_alias}%&r."
         send "{@prefix}&7Скин подменён, в таб-листе только псевдоним."
         send "{@prefix}&cНик над головой скрыть нельзя: TAB такого не умеет, а Суду"

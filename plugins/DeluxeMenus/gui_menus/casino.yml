@@ -6,9 +6,24 @@ size: 54
 
 items:
 
+  'hall':
+    material: NETHER_STAR
+    slot: 13
+    display_name: '&6&lБольшой зал'
+    lore:
+      - '&7Рулетка на 37 лунок, слоты на семь барабанов'
+      - '&7и краш: успей забрать, пока не рвануло.'
+      - '&7Играют на &fжетоны&7 — их меняет касса.'
+      - ''
+      - '&8Выигрыш — жетонами, алмазы за них платит Казна.'
+      - ''
+      - '&aЛКМ &8— войти'
+    left_click_commands:
+      - '[player] casinohall'
+
   'roulette':
     material: RED_WOOL
-    slot: 13
+    slot: 20
     display_name: '&c&lРулетка'
     lore:
       - '&7Красное или чёрное — &fx2&7, зеро — &fx24&7.'
@@ -20,11 +35,11 @@ items:
       - '&aЛКМ &8— к столу'
     left_click_commands:
       - '[close]'
-      - '[player] roulette'
+      - '[player] roulette<delay=2>'
 
   'slots':
     material: LEVER
-    slot: 20
+    slot: 22
     display_name: '&6&lИгровые автоматы'
     lore:
       - '&7Три одинаковых — &fx18&7.'
@@ -34,11 +49,11 @@ items:
       - '&aЛКМ &8— крутить'
     left_click_commands:
       - '[close]'
-      - '[player] slots'
+      - '[player] slots<delay=2>'
 
   'coinflip':
     material: GOLD_INGOT
-    slot: 22
+    slot: 24
     display_name: '&e&lОрёл или решка'
     lore:
       - '&7Выплата &fx2&7, шанс 45 из 100.'
@@ -47,23 +62,24 @@ items:
       - '&aЛКМ &8— бросить'
     left_click_commands:
       - '[close]'
-      - '[player] coinflip'
+      - '[player] coinflip<delay=2>'
 
-  'stats':
-    material: BOOK
-    slot: 24
-    display_name: '&f&lМой счёт'
+  'dice':
+    material: DROPPER
+    slot: 29
+    display_name: '&c&lИгра в кости'
     lore:
-      - '&7Победы, проигрыши и сколько сейчас в кассе.'
+      - '&7Ставка &b2💎&7, выигрыш &b5💎&7.'
+      - '&7Побеждает бросок 5 или 6 — это треть случаев.'
+      - '&8У заведения перевес 17%. Казино тут — сток алмазов.'
       - ''
-      - '&aЛКМ &8— посмотреть'
+      - '&aЛКМ &8— бросить кости'
     left_click_commands:
-      - '[close]'
-      - '[player] casinostats'
+      - '[player] dice'
 
   'lottery':
     material: PAPER
-    slot: 29
+    slot: 30
     display_name: '&6&lЛотерея Спавна'
     lore:
       - '&7Билет &b1💎&7, тираж раз в сутки.'
@@ -76,61 +92,64 @@ items:
       - '&aПКМ &8— купить билеты'
     left_click_commands:
       - '[close]'
-      - '[player] lottery'
+      - '[player] lottery<delay=2>'
     right_click_commands:
       - '[close]'
-      - '[player] ekbdo lotbuy'
+      - '[player] ekbdo lotbuy<delay=2>'
 
-  'lottery_claim':
-    material: CHEST
-    slot: 30
-    display_name: '&e&lЗабрать выигрыш'
-    lore:
-      - '&7Если Казна была пуста в день тиража,'
-      - '&7выигрыш лежит долгом — он не сгорает.'
-      - ''
-      - '&aЛКМ &8— получить'
-    left_click_commands:
-      - '[close]'
-      - '[player] lottery claim'
-
-  'dice':
-    material: DROPPER
+  'casino_cash':
+    material: SUNFLOWER
     slot: 31
-    display_name: '&c&lИгра в кости'
+    display_name: '&e&lКасса и счёт'
     lore:
-      - '&7Ставка &b2💎&7, выигрыш &b5💎&7.'
-      - '&7Побеждает бросок 5 или 6 — это треть случаев.'
-      - '&8У заведения перевес 17%. Казино тут — сток алмазов.'
-      - ''
-      - '&aЛКМ &8— бросить кости'
-    left_click_commands:
-      - '[player] dice'
-
-  'menu':
-    material: POTION
-    slot: 32
-    display_name: '&e&lЧто наливают'
-    lore:
-      - '&7Цены полные, по прайс-листу.'
-      - '&8Стойка города держит потолок цены,'
-      - '&8зарабатывать должны живые бармены.'
-      - ''
-      - '&aЛКМ &8— меню и цены'
-    left_click_commands:
-      - '[player] barmenu'
-
-  'shop':
-    material: BREWING_STAND
-    slot: 33
-    display_name: '&6&lСтойка бара'
-    lore:
-      - '&7Все 13 напитков с ценами.'
-      - '&7Единственное место, где напиток покупается.'
+      - '&7Жетоны, мой счёт, выигрыш лотереи.'
       - ''
       - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[openguimenu] ekb_barshop'
+      - '[openguimenu] ekb_casino_cash'
+
+  'casino_bar':
+    material: HONEY_BOTTLE
+    slot: 32
+    display_name: '&6&lБар'
+    lore:
+      - '&7Что наливают и стойка бара.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_casino_bar'
+
+  'house':
+    material: IRON_DOOR
+    slot: 33
+    display_name: '&c&lОткрыть / закрыть казино'
+    lore:
+      - '&7Закрытое казино не принимает ни одной ставки:'
+      - '&7ни в зале, ни на рулетке, ни в кости.'
+      - '&7Жетоны в кассу сдают и при закрытом.'
+      - ''
+      - '&8Каждое открытие и закрытие — в лог Discord.'
+      - ''
+      - '&aЛКМ &8— закрыть'
+      - '&aПКМ &8— открыть'
+    view_requirement:
+      minimum_requirements: 1
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.dealer
+        perm2:
+          type: has permission
+          permission: ekb.duty.clerk
+        perm3:
+          type: has permission
+          permission: ekb.menu.admin
+    left_click_commands:
+      - '[close]'
+      - '[player] casinoclose<delay=2>'
+    right_click_commands:
+      - '[close]'
+      - '[player] casinoopen<delay=2>'
 
   'header':
     material: DROPPER
@@ -138,6 +157,7 @@ items:
     display_name: '&d&lАзартный уголок Бармена'
     lore:
       - '&7Ставки и выручка идут через Казну.'
+      - '&7Играют только в здании казино.'
       - '&7Пустая Казна — заведение закрыто.'
 
   'back':

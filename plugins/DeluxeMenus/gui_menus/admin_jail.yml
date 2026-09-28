@@ -21,7 +21,7 @@ items:
       - '&aЛКМ &8— /jailinfo'
     left_click_commands:
       - '[close]'
-      - '[player] jailinfo'
+      - '[player] jailinfo<delay=2>'
 
   'sentence':
     material: IRON_BARS
@@ -87,7 +87,7 @@ items:
       - '&aЛКМ &8— /setjailpoint'
     left_click_commands:
       - '[close]'
-      - '[player] setjailpoint'
+      - '[player] setjailpoint<delay=2>'
 
   'setcourt':
     material: OAK_DOOR
@@ -100,7 +100,7 @@ items:
       - '&aЛКМ &8— /setcourtpoint'
     left_click_commands:
       - '[close]'
-      - '[player] setcourtpoint'
+      - '[player] setcourtpoint<delay=2>'
 
   'header':
     material: IRON_BARS

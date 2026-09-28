@@ -312,7 +312,6 @@ on right click:
         else if {_cmd} is 0:
             if player's tool is glass bottle:
                 set {_vessel} to true
-        send "[NIRVANA-DEBUG] main='%player's tool%' cmd=%{_cmd}% off='%player's off hand tool%' offcmd=%{_off}% vessel=%{_vessel}%" to console
         if {_vessel} is true:
             cancel event
             if player has 3 of {_weed}:
@@ -352,7 +351,6 @@ on right click:
     else:
         set {_power} to 3
         take_main(player, 1)
-        send "[NIRVANA-DEBUG] затяжка из бонга, возвращаю пустой бонг игроку %player%" to console
         give nirvana_item("empty_bong") to player
 
     add {_power} to {nirvana::peace::%{_uuid}%}

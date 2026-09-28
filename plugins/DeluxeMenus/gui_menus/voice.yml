@@ -7,21 +7,9 @@ size: 54
 
 items:
 
-  'basics':
-    material: JUKEBOX
-    slot: 13
-    display_name: '&f&lКак это работает'
-    lore:
-      - '&7Голос идёт по расстоянию: 8, 16 или 32 блока'
-      - '&7— дальность выбирается в настройках мода.'
-      - ''
-      - '&7Клавиши и громкость — там же, в меню'
-      - '&7Plasmo Voice (по умолчанию &fV&7).'
-      - '&8Мода нет — тебя просто не слышно, кик за это не будет.'
-
   'whisper':
     material: FEATHER
-    slot: 20
+    slot: 13
     display_name: '&7&lШёпот'
     lore:
       - '&7Тихий голос на пару блоков — для тех,'
@@ -31,6 +19,21 @@ items:
       - '&7в настройках мода, раздел «Активации».'
       - '&8Прямое продолжение локального чата:'
       - '&8расстояние значит и для голоса.'
+
+  'radio':
+    material: JUKEBOX
+    slot: 20
+    display_name: '&6&lРация'
+    lore:
+      - '&7Блок-рация: частота 1-15, голос уходит'
+      - '&7на все рации той же частоты.'
+      - ''
+      - '&7Крафт: &f3 меди &8/ &fжелезо, проигрыватель, железо'
+      - '&8/ &fредстоун, незеритовый слиток, редстоун'
+      - '&7ПКМ — приём или передача, Shift+ПКМ — частота.'
+      - ''
+      - '&7Дальность дают громоотводы-антенны сверху.'
+      - '&4Молния в антенну сжигает рацию навсегда.'
 
   'groups':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDA0NTY1MWMwODNiOTg3MzM4NmFjYzA3YjY2Yzc4MGQ3ZGJjODMxOWRkZWJhYjFkMTM4Y2VhZjA5ZjQ5N2UyNyJ9fX0=
@@ -49,82 +52,11 @@ items:
       - '&aЛКМ &8— мои группы'
     left_click_commands:
       - '[close]'
-      - '[player] groups'
-
-  'sculk':
-    material: SCULK_SENSOR
-    slot: 24
-    display_name: '&3&lДатчик скалка слышит голос'
-    lore:
-      - '&7Скалковые датчики и вардены реагируют'
-      - '&7на живой голос так же, как на шаги.'
-      - ''
-      - '&4В Глубоком Тёмном молчи.'
-
-  'radio':
-    material: JUKEBOX
-    slot: 28
-    display_name: '&6&lРация'
-    lore:
-      - '&7Блок-рация: частота 1-15, голос уходит'
-      - '&7на все рации той же частоты.'
-      - ''
-      - '&7Крафт: &f3 меди &8/ &fжелезо, проигрыватель, железо'
-      - '&8/ &fредстоун, незеритовый слиток, редстоун'
-      - '&7ПКМ — приём или передача, Shift+ПКМ — частота.'
-      - ''
-      - '&7Дальность дают громоотводы-антенны сверху.'
-      - '&4Молния в антенну сжигает рацию навсегда.'
-
-  'svc':
-    material: NOTE_BLOCK
-    slot: 29
-    display_name: '&b&lSimple Voice Chat'
-    lore:
-      - '&7Друг играет с Simple Voice Chat, а не Plasmo?'
-      - '&7Вы всё равно слышите друг друга — сервер'
-      - '&7переводит голос между модами сам.'
-
-  'voicezone':
-    material: GRAY_WOOL
-    slot: 30
-    display_name: '&3&lЗоны тишины'
-    lore:
-      - '&7Регион WorldGuard, где голосом не говорят.'
-      - '&7Участники региона говорят (судья в зале).'
-      - ''
-      - '&7Встань в регион и нажми.'
-      - '&eПКМ &8— вернуть голос в этом регионе'
-      - ''
-      - '&aЛКМ &8— сделать зоной тишины'
-      - '&aПКМ &8— вернуть голос'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.menu.admin
-    left_click_commands:
-      - '[player] voicezone add'
-    right_click_commands:
-      - '[player] voicezone del'
-
-  'voicezone_list':
-    material: BOOK
-    slot: 31
-    display_name: '&3&lСписок зон тишины'
-    lore:
-      - '&aЛКМ &8— все зоны'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.menu.admin
-    left_click_commands:
-      - '[player] voicezone list'
+      - '[player] groups<delay=2>'
 
   'discs':
     material: MUSIC_DISC_CAT
-    slot: 32
+    slot: 24
     display_name: '&6&lМузыкальные пластинки'
     lore:
       - '&7На пластинку можно записать звук и слушать'
@@ -140,22 +72,29 @@ items:
       - '&aЛКМ &8— помощь по пластинкам'
     left_click_commands:
       - '[close]'
-      - '[player] disc'
+      - '[player] disc<delay=2>'
 
-  'broadcast':
-    material: BELL
-    slot: 33
-    display_name: '&c&lОбъявление голосом'
+  'voice_info':
+    material: BOOK
+    slot: 30
+    display_name: '&e&lКак это устроено'
     lore:
-      - '&7Голос поверх всего, слышно всему миру.'
+      - '&7Основы, скалк, Simple Voice Chat,'
+      - '&7чего не хватает.'
       - ''
-      - '&b/vbroadcast world &8— всему миру'
-      - '&b/vbroadcast range <блоков> &8— в радиусе'
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_voice_info'
+
+  'voice_staff':
+    material: COMMAND_BLOCK
+    slot: 31
+    display_name: '&c&lДля Администрации'
+    lore:
+      - '&7Зоны тишины, объявление голосом,'
+      - '&7приоритет, слух в спектаторе.'
       - ''
-      - '&7Сбор на заседание Суда, эвакуация,'
-      - '&7разгон драки на Спавне.'
-      - ''
-      - '&aЛКМ &8— объявить'
+      - '&aЛКМ &8— открыть'
     view_requirement:
       minimum_requirements: 1
       requirements:
@@ -166,54 +105,7 @@ items:
           type: has permission
           permission: ekb.menu.helper
     left_click_commands:
-      - '[close]'
-      - '[player] vbroadcast'
-
-  'priority':
-    material: GOAT_HORN
-    slot: 34
-    display_name: '&6&lПриоритетный голос'
-    lore:
-      - '&7Твой голос приглушает остальные,'
-      - '&7пока ты говоришь.'
-      - ''
-      - '&7Тоже клавиша, назначается в настройках мода.'
-      - '&8Служебное: чтобы дежурного было слышно в толпе.'
-    view_requirement:
-      minimum_requirements: 1
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.menu.admin
-        perm2:
-          type: has permission
-          permission: ekb.menu.helper
-
-  'spectator':
-    material: ENDER_EYE
-    slot: 39
-    display_name: '&5&lСлух в спектаторе'
-    lore:
-      - '&7В режиме наблюдателя голос слышно оттуда,'
-      - '&7куда смотришь, а не откуда тело.'
-      - ''
-      - '&8Работает вместе с /ekbmenu spec.'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.menu.admin
-
-  'mods':
-    material: WRITABLE_BOOK
-    slot: 40
-    display_name: '&e&lЧего не хватает'
-    lore:
-      - '&7Всё это работает только с модом'
-      - '&7Plasmo Voice — он есть в модпаке сервера.'
-      - ''
-      - '&8Без мода ты слышишь и говоришь в обычный чат,'
-      - '&8и ничего больше не ломается.'
+      - '[openguimenu] ekb_voice_staff'
 
   'header':
     material: NOTE_BLOCK
@@ -228,7 +120,7 @@ items:
     slot: 45
     display_name: '&7Назад'
     left_click_commands:
-      - '[openguimenu] ekb_profile'
+      - '[openguimenu] ekb_profile_comm'
 
   'close':
     material: BARRIER

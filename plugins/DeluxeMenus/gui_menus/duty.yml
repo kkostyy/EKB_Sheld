@@ -6,37 +6,55 @@ size: 54
 
 items:
 
-  'admin':
-    material: NETHER_STAR
+  'callmenu':
+    material: BELL
     slot: 13
-    display_name: '&c&lАдминистрация'
+    display_name: '&b&lВызвать службу'
     lore:
-      - '&7Суд, тюрьма, предметы, мир, сервис.'
+      - '&7Медик, Суд, шериф, бригада, почта.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_calls'
+
+  'duty_spawn':
+    material: BELL
+    slot: 20
+    display_name: '&e&lДолжности Спавна'
+    lore:
+      - '&7Шериф, бригадир, почтальон, приказчик,'
+      - '&7бармен, крупье, следователь.'
       - ''
       - '&aЛКМ &8— открыть'
     view_requirement:
+      minimum_requirements: 1
       requirements:
         perm1:
+          type: has permission
+          permission: ekb.duty.sheriff
+        perm2:
+          type: has permission
+          permission: ekb.duty.builder
+        perm3:
+          type: has permission
+          permission: ekb.duty.postman
+        perm4:
+          type: has permission
+          permission: ekb.duty.clerk
+        perm5:
+          type: has permission
+          permission: ekb.duty.barman
+        perm6:
+          type: has permission
+          permission: ekb.duty.dealer
+        perm7:
+          type: has permission
+          permission: ekb.duty.detective
+        perm8:
           type: has permission
           permission: ekb.menu.admin
     left_click_commands:
-      - '[openguimenu] ekb_admin'
-
-  'helper':
-    material: IRON_SWORD
-    slot: 20
-    display_name: '&6&lПомощник админа'
-    lore:
-      - '&7Смотреть можно, менять — нет.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.menu.helper
-    left_click_commands:
-      - '[openguimenu] ekb_helper'
+      - '[openguimenu] ekb_duty_spawn'
 
   'judge':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
@@ -70,133 +88,30 @@ items:
     left_click_commands:
       - '[openguimenu] ekb_doctor'
 
-  'sheriff':
-    material: IRON_SWORD
-    slot: 28
-    display_name: '&c&lШериф Спавна'
-    lore:
-      - '&7Порядок на Рынке и в нейтральной зоне.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.duty.sheriff
-    left_click_commands:
-      - '[openguimenu] ekb_sheriff'
-
-  'builder':
-    material: DIAMOND_PICKAXE
-    slot: 29
-    display_name: '&e&lБригадир строителей'
-    lore:
-      - '&7Заказы Строительной биржи.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.duty.builder
-    left_click_commands:
-      - '[openguimenu] ekb_builder'
-
-  'postman':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
-    slot: 30
-    display_name: '&f&lПочтальон'
-    lore:
-      - '&7Доставка писем и посылок.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.duty.postman
-    left_click_commands:
-      - '[openguimenu] ekb_postman'
-
-  'clerk':
-    material: LECTERN
-    slot: 31
-    display_name: '&b&lПриказчик Мэрии'
-    lore:
-      - '&7Казна, аренда палаток, скупщик, лоты.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.duty.clerk
-    left_click_commands:
-      - '[openguimenu] ekb_clerk'
-
-  'barman':
-    material: BREWING_STAND
-    slot: 32
-    display_name: '&6&lБармен'
-    lore:
-      - '&7Стойка, вытрезвитель, состояние гостя.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.duty.barman
-    left_click_commands:
-      - '[openguimenu] ekb_barman'
-
-  'dealer':
-    material: OAK_PRESSURE_PLATE
-    slot: 33
-    display_name: '&d&lКрупье'
-    lore:
-      - '&7Настольные игры, кости, ставки.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.duty.dealer
-    left_click_commands:
-      - '[openguimenu] ekb_dealer'
-
-  'detective':
-    material: SPYGLASS
-    slot: 34
-    display_name: '&9&lСледователь'
-    lore:
-      - '&7Осмотр мест убийств, открытые дела.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.duty.detective
-    left_click_commands:
-      - '[openguimenu] ekb_detective'
-
   'press':
     material: WRITTEN_BOOK
-    slot: 39
+    slot: 29
     display_name: '&6&lГазета'
     lore:
       - '&7Выпуски, копии, экстренные новости,'
       - '&7анонсы эфиров.'
       - ''
       - '&aЛКМ &8— открыть'
+    view_requirement:
+      minimum_requirements: 1
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.duty.journalist
+        perm2:
+          type: has permission
+          permission: ekb.menu.admin
     left_click_commands:
       - '[openguimenu] ekb_press'
 
   'assassin':
     material: IRON_SWORD
-    slot: 40
+    slot: 30
     display_name: '&4&lТёмное ремесло'
     lore:
       - '&7Контракты на устранение.'
@@ -206,16 +121,37 @@ items:
     left_click_commands:
       - '[openguimenu] ekb_assassin'
 
-  'callmenu':
-    material: BELL
-    slot: 41
-    display_name: '&b&lВызвать службу'
+  'helper':
+    material: IRON_SWORD
+    slot: 31
+    display_name: '&6&lПомощник админа'
     lore:
-      - '&7Медик, Суд, шериф, бригада, почта.'
+      - '&7Смотреть можно, менять — нет.'
       - ''
       - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.helper
     left_click_commands:
-      - '[openguimenu] ekb_calls'
+      - '[openguimenu] ekb_helper'
+
+  'admin':
+    material: NETHER_STAR
+    slot: 32
+    display_name: '&c&lАдминистрация'
+    lore:
+      - '&7Суд, тюрьма, предметы, мир, сервис.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.menu.admin
+    left_click_commands:
+      - '[openguimenu] ekb_admin'
 
   'header':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=

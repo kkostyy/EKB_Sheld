@@ -1,0 +1,233 @@
+# EKB SHIELD — casino_house.sk
+# Заведение казино: открыто/закрыто, играют только в здании, лог в Discord.
+# Требует: treasury.sk. К нему обращаются casino.sk, bar_casino.sk,
+# casino_chips.sk (функция cz_can_play и cz_log). Ставится в
+# plugins/Skript/scripts/
+#
+# Три правила, и у каждого своя причина.
+#
+# 1. КАЗИНО ЗАКРЫВАЕТСЯ. Крупье, Приказчик или Администрация: /casinoclose
+#    [причина] — и не принимается ни одна ставка: Большой зал (CasinoRoulette),
+#    рулетка, слоты, монетка, кости. ⚠ СДАТЬ жетоны в кассу можно и в
+#    закрытом казино: жетон — долг Казны перед игроком, и закрытие заведения
+#    не повод его не платить.
+#
+# 2. ИГРАЮТ ТОЛЬКО В ЗДАНИИ. Здание — регион WorldGuard (по умолчанию
+#    `casino`, /casinoregion <id>). Азарт из любой точки мира делал бы
+#    казино кнопкой в меню, а не местом: к нему не надо идти, у его дверей
+#    нельзя ограбить, в нём нет Крупье. Регион ставится как любой другой:
+#    //pos1, //pos2, /rg define casino. Флагов у него не надо — он витрина,
+#    а не приват. ⚠ Пока регион не создан, казино закрыто для всех: иначе
+#    правило «только в здании» молча не работало бы.
+#
+# 3. ЛОГ В DISCORD. Каждая ставка Skript-игр, выигрыш, касса жетонов,
+#    открытие и закрытие уходят строкой в консоль (оттуда и так в канал
+#    консоли) и в отдельный канал через `discordsrv broadcast #<ID>`.
+#    Канал задаётся /casinolog <ID канала> — ID знает только Discord.
+#    ⚠ Партий CasinoRoulette в логе нет: плагин не отдаёт наружу ни событий,
+#    ни строк в консоль. Видно то, что важно для денег, — сколько жетонов
+#    человек купил и сдал: разница и есть его выигрыш у Казны.
+#
+# Хранилище:
+#   {casino::closed}   — true, если закрыто
+#   {casino::reason}   — причина закрытия
+#   {casino::region}   — id региона здания (по умолчанию "casino")
+#   {casino::dchan}    — ID канала Discord для лога ("off" — выключен; не задан — {@dchan})
+#   {cz::pass::<uuid>} — пропуск на один вызов плагина из /casinohall
+
+options:
+    prefix: &5&l[КАЗИНО] &r
+    line: &8&m----------------------------------------
+    admin: ekb.menu.admin
+    # Канал «🎰・『カジノ』・аудит-казино» в категории 🕋管理室 (создан ботом
+    # 28.09.2026, видят Admin Staff и Developer). /casinolog меняет его.
+    dchan: 1554162800744603648
+
+# ---------------------------------------------------------------------------
+# Служебное
+# ---------------------------------------------------------------------------
+
+function cz_region() :: text:
+    if {casino::region} is not set:
+        return "casino"
+    return {casino::region}
+
+# Стоит ли игрок в здании казино. Регионы в точке — тот же приём, что
+# tr_at_spawn: смена границ здания ничего здесь не ломает.
+# ⚠ Регион Skript печатает как «<id> in world <мир>», поэтому сверяем
+# начало строки, а не вхождение: иначе «casino» совпало бы и с
+# «ekb_town_casino_street».
+function cz_inside(p: player) :: boolean:
+    set {_id} to cz_region()
+    set {_regs::*} to regions at location of {_p}
+    loop {_regs::*}:
+        set {_r} to "%loop-value%" in lowercase
+        if {_r} is {_id}:
+            return true
+        if {_r} starts with "%{_id}% ":
+            return true
+    return false
+
+# Может ли игрок сделать ставку. Сам объясняет отказ.
+function cz_can_play(p: player) :: boolean:
+    if {casino::closed} is true:
+        send "{@prefix}&cКазино закрыто." to {_p}
+        if {casino::reason} is set:
+            send "&7 Причина: &f%{casino::reason}%" to {_p}
+        send "&8 Сдать жетоны в кассу можно и сейчас: &7/chips sell all" to {_p}
+        return false
+    if cz_inside({_p}) is false:
+        send "{@prefix}&cИграют только в здании казино." to {_p}
+        send "&8 Приходи на Спавн — ставки принимает Крупье, а не меню." to {_p}
+        return false
+    return true
+
+# Строка лога: консоль всегда, Discord — если канал задан.
+# ⚠ Цвета снимаются: в Discord `&a` осталось бы буквами. `@` вычищается —
+# иначе ник вида «@everyone» в логе пинговал бы весь сервер.
+function cz_log(msg: text):
+    set {_m} to uncoloured {_msg}
+    replace all "@" with "" in {_m}
+    send "[КАЗИНО-ЛОГ] %{_m}%" to console
+    # Канал по умолчанию — из options; /casinolog off выключает (значение "off").
+    set {_ch} to "{@dchan}"
+    if {casino::dchan} is set:
+        set {_ch} to {casino::dchan}
+    if {_ch} is not "off":
+        make console execute command "discordsrv broadcast #%{_ch}% 🎰 %{_m}%"
+
+function cz_staff(p: player) :: boolean:
+    if {_p} has permission "ekb.duty.dealer":
+        return true
+    if {_p} has permission "ekb.duty.clerk":
+        return true
+    if {_p} has permission "{@admin}":
+        return true
+    return false
+
+# ---------------------------------------------------------------------------
+# Большой зал: плагин открывается только через /casinohall
+# ---------------------------------------------------------------------------
+#
+# Команда плагина доступна и напрямую (`/casinoroulette:casino`), поэтому
+# её перехватываем: без пропуска из /casinohall — отказ. Голое `/casino`
+# не трогаем: его ловит из чата DeluxeMenus («Бар и кости»), и отмена здесь
+# сломала бы меню.
+on command:
+    set {_c} to command in lowercase
+    set {_hit} to false
+    if {_c} is "casinoroulette:casino":
+        set {_hit} to true
+    if {_c} is "casinoroulette:dailywheel":
+        set {_hit} to true
+    if {_c} is "dailywheel":
+        set {_hit} to true
+    if {_hit} is true:
+        if player is set:
+            if {cz::pass::%uuid of player%} is true:
+                delete {cz::pass::%uuid of player%}
+            else:
+                cancel event
+                send "{@prefix}&7Большой зал: &b/casinohall&7 — в здании казино." to player
+
+command /casinohall:
+    description: Большой зал казино — рулетка, слоты и краш на жетоны
+    aliases: /казинозал, /зал
+    executable by: players
+    trigger:
+        if cz_can_play(player) is true:
+            set {cz::pass::%uuid of player%} to true
+            make player execute command "casinoroulette:casino"
+            # Пропуск одноразовый: не сработал вызов — не висит до следующего.
+            delete {cz::pass::%uuid of player%}
+            cz_log("%player% вошёл в Большой зал")
+
+# ---------------------------------------------------------------------------
+# Управление
+# ---------------------------------------------------------------------------
+
+command /casinoclose [<text>]:
+    description: Закрыть казино (Крупье, Приказчик, Администрация)
+    aliases: /закрытьказино
+    trigger:
+        if sender is a player:
+            if cz_staff(player) is false:
+                send "{@prefix}&cЗакрывать казино может Крупье, Приказчик или Администрация."
+                stop
+        set {casino::closed} to true
+        if arg-1 is set:
+            set {casino::reason} to arg-1
+        else:
+            set {casino::reason} to "по решению заведения"
+        # Кто сидит за столом — встаёт: открытые окна игр в здании закрываются.
+        loop all players:
+            if cz_inside(loop-player) is true:
+                close loop-player's inventory
+                send "{@prefix}&cКазино закрывается: &f%{casino::reason}%" to loop-player
+                send "&8 Жетоны можно сдать: &7/chips sell all" to loop-player
+        send "{@prefix}&aКазино закрыто. Причина: &f%{casino::reason}%"
+        cz_log("ЗАКРЫТО (%sender%): %{casino::reason}%")
+
+command /casinoopen:
+    description: Открыть казино
+    aliases: /открытьказино
+    trigger:
+        if sender is a player:
+            if cz_staff(player) is false:
+                send "{@prefix}&cОткрывать казино может Крупье, Приказчик или Администрация."
+                stop
+        delete {casino::closed}
+        delete {casino::reason}
+        send "{@prefix}&aКазино открыто."
+        cz_log("ОТКРЫТО (%sender%)")
+
+command /casinostatus:
+    description: Открыто ли казино, где здание, куда идёт лог
+    aliases: /казино-статус
+    trigger:
+        send "{@line}"
+        if {casino::closed} is true:
+            send "{@prefix}&cЗакрыто: &f%{casino::reason}%"
+        else:
+            send "{@prefix}&aОткрыто."
+        send "&7 Здание — регион WorldGuard &f%cz_region()%"
+        if sender is a player:
+            if cz_inside(player) is true:
+                send "&8 • ты сейчас внутри"
+            else:
+                send "&8 • ты сейчас снаружи"
+        if {casino::dchan} is "off":
+            send "&7 Лог в Discord: &cвыключен&7 — только консоль. &8/casinolog <ID>"
+        else if {casino::dchan} is set:
+            send "&7 Лог в Discord: канал &f%{casino::dchan}%"
+        else:
+            send "&7 Лог в Discord: канал &f{@dchan}&7 (аудит-казино)"
+        send "{@line}"
+
+command /casinoregion <text>:
+    description: Какой регион WorldGuard считается зданием казино
+    permission: {@admin}
+    trigger:
+        set {casino::region} to arg-1 in lowercase
+        send "{@prefix}&aЗдание казино — регион &f%{casino::region}%&a."
+        send "&8 Регион создаётся как обычно: //pos1, //pos2, /rg define %{casino::region}%"
+        cz_log("здание казино — регион %{casino::region}% (%sender%)")
+
+command /casinolog [<text>]:
+    description: Канал Discord для лога казино (ID канала; off — выключить)
+    permission: {@admin}
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix}&7ПКМ по каналу в Discord → «Копировать ID канала», затем &b/casinolog <ID>"
+            stop
+        if arg-1 is "off":
+            set {casino::dchan} to "off"
+            send "{@prefix}&7Лог казино в Discord выключен — остаётся консоль."
+            stop
+        set {_id} to arg-1 parsed as number
+        if {_id} is not set:
+            send "{@prefix}&cЭто не ID канала — там только цифры."
+            stop
+        set {casino::dchan} to arg-1
+        send "{@prefix}&aЛог казино идёт в канал &f%arg-1%&a. Проверка отправлена."
+        cz_log("лог казино подключён (%sender%)")

@@ -13,41 +13,20 @@ open_requirement:
 
 items:
 
-  'spec':
-    material: ENDER_EYE
+  'admin_watch':
+    material: SPYGLASS
     slot: 13
-    display_name: '&5&lНаблюдение за игроком'
+    display_name: '&b&lНаблюдение'
     lore:
-      - '&7Головы тех, кто в сети. Клик по голове —'
-      - '&7и ты рядом с ним: сразу в ванише'
-      - '&7и в спектаторе, без подтверждения.'
+      - '&7Слежка, досье, чужие инвентари, ваниш.'
       - ''
-      - '&7Обратно на своё место — &b/specback'
-      - '&8Только главный админ: судье и помощнику'
-      - '&8невидимая слежка не выдаётся.'
-      - ''
-      - '&aЛКМ &8— выбрать игрока'
+      - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[player] ekbmenu spec'
-
-  'dossier':
-    material: WRITTEN_BOOK
-    slot: 20
-    display_name: '&b&lДосье на игрока'
-    lore:
-      - '&7Всё об игроке одним окном: тюрьма,'
-      - '&7приговоры, зависимость, должности,'
-      - '&7право стройки, наём, подполье.'
-      - ''
-      - '&8Раньше это были семь разных команд.'
-      - ''
-      - '&aЛКМ &8— выбрать игрока'
-    left_click_commands:
-      - '[player] ekbmenu dossier'
+      - '[openguimenu] ekb_admin_watch'
 
   'court':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjY3YTA2MjU3ODBjMGMwZTFiYjdhOGM1MTg5YjAxMDlkNGRlZDQxNDhhYTI3Mzk0MzU4MDQwNjRiOGZhMTZhYiJ9fX0=
-    slot: 22
+    slot: 20
     display_name: '&6&lСуд и логи'
     lore:
       - '&7CoreProtect, выгрузка в Discord, откаты.'
@@ -58,7 +37,7 @@ items:
 
   'jail':
     material: IRON_BARS
-    slot: 24
+    slot: 22
     display_name: '&c&lТюрьма'
     lore:
       - '&7Приговоры, освобождение, имущество.'
@@ -67,9 +46,31 @@ items:
     left_click_commands:
       - '[openguimenu] ekb_admin_jail'
 
+  'roles':
+    material: NAME_TAG
+    slot: 24
+    display_name: '&d&lРоли и права'
+    lore:
+      - '&7Выдать или снять роль головами.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[player] ekbroles'
+
+  'world':
+    material: GRASS_BLOCK
+    slot: 28
+    display_name: '&a&lМир и границы'
+    lore:
+      - '&7Стадии границы, Chunky, погода.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_admin_world'
+
   'catalog':
     material: CHEST
-    slot: 28
+    slot: 29
     display_name: '&d&lКаталог вещей'
     lore:
       - '&7Всё, чего нет в творческом инвентаре:'
@@ -82,7 +83,7 @@ items:
 
   'items':
     material: BREWING_STAND
-    slot: 29
+    slot: 30
     display_name: '&5&lВещества и механики'
     lore:
       - '&7Зависимость, голограммы рынка, чара «Бур».'
@@ -92,20 +93,20 @@ items:
     left_click_commands:
       - '[openguimenu] ekb_admin_items'
 
-  'world':
-    material: GRASS_BLOCK
-    slot: 30
-    display_name: '&a&lМир и границы'
+  'admin_setup':
+    material: LODESTONE
+    slot: 31
+    display_name: '&e&lТочки и установка'
     lore:
-      - '&7Стадии границы, Chunky, погода.'
+      - '&7Казна, склад, границы, Теневой Рынок.'
       - ''
       - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[openguimenu] ekb_admin_world'
+      - '[openguimenu] ekb_admin_setup'
 
   'service':
     material: REDSTONE_TORCH
-    slot: 31
+    slot: 32
     display_name: '&e&lСервис'
     lore:
       - '&7TPS, сохранение, права, скрипты.'
@@ -114,132 +115,9 @@ items:
     left_click_commands:
       - '[openguimenu] ekb_admin_service'
 
-  'setup_treasury':
-    material: DIAMOND
-    slot: 32
-    display_name: '&b&lКазна: установка'
-    lore:
-      - '&7Казна — физические сундуки, а не число.'
-      - '&7Через неё ходят все деньги сервера.'
-      - '&8Мало места — добавь ещё сундук.'
-      - ''
-      - '&aЛКМ &8— команды установки'
-      - '&aПКМ &8— баланс'
-    left_click_commands:
-      - '[message] &b&lКАЗНА: &7/settreasury &8— назначить первый (начинает заново)'
-      - '[message] &b&lКАЗНА: &7/addtreasury &8— добавить ещё сундук'
-      - '[message] &b&lКАЗНА: &7/deltreasury &8— убрать сундук'
-      - '[message] &8Двойной сундук — один контейнер на 54 слота.'
-    right_click_commands:
-      - '[player] treasury'
-
-  'setup_depot':
-    material: BRICKS
-    slot: 33
-    display_name: '&6&lСклад: установка'
-    lore:
-      - '&7Отдельные сундуки под сданное сырьё.'
-      - '&8Нет склада — скупщик работает, но сырьё списывается.'
-      - ''
-      - '&aЛКМ &8— команды установки'
-      - '&aПКМ &8— что на складе'
-    left_click_commands:
-      - '[message] &6&lСКЛАД: &7/setdepot &8— назначить первый (начинает заново)'
-      - '[message] &6&lСКЛАД: &7/adddepot &8— добавить ещё сундук'
-      - '[message] &6&lСКЛАД: &7/deldepot &8— убрать сундук'
-    right_click_commands:
-      - '[player] depot'
-
-  'setup_borders':
-    material: FILLED_MAP
-    slot: 34
-    display_name: '&a&lГраницы государств'
-    lore:
-      - '&7Глава обходит землю ногами, Администрация'
-      - '&7утверждает — и полигон ложится на карту.'
-      - ''
-      - '&aЛКМ &8— команды границ'
-      - '&aПКМ &8— список границ'
-    left_click_commands:
-      - '[message] &a&lГРАНИЦЫ: &7/borderapply <город> &8— утвердить заявку'
-      - '[message] &a&lГРАНИЦЫ: &7/borderdrop <город> &8— снять с карты'
-      - '[message] &a&lГРАНИЦЫ: &7/bordercolor <город> <#rrggbb> &8— сменить цвет'
-      - '[message] &8Утверждать надо стоя в том же мире: выделение WorldEdit твоё.'
-    right_click_commands:
-      - '[player] borders'
-
-  'setup_shadow':
-    material: NETHER_STAR
-    slot: 37
-    display_name: '&4&lТеневой Рынок: точка'
-    lore:
-      - '&7Место сбора и скин Личины.'
-      - '&8Координаты видят только участники Сообщества.'
-      - ''
-      - '&aЛКМ &8— команды точки'
-      - '&aПКМ &8— выбрать скин Личины'
-    left_click_commands:
-      - '[close]'
-      - '[player] setshadowpoint'
-    right_click_commands:
-      - '[close]'
-      - '[player] ekbdo shadowskin'
-
-  'roles':
-    material: NAME_TAG
-    slot: 38
-    display_name: '&d&lРоли и права'
-    lore:
-      - '&7Выдать или снять роль головами.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    left_click_commands:
-      - '[player] ekbroles'
-
-  'ahelp':
-    material: KNOWLEDGE_BOOK
-    slot: 39
-    display_name: '&b&lСправочник'
-    lore:
-      - '&aЛКМ &8— все команды в чат'
-    left_click_commands:
-      - '[player] ahelp'
-
-  'inv':
-    material: ENDER_CHEST
-    slot: 40
-    display_name: '&5&lЧужие инвентари'
-    lore:
-      - '&7Изъятие краденого — только по суду.'
-      - ''
-      - '&aЛКМ &8— инвентарь игрока'
-      - '&aПКМ &8— эндер-сундук'
-    left_click_commands:
-      - '[player] ekbmenu inv'
-    right_click_commands:
-      - '[player] ekbmenu ender'
-
-  'vanish':
-    material: POTION
-    slot: 41
-    display_name: '&8&lВаниш'
-    lore:
-      - '&aЛКМ &8— стать невидимым'
-    left_click_commands:
-      - '[player] sv'
-
-  'tps':
-    material: CLOCK
-    slot: 42
-    display_name: '&a&lTPS'
-    lore:
-      - '&aЛКМ &8— нагрузка сервера'
-    left_click_commands:
-      - '[player] spark tps'
-
   'tech':
     material: OBSERVER
-    slot: 43
+    slot: 33
     display_name: '&3&lНадзор и техника'
     lore:
       - '&7X-Ray, повторы, теги ролей, лотерея,'

@@ -1,0 +1,163 @@
+menu_title: '&8Как устроен голос'
+open_command:
+  - voiceinfo
+size: 54
+
+items:
+
+  'basics':
+    material: JUKEBOX
+    slot: 13
+    display_name: '&f&lКак это работает'
+    lore:
+      - '&7Голос идёт по расстоянию: 8, 16 или 32 блока'
+      - '&7— дальность выбирается в настройках мода.'
+      - ''
+      - '&7Клавиши и громкость — там же, в меню'
+      - '&7Plasmo Voice (по умолчанию &fV&7).'
+      - '&8Мода нет — тебя просто не слышно, кик за это не будет.'
+
+  'sculk':
+    material: SCULK_SENSOR
+    slot: 20
+    display_name: '&3&lДатчик скалка слышит голос'
+    lore:
+      - '&7Скалковые датчики и вардены реагируют'
+      - '&7на живой голос так же, как на шаги.'
+      - ''
+      - '&4В Глубоком Тёмном молчи.'
+
+  'svc':
+    material: NOTE_BLOCK
+    slot: 22
+    display_name: '&b&lSimple Voice Chat'
+    lore:
+      - '&7Друг играет с Simple Voice Chat, а не Plasmo?'
+      - '&7Вы всё равно слышите друг друга — сервер'
+      - '&7переводит голос между модами сам.'
+
+  'mods':
+    material: WRITABLE_BOOK
+    slot: 24
+    display_name: '&e&lЧего не хватает'
+    lore:
+      - '&7Всё это работает только с модом'
+      - '&7Plasmo Voice — он есть в модпаке сервера.'
+      - ''
+      - '&8Без мода ты слышишь и говоришь в обычный чат,'
+      - '&8и ничего больше не ломается.'
+
+  'header':
+    material: BOOK
+    slot: 4
+    display_name: '&e&lКак это устроено'
+    lore:
+      - '&7Справка, а не настройки.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_voice'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

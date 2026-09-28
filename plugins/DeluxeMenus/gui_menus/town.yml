@@ -17,35 +17,9 @@ items:
     left_click_commands:
       - '[player] clan info'
 
-  'create':
-    material: OAK_SIGN
-    slot: 20
-    display_name: '&a&lОснователь города'
-    lore:
-      - '&7По Конституции 2.3 нужны название, флаг,'
-      - '&7не меньше 3 жителей, границы и устав,'
-      - '&7зарегистрированные в Discord.'
-      - ''
-      - '&aЛКМ &8— как основать'
-    left_click_commands:
-      - '[close]'
-      - '[player] ekbdo clancreate'
-
-  'settings':
-    material: COMPARATOR
-    slot: 22
-    display_name: '&6&lНастройки города'
-    lore:
-      - '&7Префикс, союзы, враги, PvP,'
-      - '&7передача власти и роспуск.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    left_click_commands:
-      - '[openguimenu] ekb_town_settings'
-
   'invite':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjI1YjI3Y2U2MmNhODg3NDM4NDBhOTVkMWMzOTg2OGY0M2NhNjA2OTZhODRmNTY0ZmJkN2RkYTI1OWJlMDBmZSJ9fX0=
-    slot: 24
+    slot: 20
     display_name: '&b&lЖители'
     lore:
       - '&7До 8 жителей в городе.'
@@ -54,14 +28,14 @@ items:
       - '&aПКМ &8— выгнать жителя'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo claninvite'
+      - '[player] ekbdo claninvite<delay=2>'
     right_click_commands:
       - '[close]'
-      - '[player] ekbdo clankick'
+      - '[player] ekbdo clankick<delay=2>'
 
   'chat':
     material: PAPER
-    slot: 28
+    slot: 22
     display_name: '&a&lЧат города'
     lore:
       - '&7Слышат только свои, расстояние не мешает.'
@@ -73,20 +47,9 @@ items:
     right_click_commands:
       - '[message] &a&lЧАТ ГОРОДА: &7/cc <сообщение>'
 
-  'gov':
-    material: GOLDEN_HELMET
-    slot: 29
-    display_name: '&6&lУровни власти'
-    lore:
-      - '&7Глава, советник, казначей, страж, житель.'
-      - ''
-      - '&aЛКМ &8— кто за что отвечает'
-    left_click_commands:
-      - '[openguimenu] ekb_town_gov'
-
   'regime':
     material: CRAFTING_TABLE
-    slot: 30
+    slot: 24
     display_name: '&6&lФорма правления'
     lore:
       - '&7Восемь строёв. Строй решает, кто назначает'
@@ -99,33 +62,32 @@ items:
     right_click_commands:
       - '[player] regime list'
 
-  'points':
-    material: EXPERIENCE_BOTTLE
-    slot: 31
-    display_name: '&d&lОчки города'
+  'gov':
+    material: GOLDEN_HELMET
+    slot: 29
+    display_name: '&6&lУровни власти'
     lore:
-      - '&aЛКМ &8— очки города'
-      - '&aПКМ &8— мои очки'
+      - '&7Глава, советник, казначей, страж, житель.'
+      - ''
+      - '&aЛКМ &8— кто за что отвечает'
     left_click_commands:
-      - '[player] clan points'
-    right_click_commands:
-      - '[player] clan playerpoints'
+      - '[openguimenu] ekb_town_gov'
 
-  'list':
-    material: MAP
-    slot: 32
-    display_name: '&f&lГорода сервера'
+  'settings':
+    material: COMPARATOR
+    slot: 30
+    display_name: '&6&lНастройки города'
     lore:
-      - '&aЛКМ &8— все города'
-      - '&aПКМ &8— сильнейшие'
+      - '&7Префикс, союзы, враги, PvP,'
+      - '&7передача власти и роспуск.'
+      - ''
+      - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[player] clan list'
-    right_click_commands:
-      - '[player] topclans'
+      - '[openguimenu] ekb_town_settings'
 
   'mercs':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDA0NTY1MWMwODNiOTg3MzM4NmFjYzA3YjY2Yzc4MGQ3ZGJjODMxOWRkZWJhYjFkMTM4Y2VhZjA5ZjQ5N2UyNyJ9fX0=
-    slot: 33
+    slot: 31
     display_name: '&c&lНаёмники САП'
     lore:
       - '&7Охрана каравана, война, стройка.'
@@ -134,14 +96,31 @@ items:
     left_click_commands:
       - '[openguimenu] ekb_mercenaries'
 
-  'noteleport':
-    material: BARRIER
-    slot: 34
-    display_name: '&4&lПочему нет /clan home'
+  'create':
+    material: OAK_SIGN
+    slot: 32
+    display_name: '&a&lОснователь города'
     lore:
-      - '&7Телепорты игрокам запрещены Конституцией 1.1,'
-      - '&7поэтому clan-home.enabled стоит false.'
-      - '&7До города добираются ногами или по Незер-метро.'
+      - '&7По Конституции 2.3 нужны название, флаг,'
+      - '&7не меньше 3 жителей, границы и устав,'
+      - '&7зарегистрированные в Discord.'
+      - ''
+      - '&aЛКМ &8— как основать'
+    left_click_commands:
+      - '[close]'
+      - '[player] ekbdo clancreate<delay=2>'
+
+  'town_info':
+    material: BOOK
+    slot: 33
+    display_name: '&e&lО городах'
+    lore:
+      - '&7Очки, список городов,'
+      - '&7почему нет /clan home.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_town_info'
 
   'header':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjI1YjI3Y2U2MmNhODg3NDM4NDBhOTVkMWMzOTg2OGY0M2NhNjA2OTZhODRmNTY0ZmJkN2RkYTI1OWJlMDBmZSJ9fX0=

@@ -47,7 +47,7 @@ items:
       - '&aЛКМ &8— как подать'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo report'
+      - '[player] ekbdo report<delay=2>'
 
   'logs':
     material: CLOCK
@@ -65,10 +65,10 @@ items:
           permission: coreprotect.lookup
     left_click_commands:
       - '[close]'
-      - '[player] co i'
+      - '[player] co i<delay=2>'
     right_click_commands:
       - '[close]'
-      - '[player] ekbdo colookup'
+      - '[player] ekbdo colookup<delay=2>'
 
   'header':
     material: SPYGLASS

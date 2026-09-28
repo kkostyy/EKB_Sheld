@@ -22,6 +22,13 @@
 # и раз в минуту — иначе рестарт посреди доставки терял бы имущество
 # (грабля из mail.sk).
 #
+# ⚠ Комиссия ({@fee}%) уходит в Казну Спавна, а не сгорает: алмазы тут
+# настоящие, уничтожать их незачем, а Казна — единственный кошелёк, из
+# которого город платит скупщику, казино и лотерее. Нет Казны или она полна —
+# комиссия не берётся вовсе и продавец получает всё: отнимать выручку, чтобы
+# потом выбросить её в никуда, аукцион права не имеет.
+#
+# Требует treasury.sk (tr_put).
 # Ставится в plugins/Skript/scripts/
 
 options:
@@ -31,6 +38,7 @@ options:
     min_start: 16       # минимальная стартовая цена, алмазов
     increment: 5        # шаг ставки в процентах от текущей (не меньше 1💎)
     antisnipe: 60       # ставка в последнюю минуту продлевает торги на столько же
+    fee: 5              # комиссия с продажи в Казну, процентов (с лота от 20💎)
     frame_cmd: 7820
     lot_cmd: 7821
     btn_cmd: 7822
@@ -152,6 +160,7 @@ command /auction [<text>] [<number>]:
             set player's tool to air
             send "{@prefix}&aЛот №&f%{_id}%&a выставлен: &f%{_i}%&a, старт &b%{_price}%💎&a." to player
             send "{@prefix}&7Торги идут &f%round({@duration} / 60)%&7 мин. Нет ставок — вещь вернётся тебе." to player
+            send "{@prefix}&8С проданного лота в Казну уходит комиссия: {@fee} из 100 алмазов." to player
             broadcast "{@prefix}&f%player%&7 выставил на аукцион &f%{_i}%&7 — старт &b%{_price}%💎&7. &8/auction"
             send "[АУКЦИОН] лот %{_id}%: %player% выставил %{_i}% старт %{_price}%" to console
             stop
@@ -310,14 +319,28 @@ function au_finish(id: text):
                 send "{@prefix}&aТы выиграл лот №&f%{_id}%&a за &b%{_bid}%💎&a: &f%{_item}%&a." to {_wp}
             else:
                 au_owe_item({_bidder}, {_item})
+            # Комиссия — с округлением вниз: с лота дешевле 20💎 её нет,
+            # копейка с копеечной сделки только злит.
+            # Не больше стака: tr_put проверяет ОДИН свободный слот, и 70
+            # алмазов в него не лягут — излишек `add` потерял бы молча.
+            set {_fee} to floor({_bid} * {@fee} / 100)
+            if {_fee} > 64:
+                set {_fee} to 64
+            if {_fee} > 0:
+                if tr_put("Аукцион, лот №%{_id}%", {_fee} of diamond) is false:
+                    set {_fee} to 0
+            set {_net} to {_bid} - {_fee}
             set {_sp} to {_seller} parsed as player
             if {_sp} is set:
-                give {_bid} of diamond to {_sp}
-                send "{@prefix}&aЛот №&f%{_id}%&a продан за &b%{_bid}%💎&a." to {_sp}
+                give {_net} of diamond to {_sp}
+                if {_fee} > 0:
+                    send "{@prefix}&aЛот №&f%{_id}%&a продан за &b%{_bid}%💎&a. Тебе &b%{_net}%💎&a, комиссия &b%{_fee}%💎&a ушла в Казну." to {_sp}
+                else:
+                    send "{@prefix}&aЛот №&f%{_id}%&a продан за &b%{_bid}%💎&a." to {_sp}
             else:
-                au_owe_diamond({_seller}, {_bid})
+                au_owe_diamond({_seller}, {_net})
             broadcast "{@prefix}&f%{_bidder}%&7 выиграл &f%{_item}%&7 за &b%{_bid}%💎&7 (лот №%{_id}%)."
-            send "[АУКЦИОН] лот %{_id}% продан: %{_bidder}% за %{_bid}% (продавец %{_seller}%)" to console
+            send "[АУКЦИОН] лот %{_id}% продан: %{_bidder}% за %{_bid}% (продавец %{_seller}%, комиссия %{_fee}% в Казну)" to console
     else:
         # Ставок не было — вещь возвращается продавцу.
         set {_sp} to {_seller} parsed as player

@@ -29,6 +29,12 @@
 #   {mail::text::<id>}         — текст письма
 #   {mail::item::<id>}         — предмет посылки
 #   {mail::due::<id>}          — unix-время, когда можно вручать
+#   {mail::alias::<id>}        — подпись анонимного отправителя (вместо ника)
+#   {mail::ct::<id>}           — номер контракта, если в посылке голова
+#
+# ⚠ Анонимность у посылки с головой двусторонняя: получатель видит
+# псевдоним исполнителя, а исполнитель в /mailbox — «заказчика по
+# контракту №N», а не ник. Заказчика он не знает и знать не должен.
 #
 # Команды:
 #   /mailsend <ник> <текст>   — письмо, 1💎
@@ -89,6 +95,12 @@ command /parcel <offline player>:
         if {_i} is air:
             send "{@prefix}&cВозьми в главную руку то, что отправляешь."
             stop
+        # Голова по контракту обычной посылкой не идёт: на ней стоял бы
+        # настоящий ник отправителя, а заказчика исполнитель и не знает.
+        if ct_head_id({_i}) is not "":
+            send "{@prefix}&cГолову по контракту шлют анонимно: &b/contract mail"
+            send "&8 Адрес заказчика почта знает сама, отправитель — под псевдонимом."
+            stop
 
         set {_r} to tr_pay(player, {@parcel_price})
         if {_r} is not "ok":
@@ -129,20 +141,24 @@ command /parcel <offline player>:
 # он теряет молча — та же причина, по которой /jailitems give отказывает при
 # нехватке места. Не влезло — отправление остаётся на почте до следующего раза.
 function mail_deliver(id: text, p: player) :: boolean:
+    set {_from} to mail_sender({_id})
     if {mail::kind::%{_id}%} is "parcel":
         set {_free} to 0
         loop integers from 0 to 35:
             if tr_item(slot loop-number of {_p}'s inventory) is air:
                 add 1 to {_free}
         if {_free} <= 0:
-            send "{@prefix}&cТебе пришла посылка от &f%{mail::from::%{_id}%}%&c, но рюкзак полон." to {_p}
+            send "{@prefix}&cТебе пришла посылка от &f%{_from}%&c, но рюкзак полон." to {_p}
             send "{@prefix}&7Освободи слот — курьер подождёт." to {_p}
             return false
         give {mail::item::%{_id}%} to {_p}
-        send "{@prefix}&fПосылка от &e%{mail::from::%{_id}%}%&f: &a%{mail::item::%{_id}%}%" to {_p}
+        send "{@prefix}&fПосылка от &e%{_from}%&f: &a%{mail::item::%{_id}%}%" to {_p}
         play sound "block.chest.open" with volume 1 to {_p}
+        # Голова по контракту: вручение и есть расчёт (contracts.sk).
+        if {mail::ct::%{_id}%} is set:
+            ct_mail_paid({mail::ct::%{_id}%}, {mail::from::%{_id}%})
     else:
-        send "{@prefix}&fПисьмо от &e%{mail::from::%{_id}%}%&f:" to {_p}
+        send "{@prefix}&fПисьмо от &e%{_from}%&f:" to {_p}
         send "&7&o%{mail::text::%{_id}%}%" to {_p}
         play sound "block.chest.open" with volume 1 to {_p}
 
@@ -152,7 +168,33 @@ function mail_deliver(id: text, p: player) :: boolean:
     delete {mail::text::%{_id}%}
     delete {mail::item::%{_id}%}
     delete {mail::due::%{_id}%}
+    delete {mail::alias::%{_id}%}
+    delete {mail::ct::%{_id}%}
     return true
+
+# Как подписан отправитель. У анонимного отправления — псевдоним, настоящий
+# ник остаётся в {mail::from} и в консоли (то есть у Суда).
+function mail_sender(id: text) :: text:
+    if {mail::alias::%{_id}%} is set:
+        return {mail::alias::%{_id}%}
+    return {mail::from::%{_id}%}
+
+# Анонимная посылка — пока единственный заказчик у неё contracts.sk
+# (голова заказчику). Предмет уже изъят вызывающим, марка уже оплачена.
+# ctid — номер контракта или "" для обычной анонимной посылки.
+function mail_anon_parcel(to: text, from: text, alias: text, i: item, ctid: text) :: text:
+    add 1 to {mail::id}
+    set {_id} to "%{mail::id}%"
+    set {mail::to::%{_id}%} to {_to}
+    set {mail::from::%{_id}%} to {_from}
+    set {mail::alias::%{_id}%} to {_alias}
+    set {mail::kind::%{_id}%} to "parcel"
+    set {mail::item::%{_id}%} to {_i}
+    set {mail::due::%{_id}%} to (unix timestamp of now) + {@delay}
+    if {_ctid} is not "":
+        set {mail::ct::%{_id}%} to {_ctid}
+    send "[ПОЧТА] №%{_id}%: %{_from}% (анонимно как %{_alias}%) -> %{_to}%, посылка %{_i}%" to console
+    return {_id}
 
 # Раздать всё, что дозрело, конкретному игроку.
 function mail_flush(p: player):
@@ -199,10 +241,14 @@ command /mailbox:
                 set {_when} to "&7ещё &f%ceil({_left} / 60)%&7 мин."
             if loop-value is "%player%":
                 add 1 to {_in}
-                send "&8 ← &f%{_what}%&8 от &7%{mail::from::%{_id}%}%&8 · %{_when}%"
+                send "&8 ← &f%{_what}%&8 от &7%mail_sender({_id})%&8 · %{_when}%"
             if {mail::from::%{_id}%} is "%player%":
                 add 1 to {_out}
-                send "&8 → &f%{_what}%&8 для &7%loop-value%&8 · %{_when}%"
+                # Заказчик исполнителю неизвестен — и почта его не выдаёт.
+                set {_dest} to loop-value
+                if {mail::ct::%{_id}%} is set:
+                    set {_dest} to "заказчика по контракту №%{mail::ct::%{_id}%}%"
+                send "&8 → &f%{_what}%&8 для &7%{_dest}%&8 · %{_when}%"
         if {_in} <= 0:
             if {_out} <= 0:
                 send "&7Пусто. Письмо — &b/mailsend <ник> <текст>&7 (&b{@letter_price}💎&7),"

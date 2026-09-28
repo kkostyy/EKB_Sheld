@@ -29,7 +29,8 @@
 # долг уходит в консоль и в Discord Администрации — терять чужой выигрыш
 # на полном сундуке Мэрия права не имеет, как и Суд в тюремном ящике.
 #
-# Требует treasury.sk (tr_pay, tr_payout, tr_loose, tr_ready).
+# Требует treasury.sk (tr_pay, tr_payout, tr_loose, tr_ready) и
+# casino_house.sk (закрыто/открыто, только в здании, лог в Discord).
 # Ставится в plugins/Skript/scripts/
 
 options:
@@ -107,6 +108,9 @@ function cas_bets(inv: inventory, p: player):
 # Можно ли принять ставку: касса назначена, в ней хватает на максимум,
 # и у игрока есть чем платить.
 function cas_ok(p: player, mult: number) :: boolean:
+    # Закрыто или игрок не в здании (casino_house.sk) — ставки нет.
+    if cz_can_play({_p}) is false:
+        return false
     set {_bet} to cas_bet({_p})
     if tr_ready() is false:
         send "{@prefix}&cКазна Спавна не назначена — касса закрыта." to {_p}
@@ -130,18 +134,18 @@ function cas_win(p: player, n: number, what: text):
     if {_r} is not "ok":
         send "{@prefix}%{_r}%" to {_p}
         send "&c Выигрыш &b%{_n}%💎&c остался за Казной — позови Мэрию." to {_p}
-        send "[КАЗИНО] ДОЛГ: %{_p}% выиграл %{_n}% алмазов (%{_what}%), выдача не прошла" to console
+        cz_log("ДОЛГ: %{_p}% выиграл %{_n}% алмазов (%{_what}%), выдача не прошла")
     else:
         add 1 to {cas::win::%uuid of {_p}%}
         send "{@prefix}&a&lВЫИГРЫШ! &fЗабирай &b%{_n}%💎&f." to {_p}
         play sound "entity.player.levelup" with volume 0.7 with pitch 1.4 to {_p}
-        send "[КАЗИНО] %{_p}% выиграл %{_n}% алмазов (%{_what}%)" to console
+        cz_log("%{_p}% выиграл %{_n}% алмазов (%{_what}%)")
 
 function cas_lost(p: player, what: text):
     add 1 to {cas::lose::%uuid of {_p}%}
     send "&7 Ставка ушла в Казну Спавна." to {_p}
     play sound "block.note_block.bass" with volume 0.7 with pitch 0.7 to {_p}
-    send "[КАЗИНО] %{_p}% проиграл (%{_what}%)" to console
+    cz_log("%{_p}% проиграл %cas_bet({_p})% алмазов (%{_what}%)")
 
 # ---------------------------------------------------------------------------
 # Рулетка
@@ -355,21 +359,24 @@ command /roulette:
     aliases: /рулетка
     executable by: players
     trigger:
-        cas_roulette_menu(player)
+        if cz_can_play(player) is true:
+            cas_roulette_menu(player)
 
 command /slots:
     description: Игровые автоматы казино Спавна
     aliases: /слоты
     executable by: players
     trigger:
-        cas_slots_menu(player)
+        if cz_can_play(player) is true:
+            cas_slots_menu(player)
 
 command /coinflip:
     description: Орёл или решка
     aliases: /монетка
     executable by: players
     trigger:
-        cas_coin_menu(player)
+        if cz_can_play(player) is true:
+            cas_coin_menu(player)
 
 command /casinostats:
     description: Мой счёт в казино

@@ -177,7 +177,7 @@ items:
     slot: 45
     display_name: '&7Назад'
     left_click_commands:
-      - '[openguimenu] ekb_casino'
+      - '[openguimenu] ekb_casino_bar'
 
   'close':
     material: BARRIER

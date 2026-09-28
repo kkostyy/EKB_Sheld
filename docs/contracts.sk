@@ -27,8 +27,10 @@ options:
     witness: 48         # радиус, в котором убийство считается замеченным
     minprice: 16        # минимальная награда, алмазов
     expire: 604800      # контракт живёт неделю реального времени
+    repeat: 86400       # после исполнения ту же цель не заказывают сутки
     head_cmd: 7810      # метка «головы-доказательства» (CustomModelData)
     deliver_radius: 6   # на каком расстоянии можно передать голову заказчику
+    mail_price: 4       # марка анонимной посылки с головой — как обычная посылка
     admin: coreprotect.rollback
 
 # Хранилище:
@@ -39,6 +41,19 @@ options:
 #   {ct::taker::%id%}         — кто взял
 #   {ct::made::%id%}          — когда создан (unix)
 #   {ct::done::%id%}          — цель мертва, ждёт передачи головы (ник исполнителя)
+#   {ct::last::%ник в нижнем регистре%} — когда цель последний раз убита по контракту
+#   {ct::mailed::%id%}        — голова уехала почтой, ждёт вручения (номер отправления)
+#   {ct::owe::%ник%}          — награда исполнителю, который был не в сети при вручении
+#
+# Голову заказчику доставляют ДВУМЯ путями, и оба анонимны:
+#   — лично: ПКМ по заказчику. Исполнитель при этом ВСЕГДА в Личине
+#     (shadow.sk): не надел сам — наденется при первом клике, передать
+#     можно вторым. Ник над головой TAB не прячет (разбор в shadow.sk),
+#     но скин и таб-лист — уже чужие;
+#   — почтой: /contract mail. Адрес заказчика почта берёт из контракта
+#     (исполнитель его так и не узнаёт), в отправителе — псевдоним.
+#     Расчёт происходит в момент ВРУЧЕНИЯ, а не отправки: пока голова в
+#     пути, Суд может аннулировать контракт, и тогда она придёт трофеем.
 
 # ---------------------------------------------------------------------------
 # Служебное
@@ -146,7 +161,7 @@ function ct_head_id(i: item) :: text:
 
 command /contract [<text>] [<text>] [<integer>]:
     description: Контракты на устранение
-    usage: /contract board | new <ник> <алмазов> | take <id> | drop <id> | mine
+    usage: /contract board | new <ник> <алмазов> | take <id> | drop <id> | mine | mail
     trigger:
         if arg-1 is not set:
             send "{@prefix}&7/contract board &8— доска открытых контрактов" to player
@@ -156,7 +171,8 @@ command /contract [<text>] [<text>] [<integer>]:
             send "{@prefix}&7/contract mine &8— мои заказы и взятые" to player
             send "{@prefix}&7/contract rep &8— репутация псевдонимов подполья" to player
             send "{@prefix}&8Награда приходит не за смерть, а за ГОЛОВУ:" to player
-            send "{@prefix}&8исполнитель несёт голову заказчику и ПКМ по нему." to player
+            send "{@prefix}&8исполнитель несёт голову заказчику и ПКМ по нему (в Личине)" to player
+            send "{@prefix}&8или шлёт её анонимно почтой: &7/contract mail&8 с головой в руке." to player
             if player has permission "{@admin}":
                 send "{@prefix}&c/contract settle <id> &8— выдать награду исполнителю (голова потеряна)" to player
                 send "{@prefix}&c/contract void <id> &8— вернуть депозит заказчику (спор Суда)" to player
@@ -205,6 +221,17 @@ command /contract [<text>] [<text>] [<integer>]:
             if arg-2 is "%player%":
                 send "{@prefix}&cНа себя контракт не оформляют." to player
                 stop
+            # Повторный заказ той же цели — не раньше, чем через сутки после
+            # исполнения прошлого: иначе контракт превращается в травлю, и
+            # человека убивают по кругу на каждом выходе из дома.
+            # ⚠ Отказ нейтральный и не говорит, что цель недавно убита по
+            # заказу: заказчик не должен узнавать о чужих контрактах.
+            set {_tk} to arg-2 in lowercase
+            set {_now} to unix timestamp of now
+            if {ct::last::%{_tk}%} is set:
+                if ({_now} - {ct::last::%{_tk}%}) < {@repeat}:
+                    send "{@prefix}&cНа этого человека сейчас заказы не принимают. Попробуй позже." to player
+                    stop
             if ct_diamonds(player) < arg-3:
                 send "{@prefix}&cНужно &f%arg-3%💎&c на руках: депозит платится вперёд." to player
                 stop
@@ -284,7 +311,9 @@ command /contract [<text>] [<text>] [<integer>]:
                         send "&7 №&f%{_id}%&7 мой заказ: цель &c%loop-value%&7, депозит &b%{ct::price::%{_id}%}%💎" to player
                 else if {ct::taker::%{_id}%} is "%player%":
                     add 1 to {_n}
-                    if {ct::done::%{_id}%} is set:
+                    if {ct::mailed::%{_id}%} is set:
+                        send "&7 №&f%{_id}%&7 взят мной: голова едет почтой, расчёт при вручении" to player
+                    else if {ct::done::%{_id}%} is set:
                         send "&7 №&f%{_id}%&7 взят мной: цель &c%loop-value%&7 мёртв — отнеси голову заказчику" to player
                     else:
                         send "&7 №&f%{_id}%&7 взят мной: цель &c%loop-value%&7, награда &b%{ct::price::%{_id}%}%💎" to player
@@ -318,6 +347,41 @@ command /contract [<text>] [<text>] [<integer>]:
                 send "&7 Пока никто не брал контрактов." to player
             else:
                 send "&8 Настоящие имена знает только Суд (УК 5.6)." to player
+            stop
+
+        # Голова заказчику — анонимной посылкой. Адрес берётся из контракта:
+        # исполнитель заказчика не знает, и почта его не выдаёт ни здесь,
+        # ни в /mailbox (mail.sk). Номер контракта читается с головы в руке.
+        if arg-1 is "mail":
+            set {_id} to ct_head_id(player's tool)
+            if {_id} is "":
+                send "{@prefix}&cВозьми в главную руку голову-доказательство." to player
+                stop
+            if ct_open({_id}) is false:
+                send "{@prefix}&cЭтот контракт уже закрыт. Голова — просто трофей." to player
+                stop
+            if {ct::done::%{_id}%} is not "%player%":
+                send "{@prefix}&cЭто не твоя голова по контракту." to player
+                stop
+            if {ct::mailed::%{_id}%} is set:
+                send "{@prefix}&cГолова по контракту №&f%{_id}%&c уже в пути." to player
+                stop
+            set {_r} to tr_pay(player, {@mail_price})
+            if {_r} is not "ok":
+                send "{@prefix}%{_r}%" to player
+                send "{@prefix}&7Марка — &b{@mail_price}💎&7, идёт в Казну Спавна." to player
+                stop
+            # Сначала изъять, потом отправить: иначе голову успеют и
+            # отправить, и донести лично — две выплаты за одну смерть.
+            set {_head} to player's tool
+            set player's tool to air
+            set {_me} to "%player%"
+            set {_alias} to ct_alias({_me})
+            set {_mid} to mail_anon_parcel({ct::owner::%{_id}%}, {_me}, {_alias}, {_head}, {_id})
+            set {ct::mailed::%{_id}%} to {_mid}
+            send "{@prefix}&7Голова по контракту №&f%{_id}%&7 ушла почтой. Курьер идёт 20 минут." to player
+            send "{@prefix}&8Отправитель в посылке — &f%{_alias}%&8. Награда придёт при вручении," to player
+            send "{@prefix}&8а если тебя не будет в сети — при входе." to player
             stop
 
         # Аварийный расчёт Суда, когда голова потеряна (исполнитель погиб с
@@ -383,6 +447,7 @@ function ct_close(id: text):
     delete {ct::taker::%{_id}%}
     delete {ct::made::%{_id}%}
     delete {ct::done::%{_id}%}
+    delete {ct::mailed::%{_id}%}
 
 # ---------------------------------------------------------------------------
 # Смерть: расчёт по контракту и свидетели
@@ -404,10 +469,13 @@ on death of player:
                 if {ct::taker::%{_id}%} is {_kname}:
                     if {ct::done::%{_id}%} is not set:
                         set {ct::done::%{_id}%} to {_kname}
+                        set {_dk} to {_dead} in lowercase
+                        set {ct::last::%{_dk}%} to unix timestamp of now
                         give ct_head({_id}, {_dead}) to {_killer}
                         send "{@prefix}&cЦель по контракту №&f%{_id}%&c мертва." to {_killer}
                         send "{@prefix}&7Награда &b%{ct::price::%{_id}%}%💎&7 ждёт передачи головы." to {_killer}
-                        send "{@prefix}&7Найди заказчика, встань рядом и ПКМ по нему с головой в руке." to {_killer}
+                        send "{@prefix}&7Лично: встань рядом с заказчиком и ПКМ по нему — в Личине." to {_killer}
+                        send "{@prefix}&7Или анонимно почтой: &b/contract mail&7 с головой в руке." to {_killer}
                         set {_owner} to {ct::owner::%{_id}%} parsed as player
                         if {_owner} is set:
                             set {_alias} to ct_alias({_kname})
@@ -467,6 +535,16 @@ on right click on player:
             send "{@prefix}&7Это не заказчик контракта №&f%{_id}%&7." to player
             send "&8   Голову ждёт тот, кто оформил заказ." to player
             stop
+        # ⚠ Передача из рук в руки — только в Личине. Заказчик видит
+        # исполнителя в лицо, и без чужого скина псевдоним «Ворон-42» стоил
+        # бы ровно до первой встречи. Не надел сам — надеваем и просим
+        # кликнуть ещё раз: заказчик должен увидеть уже чужой скин, а не то,
+        # как свой сменяется на чужой в момент расчёта.
+        if sh_is_on(player) is false:
+            sh_put_on(player)
+            send "{@prefix}&8Личина надета: голову передают только в ней." to player
+            send "{@prefix}&7Кликни по заказчику ещё раз." to player
+            stop
         # заказчик подтверждён — расчёт
         set {_price} to {ct::price::%{_id}%}
         remove 1 of player's tool from player
@@ -474,7 +552,9 @@ on right click on player:
         add 1 to {ct::rep::done::%player%}
         send "{@prefix}&aГолова принята. Контракт №&f%{_id}%&a закрыт." to player
         send "{@prefix}&aНаграда: &b%{_price}%💎&a." to player
-        send "{@prefix}&7Ты получил голову &c%{ct::target::%{_id}%}%&7. Дело сделано." to {_target}
+        set {_me} to "%player%"
+        set {_alias} to ct_alias({_me})
+        send "{@prefix}&7%{_alias}%&7 передал тебе голову &c%{ct::target::%{_id}%}%&7. Дело сделано." to {_target}
         send "{@prefix}&8Депозит &b%{_price}%💎&8 ушёл исполнителю." to {_target}
         send "[КОНТРАКТ] №%{_id}% оплачен: %player% передал голову заказчику %{_target}%" to console
         ct_close({_id})
@@ -491,3 +571,41 @@ on place of player head:
     if ct_head_id(player's tool) is not "":
         cancel event
         send "{@prefix}&cГолову-доказательство не ставят — отнеси её заказчику." to player
+
+# ---------------------------------------------------------------------------
+# Голова пришла почтой — расчёт (вызывает mail.sk при вручении)
+# ---------------------------------------------------------------------------
+#
+# ⚠ Сверяется то же, что при личной передаче: контракт открыт и голову снял
+# именно этот исполнитель. Закрыл Суд контракт, пока голова ехала (settle
+# или void), — она приходит трофеем, второй выплаты нет.
+function ct_mail_paid(id: text, taker: text):
+    if ct_open({_id}) is true:
+        if {ct::done::%{_id}%} is {_taker}:
+            set {_price} to {ct::price::%{_id}%}
+            set {_owner} to {ct::owner::%{_id}%} parsed as player
+            if {_owner} is set:
+                send "{@prefix}&7Контракт №&f%{_id}%&7 закрыт. Депозит &b%{_price}%💎&7 ушёл исполнителю." to {_owner}
+            ct_pay_taker({_taker}, {_price}, {_id})
+            add 1 to {ct::rep::done::%{_taker}%}
+            send "[КОНТРАКТ] №%{_id}% оплачен: %{_taker}% прислал голову почтой заказчику %{ct::owner::%{_id}%}%" to console
+            ct_close({_id})
+
+# Выдать награду исполнителю: в сети — в руки, нет — в долг до входа
+# (тот же приём, что у почты и аукциона: вещь не теряется из-за оффлайна).
+function ct_pay_taker(taker: text, price: number, id: text):
+    set {_p} to {_taker} parsed as player
+    if {_p} is set:
+        give {_price} of diamond to {_p}
+        send "{@prefix}&aГолова по контракту №&f%{_id}%&a вручена. Награда: &b%{_price}%💎&a." to {_p}
+    else:
+        add {_price} to {ct::owe::%{_taker}%}
+
+on join:
+    wait 5 seconds
+    set {_me} to "%player%"
+    if {ct::owe::%{_me}%} is set:
+        set {_n} to {ct::owe::%{_me}%}
+        delete {ct::owe::%{_me}%}
+        give {_n} of diamond to player
+        send "{@prefix}&aПока тебя не было, голову вручили. Награда: &b%{_n}%💎&a." to player

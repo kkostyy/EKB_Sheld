@@ -134,9 +134,26 @@ MENUS['profile'] = {
          'lore': ['&7Кровать, спавн или крыльцо Суда.',
                   '&8Работает только в день освобождения.'],
          'run': 'freedom', 'tip': 'выбрать точку'},
+        {'id': 'playtime', 'material': 'CLOCK', 'name': '&e&lВремя в игре',
+         'lore': ['&7Сегодня: &f%playerTime_today_minutes%&7 мин',
+                  '&7За неделю: &f%playerTime_week_hours%&7 ч',
+                  '&7За месяц: &f%playerTime_month_hours%&7 ч',
+                  '&7Всего: &f%playerTime_total_hours%&7 ч  &e%playerTime_total_level%',
+                  '',
+                  '&8Считает PlayerTime: только время в сети.'],
+         'say': ['&e&lВремя в игре: &7сегодня &f%playerTime_today_minutes%&7 мин, неделя &f%playerTime_week_hours%&7 ч, всего &f%playerTime_total_hours%&7 ч'],
+         'tip': 'в чат'},
         {'id': 'status', 'material': 'GLASS_BOTTLE', 'name': '&d&lСостояние',
          'lore': ['&7Зависимость, ломка, время без дозы.'],
          'run': 'addiction', 'tip': 'проверить себя'},
+        {'id': 'voicemsg', 'material': 'NOTE_BLOCK', 'name': '&d&lГолосовое сообщение',
+         'lore': ['&7Запиши голос и отправь в чат.',
+                  '&7Говори в микрофон — потом &e[Готово]&7 и &e[Отправить]&7.',
+                  '&8Нужен Plasmo Voice. Хранится 10 минут, до минуты длиной.',
+                  '&8В общий чат — тем, кто в радиусе локального чата.'],
+         'close': True,
+         'run': 'vm', 'tip': 'записать в чат',
+         'right': {'close': True, 'run': 'ekbdo vmdirect', 'tip': 'лично игроку'}},
         {'id': 'mail', 'material': 'HEAD:envelope', 'name': '&f&lПочта',
          'say': ['&8&lПочта: &7/mailsend <ник> <текст>'], 'tip': 'как отправить',
          'right': {'run': 'mailclear', 'tip': 'очистить почту'}},
@@ -853,7 +870,7 @@ HERBS = [
     ('salve', 'SLIME_BALL', '&aТравяная мазь'),
     ('brownie', 'COOKIE', '&6Брауни'),
     ('deerstalker', 'CHAINMAIL_HELMET', '&eДвухкозырка'),
-    ('thc', 'SLIME_BALL', '&2ТГК'),
+    ('thc', 'TNT_MINECART', '&2ТГК'),
 ]
 
 
@@ -962,7 +979,7 @@ ALL_ITEMS = [
     ('salve', 'SLIME_BALL', '&aТравяная мазь', 'herb'),
     ('brownie', 'COOKIE', '&6Брауни', 'herb'),
     ('deerstalker', 'CHAINMAIL_HELMET', '&eДвухкозырка', 'herb'),
-    ('thc', 'SLIME_BALL', '&2ТГК', 'herb'),
+    ('thc', 'TNT_MINECART', '&2ТГК', 'herb'),
     ('mojito', 'POTION', '&aМохито', 'drink'),
     ('firm_beer', 'POTION', '&6Разливное Фирменное', 'drink'),
     ('passionfruit', 'POTION', '&dМаракуйевая водка', 'drink'),
@@ -1041,7 +1058,9 @@ MENUS['allitems'] = {
                   '&814 рецептов BreweryX, CMD 1001-1014.'],
          'cmd': 1002,
          'open': 'ekb_drinks', 'tip': 'открыть'},
-        {'id': 'artifacts', 'material': 'NETHER_STAR', 'name': '&5&lОсобые артефакты',
+        # Иконка — Песочные часы (CMD 3003 сидит на часах): под незвездой
+        # моделей в паке нет, и кнопка рисовала голую звезду.
+        {'id': 'artifacts', 'material': 'CLOCK', 'name': '&5&lОсобые артефакты',
          'lore': ['&7Шесть предметов, по два на весь мир.',
                   '&8CMD 3001-3006.'],
          'cmd': 3003,
@@ -1056,7 +1075,7 @@ MENUS['allitems'] = {
          'open': 'ekb_guns', 'tip': 'открыть'},
         {'id': 'tables', 'material': 'PAPER', 'name': '&f&lНастольные игры',
          'lore': ['&7TablePlays: кости, карты, шашки, нарды.',
-                  '&8CMD 33000-33790, моделей в паке нет.'],
+                  '&8CMD 33000-33790, модели из пака TablePlays.'],
          'open': 'ekb_tables', 'tip': 'открыть'},
     ],
 }
@@ -1142,9 +1161,9 @@ MENUS['tables'] = {
          'run': 'givetable chip', 'tip': 'выдать себе'},
         {'id': 'domino', 'material': 'WARPED_FUNGUS_ON_A_STICK', 'cmd': 33300, 'name': '&f&lДомино',
          'run': 'givetable domino', 'tip': 'выдать себе'},
-        {'id': 'chess', 'material': 'WARPED_FUNGUS_ON_A_STICK', 'cmd': 33210, 'name': '&f&lШахматная фигура',
+        {'id': 'chess', 'material': 'WARPED_FUNGUS_ON_A_STICK', 'cmd': 33211, 'name': '&f&lШахматная фигура',
          'run': 'givetable chess', 'tip': 'выдать себе'},
-        {'id': 'checker', 'material': 'WARPED_FUNGUS_ON_A_STICK', 'cmd': 33200, 'name': '&f&lШашка',
+        {'id': 'checker', 'material': 'WARPED_FUNGUS_ON_A_STICK', 'cmd': 33201, 'name': '&f&lШашка',
          'run': 'givetable checker', 'tip': 'выдать себе'},
         {'id': 'board', 'material': 'WARPED_FUNGUS_ON_A_STICK', 'cmd': 33230, 'name': '&f&lДоска',
          'run': 'givetable board', 'tip': 'выдать себе'},
@@ -1210,7 +1229,7 @@ MENUS['judge'] = {
          'close': True,
          'run': 'ekbdo courtlog',
          'tip': 'собрать выгрузку по шагам'},
-        {'id': 'verdict', 'material': 'IRON_BARS', 'name': '&c&lПриговор',
+        {'id': 'verdict', 'view': 'coreprotect.rollback', 'material': 'IRON_BARS', 'name': '&c&lПриговор',
          'lore': ['&8/sentence <ник> <минут> &7— срок',
                   '&8/freeearly <ник> &7— освободить',
                   '&8/jailinfo &7— кто сидит',
@@ -1223,7 +1242,7 @@ MENUS['judge'] = {
          'run': 'ekbmenu jail',
          'tip': 'выбрать игрока и срок',
          'right': {'close': True, 'run': 'jailinfo'}},
-        {'id': 'property', 'material': 'HEAD:coins', 'name': '&6&lИмущество осуждённых',
+        {'id': 'property', 'view': 'coreprotect.rollback', 'material': 'HEAD:coins', 'name': '&6&lИмущество осуждённых',
          'lore': ['&8/jailitems list [ник] &7— что изъято',
                   '&8/jailitems give <ник> &7— вернуть',
                   '&8/jailitems clear <ник> &7— в Казну',
@@ -1236,7 +1255,7 @@ MENUS['judge'] = {
          'run': 'jailprop',
          'tip': 'разобрать ящик по предметам',
          'right': {'run': 'ekbmenu items', 'tip': 'вернуть всё сразу'}},
-        {'id': 'free', 'material': 'LIME_DYE', 'name': '&a&lОсвободить',
+        {'id': 'free', 'view': 'coreprotect.rollback', 'material': 'LIME_DYE', 'name': '&a&lОсвободить',
          'lore': ['&7Досрочное освобождение решением Судьи.',
                   '',
                   '&7Освобождённый сам выберет, куда выйти:',
@@ -1248,7 +1267,7 @@ MENUS['judge'] = {
          'run': 'ekbmenu free',
          'tip': 'выбрать заключённого',
          'right': {'close': True, 'run': 'jailinfo'}},
-        {'id': 'rollback', 'material': 'TNT', 'name': '&c&lОткат по решению Суда',
+        {'id': 'rollback', 'view': 'coreprotect.rollback', 'material': 'TNT', 'name': '&c&lОткат по решению Суда',
          'lore': ['&8/co rollback u:<ник> t:<время> r:<радиус>',
                   '&8/co restore ... &7— вернуть как было',
                   '',
@@ -2001,6 +2020,13 @@ MENUS['contracts'] = {
         {'id': 'mine', 'material': 'WRITABLE_BOOK', 'name': '&7&lМои дела',
          'lore': ['&7Свои заказы и взятые контракты.'],
          'run': 'contract mine', 'tip': 'показать'},
+        {'id': 'mail', 'material': 'PLAYER_HEAD', 'name': '&8&lГолову — почтой',
+         'lore': ['&7Держи голову-доказательство в руке.',
+                  '&7Почта сама знает адрес заказчика,',
+                  '&7в отправителе — твой псевдоним.',
+                  '&7Марка 4💎, награда — при вручении.',
+                  '&8Лично — ПКМ по заказчику, в Личине.'],
+         'run': 'contract mail', 'tip': 'отправить'},
         {'id': 'law', 'material': 'IRON_BARS', 'name': '&6&lЧто говорит закон',
          'lore': ['&7Статья 4 — самосуд, статья 5 — контракт.'],
          'say': ['&6&lУК 4.1: &7убивать можно только защищаясь, на войне',
@@ -2249,6 +2275,7 @@ MENUS['casino'] = {
     'header': '&d&lАзартный уголок Бармена',
     'icon': 'DROPPER',
     'hint': ['&7Ставки и выручка идут через Казну.',
+             '&7Играют только в здании казино.',
              '&7Пустая Казна — заведение закрыто.'],
     'back': 'ekb_trade',
     'buttons': [
@@ -2271,6 +2298,30 @@ MENUS['casino'] = {
                   '&8Монета неидеальная, и об этом написано прямо.'],
          'close': True,
          'run': 'coinflip', 'tip': 'бросить'},
+        {'id': 'house', 'material': 'IRON_DOOR', 'name': '&c&lОткрыть / закрыть казино',
+         'lore': ['&7Закрытое казино не принимает ни одной ставки:',
+                  '&7ни в зале, ни на рулетке, ни в кости.',
+                  '&7Жетоны в кассу сдают и при закрытом.',
+                  '',
+                  '&8Каждое открытие и закрытие — в лог Discord.'],
+         'close': True,
+         'run': 'casinoclose', 'tip': 'закрыть',
+         'right': {'close': True, 'run': 'casinoopen', 'tip': 'открыть'},
+         'view': ['ekb.duty.dealer', 'ekb.duty.clerk', 'ekb.menu.admin']},
+        {'id': 'hall', 'material': 'NETHER_STAR', 'name': '&6&lБольшой зал',
+         'lore': ['&7Рулетка на 37 лунок, слоты на семь барабанов',
+                  '&7и краш: успей забрать, пока не рвануло.',
+                  '&7Играют на &fжетоны&7 — их меняет касса.',
+                  '',
+                  '&8Выигрыш — жетонами, алмазы за них платит Казна.'],
+         'run': 'casinohall', 'tip': 'войти'},
+        {'id': 'chips', 'material': 'SUNFLOWER', 'name': '&e&lКасса жетонов',
+         'lore': ['&7Алмаз = жетон, в обе стороны, без комиссии.',
+                  '&7Покупка — алмазы в Казну, сдача — из Казны.',
+                  '&8Пуста Казна — жетоны ждут, не сгорают.'],
+         'close': True,
+         'run': 'chips buy 16', 'tip': 'купить 16 жетонов',
+         'right': {'close': True, 'run': 'chips sell all', 'tip': 'сдать все жетоны'}},
         {'id': 'stats', 'material': 'BOOK', 'name': '&f&lМой счёт',
          'lore': ['&7Победы, проигрыши и сколько сейчас в кассе.'],
          'close': True,
@@ -2837,9 +2888,10 @@ MENUS['clerk'] = {
                   '&7возвращают по решению Суда, а не по таймеру.'],
          'run': 'arenda список', 'tip': 'список арендаторов'},
         {'id': 'buyer', 'material': 'HOPPER', 'name': '&a&lСкупщик',
-         'lore': ['&7Половина прайса, платит Казна.'],
+         'lore': ['&7Половина прайса, платит Казна.',
+                  '&7Ассортимент и цены — окном, как у торговца.'],
          'run': 'skupka', 'tip': 'открыть окно',
-         'right': {'run': 'skupka прайс', 'tip': 'список и цены'}},
+         'right': {'run': 'skupka edit', 'tip': 'настроить товары и цены'}},
         {'id': 'lots', 'material': 'OAK_SIGN', 'name': '&6&lДоска лотов',
          'run': 'lots', 'tip': 'что на доске'},
         {'id': 'calls', 'material': 'BELL', 'name': '&e&lЗаявки в Мэрию',
@@ -2968,7 +3020,282 @@ MENUS['detective'] = {
 }
 
 
+
+# ---------------------------------------------------------------------------
+# Разгрузка переполненных меню (28.09.2026)
+# ---------------------------------------------------------------------------
+#
+# Профиль держал 22 кнопки, Администрация 18, помощник 14 — одна страница,
+# забитая доверху, где нужное ищется глазами по всему окну. Кнопки не
+# переписаны заново, а ПЕРЕНЕСЕНЫ по id в разделы: действие, права, лор и
+# подсказки едут вместе с ними. Раздел — одна кнопка в родителе.
+#
+# ⚠ Переносит функция, а не правка списков выше: так видно, что куда уехало,
+# и старое описание кнопки остаётся там, где его привыкли искать.
+
+def _take(menu, ids):
+    """Вынуть кнопки с этими id из меню (в порядке ids)."""
+    got = {b['id']: b for b in MENUS[menu]['buttons'] if b.get('id') in ids}
+    missing = [i for i in ids if i not in got]
+    if missing:
+        raise KeyError('%s: нет кнопок %s' % (menu, missing))
+    MENUS[menu]['buttons'] = [b for b in MENUS[menu]['buttons'] if b.get('id') not in ids]
+    return [got[i] for i in ids]
+
+
+def _section(parent, key, title, icon, name, lore, ids, hint, cmd, extra=None, view=None):
+    """Новый раздел из кнопок родителя + кнопка-вход в него, в начало родителя."""
+    spec = {
+        'title': '&8' + title,
+        'command': cmd,
+        'header': name,
+        'icon': icon,
+        'hint': hint,
+        'back': 'ekb_' + parent,
+        'buttons': _take(parent, ids),
+    }
+    for k in ('permission', 'deny'):
+        if k in MENUS[parent]:
+            spec[k] = MENUS[parent][k]
+    if extra:
+        spec.update(extra)
+    MENUS[key] = spec
+    entry = {'id': key, 'material': icon, 'name': name, 'lore': lore,
+             'open': 'ekb_' + key, 'tip': 'открыть'}
+    if view:
+        entry['view'] = view
+    return entry
+
+
+def _move(src, ids, dst):
+    """Перенести кнопки в уже существующее меню (в конец)."""
+    MENUS[dst]['buttons'] += _take(src, ids)
+
+
+# --- Профиль: 22 -> 12 ------------------------------------------------------
+_profile = [
+    _section('profile', 'profile_look', 'Внешность', 'ARMOR_STAND', '&f&lВнешность',
+             ['&7Скины, скин по цвету и по нику, Личина.'],
+             ['skins', 'skincolor', 'skinname', 'masks'],
+             ['&7Как тебя видят другие.'], ['look', 'внешность']),
+    _section('profile', 'profile_comm', 'Связь', 'BELL', '&d&lСвязь',
+             ['&7Голос, почта, Discord, клавиши,', '&7чёрный список и анонс эфира.'],
+             ['voice', 'voicemsg', 'mail', 'discord', 'keybind', 'ignore', 'onair'],
+             ['&7С кем и как ты разговариваешь.'], ['comm', 'связь']),
+    _section('profile', 'profile_act', 'Действия', 'SADDLE', '&6&lДействия',
+             ['&7Поза и нести на руках.'],
+             ['pose', 'carry'],
+             ['&7Отыгрыш телом, а не словами.'], ['acts', 'действия']),
+    _section('profile', 'profile_help', 'Поддержка', 'WRITABLE_BOOK', '&e&lПоддержка',
+             ['&7Сообщить о баге и мои жалобы.'],
+             ['bugreport', 'reports'],
+             ['&7Если что-то сломалось или тебя обидели.'], ['support', 'поддержка']),
+]
+MENUS['profile']['buttons'] = _profile + MENUS['profile']['buttons']
+# Голос и Личина открываются теперь из разделов — туда и «Назад».
+MENUS['voice']['back'] = 'ekb_profile_comm'
+MENUS['masks']['back'] = 'ekb_profile_look'
+
+# --- Администрация: 18 -> 12 -----------------------------------------------
+_admin = [
+    _section('admin', 'admin_watch', 'Наблюдение', 'SPYGLASS', '&b&lНаблюдение',
+             ['&7Слежка, досье, чужие инвентари, ваниш.'],
+             ['spec', 'dossier', 'inv', 'vanish'],
+             ['&7Смотреть — не значит вмешиваться.'], ['adminwatch']),
+    _section('admin', 'admin_setup', 'Точки и установка', 'LODESTONE', '&e&lТочки и установка',
+             ['&7Казна, склад, границы, Теневой Рынок.'],
+             ['setup_treasury', 'setup_depot', 'setup_borders', 'setup_shadow'],
+             ['&7Один раз поставить — и забыть.'], ['adminsetup']),
+]
+MENUS['admin']['buttons'] = _admin + MENUS['admin']['buttons']
+MENUS['admin_setup']['buttons'].append(
+    {'id': 'setup_buyer', 'material': 'HOPPER', 'name': '&a&lСкупщик: товары и цены',
+     'lore': ['&7Окно как у торговца Shopkeepers:',
+              '&7что берёт, какой партией, за сколько.'],
+     'run': 'skupka edit', 'tip': 'настроить'})
+
+# --- Помощник: 14 -> 8 ------------------------------------------------------
+_helper = [
+    _section('helper', 'helper_logs', 'Логи', 'OBSERVER', '&b&lЛоги и записи',
+             ['&7Инспектор, поиск по логам, X-Ray, повторы.'],
+             ['inspect', 'lookup', 'xray', 'replays'],
+             ['&7Кто что делал — по фактам.'], ['helperlogs']),
+    _section('helper', 'helper_mode', 'Режим', 'COMPASS', '&a&lРежим и перемещение',
+             ['&7Ваниш, режим игры, наблюдатель, телепорты.'],
+             ['vanish', 'gamemode', 'spectator', 'tp'],
+             ['&7Служебное — игрокам недоступно.'], ['helpermode']),
+]
+MENUS['helper']['buttons'] = _helper + MENUS['helper']['buttons']
+
+# --- Каталог вещей: техника -------------------------------------------------
+# Дроны и рации — это вещи, которые выдаются в руки, а не надзор: их место
+# рядом со стволами и настолками, а не в «Надзоре и технике».
+_gadgets = _section('admin_tech', 'gadgets', 'Техника', 'RECOVERY_COMPASS', '&7&lТехника',
+                    ['&7Дрон-камикадзе, глушилка РЭБ, рации.'],
+                    ['drone_black', 'drone_jammer', 'radiogive'],
+                    ['&7Выдаётся в руки. Только Администрация.'], ['gadgets', 'техника'])
+MENUS['gadgets']['back'] = 'ekb_allitems'
+MENUS['allitems']['buttons'].append(_gadgets)
+
+
 # Скины по цвету: кнопки собираются из skins/uploaded.json, а не пишутся
 # руками — скинов под три сотни, и список меняется с каждой заливкой.
 from skins_menu import skin_menus
 MENUS.update(skin_menus())
+# Скины по цвету открываются из «Внешности» — туда и «Назад».
+MENUS['skinscolor']['back'] = 'ekb_profile_look'
+
+
+# --- Вторая волна разгрузки (28.09.2026, «остальные меню тоже») ------------
+# Цель — не больше 8–9 кнопок на экране у того, кто видит всё (у админа).
+# Главное меню (10) не тронуто: быстрые действия под разделами стоят там
+# намеренно. Меню по 9 кнопок (Тетрадь, артефакты, настолки, судья) — тоже.
+
+_DUTIES = ['sheriff', 'builder', 'postman', 'clerk', 'barman', 'dealer', 'detective']
+_spawn = _section('duty', 'duty_spawn', 'Должности Спавна', 'BELL', '&e&lДолжности Спавна',
+                  ['&7Шериф, бригадир, почтальон, приказчик,', '&7бармен, крупье, следователь.'],
+                  _DUTIES, ['&7Видна только твоя должность.'], ['spawnduty'],
+                  view=['ekb.duty.' + d for d in _DUTIES] + ['ekb.menu.admin'])
+_i = [b['id'] for b in MENUS['duty']['buttons']].index('press')
+MENUS['duty']['buttons'].insert(_i, _spawn)
+for _d in _DUTIES:
+    MENUS[_d]['back'] = 'ekb_duty_spawn'
+
+_voice = [
+    _section('voice', 'voice_info', 'Как устроен голос', 'BOOK', '&e&lКак это устроено',
+             ['&7Основы, скалк, Simple Voice Chat,', '&7чего не хватает.'],
+             ['basics', 'sculk', 'svc', 'mods'],
+             ['&7Справка, а не настройки.'], ['voiceinfo']),
+    _section('voice', 'voice_staff', 'Голос: служебное', 'COMMAND_BLOCK', '&c&lДля Администрации',
+             ['&7Зоны тишины, объявление голосом,', '&7приоритет, слух в спектаторе.'],
+             ['voicezone', 'voicezone_list', 'broadcast', 'priority', 'spectator'],
+             ['&7Кнопки внутри видны по правам.'], ['voicestaff'],
+             view=['ekb.menu.admin', 'ekb.menu.helper']),
+]
+MENUS['voice']['buttons'] += _voice
+
+_trade = [
+    _section('trade', 'trade_shops', 'Мои лавки', 'VILLAGER_SPAWN_EGG', '&a&lМои лавки',
+             ['&7Список лавок, яйцо торговца,', '&7как открыть ларёк.'],
+             ['myshops', 'shopegg', 'howto'],
+             ['&7Лавка торгует из твоего сундука.'], ['myshops']),
+    _section('trade', 'trade_info', 'Цены и правила', 'PAPER', '&f&lЦены и правила',
+             ['&7Валюта, прайс-лист, запреты рынка.'],
+             ['currency', 'prices', 'rules'],
+             ['&7Валюта — алмазы, и только они.'], ['tradeinfo']),
+]
+MENUS['trade']['buttons'] = _trade + MENUS['trade']['buttons']
+
+_casino = [
+    _section('casino', 'casino_bar', 'Бар', 'HONEY_BOTTLE', '&6&lБар',
+             ['&7Что наливают и стойка бара.'],
+             ['menu', 'shop'],
+             ['&7Напитки по прайс-листу.'], ['barcounter']),
+    _section('casino', 'casino_cash', 'Касса и счёт', 'SUNFLOWER', '&e&lКасса и счёт',
+             ['&7Жетоны, мой счёт, выигрыш лотереи.'],
+             ['chips', 'stats', 'lottery_claim'],
+             ['&7Выигрыш платит Казна.'], ['casinocash']),
+]
+MENUS['casino']['buttons'] += _casino
+MENUS['barshop']['back'] = 'ekb_casino_bar'
+
+_e = _section('town', 'town_info', 'О городах', 'BOOK', '&e&lО городах',
+             ['&7Очки, список городов,', '&7почему нет /clan home.'],
+             ['points', 'list', 'noteleport'],
+             ['&7Справка по ClansLite.'], ['towninfo'])
+MENUS['town']['buttons'].append(_e)
+
+_e = _section('world', 'world_map', 'Карта и границы', 'FILLED_MAP', '&b&lКарта и границы',
+             ['&7Веб-карта, границы государств,', '&7граница мира.'],
+             ['map', 'borders', 'border'],
+             ['&7Где что лежит и докуда можно дойти.'], ['worldmap'])
+MENUS['world']['buttons'].insert(0, _e)
+
+_e = _section('nomad', 'nomad_guide', 'Путеводитель кочевника', 'MAP', '&6&lПутеводитель',
+             ['&7Кто такой кочевник, земли, гражданство,', '&7беженцы, опасности, дорога, заработок.'],
+             ['who', 'land', 'join', 'refugee', 'danger', 'survive', 'trade'],
+             ['&7Всё, что нужно знать ничейному.'], ['nomadguide'])
+MENUS['nomad']['buttons'].insert(0, _e)
+
+_i = [b['id'] for b in MENUS['town_settings']['buttons']].index('transfer')
+_e = _section('town_settings', 'town_diplomacy', 'Дипломатия', 'WHITE_BANNER', '&b&lДипломатия',
+             ['&7Союзники, враги, PvP между своими.'],
+             ['ally', 'enemy', 'pvp'],
+             ['&7Война объявляется здесь, а ведётся — в поле.'], ['diplomacy'])
+MENUS['town_settings']['buttons'].append(_e)
+
+_take('admin', ['tps'])          # в «Сервисе» свой TPS уже есть — второй не нужен
+_move('admin', ['ahelp'], 'admin_service')
+
+_e = _section('profile', 'profile_me', 'Моё состояние', 'CLOCK', '&d&lМоё состояние',
+             ['&7Зависимость, время в игре,', '&7куда выйти из тюрьмы.'],
+             ['status', 'playtime', 'freedom'],
+             ['&7Как ты сейчас.'], ['mystate', 'состояние'])
+MENUS['profile']['buttons'].append(_e)
+
+
+# --- Кнопки по смыслу (28.09.2026) ------------------------------------------
+# Не «куда влезло», а куда пойдёт искать человек. Внутри меню: сначала
+# главное и частое, связанное рядом, справка и служебное — в конце.
+# ⚠ При вставке раздела сначала СОБРАТЬ его (`_e = _section(...)`), потом
+# вставлять: `MENUS[x]['buttons'].insert(i, _section(...))` берёт старый
+# список ДО того, как _section его заменит, — и кнопка-вход терялась. Так
+# пять разделов второй волны оказались без входа.
+
+def _order(menu, ids):
+    """Переставить: перечисленные — первыми и в этом порядке, прочие — следом."""
+    have = {b['id']: b for b in MENUS[menu]['buttons']}
+    missing = [i for i in ids if i not in have]
+    if missing:
+        raise KeyError('%s: нет кнопок %s' % (menu, missing))
+    rest = [b for b in MENUS[menu]['buttons'] if b['id'] not in ids]
+    MENUS[menu]['buttons'] = [have[i] for i in ids] + rest
+
+
+# Дубли: «Кто в сети» — в главном меню, «Города сервера» — в «О городах».
+_take('world', ['online', 'towns'])
+
+# Улики — к Суду: X-Ray и повторы нужны ради дела, а не ради «техники».
+_move('admin_tech', ['xray', 'replays'], 'admin_court')
+# Внеплановый тираж — к кассе казино, но только главному админу.
+_lot = _take('admin_tech', ['lotdraw'])[0]
+_lot['view'] = 'ekb.menu.admin'
+MENUS['casino_cash']['buttons'].append(_lot)
+# Заглянуть в инвентарь — это проверка, а не корень меню помощника.
+_move('helper', ['openinv'], 'helper_logs')
+MENUS['helper_logs']['title'] = '&8Проверка'
+# Газета в Службе — это должность журналиста; остальным она в «Мире».
+for _b in MENUS['duty']['buttons']:
+    if _b['id'] == 'press':
+        _b['view'] = ['ekb.duty.journalist', 'ekb.menu.admin']
+
+_order('main', ['profile', 'world', 'trade', 'laws', 'duty', 'help',
+                'online', 'chat', 'hud', 'calls'])
+_order('start', ['step1', 'step2', 'step3', 'step4', 'step5', 'step6', 'step7', 'world'])
+_order('profile', ['profile_me', 'profile_look', 'profile_comm', 'profile_act',
+                   'citizen', 'capital', 'nomad', 'contracts', 'shadow', 'profile_help'])
+_order('world', ['world_map', 'spawn', 'town', 'bloodnight', 'press', 'discord'])
+_order('laws', ['constitution', 'criminal', 'jail', 'court', 'prices', 'sheriff', 'forensics'])
+_order('trade', ['collegium', 'trade_shops', 'hire', 'post', 'bar', 'heads',
+                 'blackmarket', 'trade_info'])
+_order('duty', ['callmenu', 'duty_spawn', 'judge', 'doctor', 'press', 'assassin',
+                'helper', 'admin'])
+_order('admin', ['admin_watch', 'court', 'jail', 'roles', 'world', 'catalog', 'items',
+                 'admin_setup', 'service', 'tech'])
+_order('helper', ['helper_logs', 'helper_mode', 'spawnbuild', 'roles', 'brewery',
+                  'tps', 'denied'])
+_order('voice', ['whisper', 'radio', 'groups', 'discs', 'voice_info', 'voice_staff'])
+_order('casino', ['hall', 'roulette', 'slots', 'coinflip', 'dice', 'lottery',
+                  'casino_cash', 'casino_bar', 'house'])
+_order('town', ['info', 'invite', 'chat', 'regime', 'gov', 'settings', 'mercs',
+                'create', 'town_info'])
+_order('town_settings', ['border', 'prefix', 'clanchat', 'roles', 'treasury',
+                         'town_diplomacy', 'transfer', 'disband'])
+_order('admin_court', ['inspect', 'lookup', 'xray', 'replays', 'courtlog', 'rollback', 'discord'])
+_order('judge', ['cases', 'reports', 'evidence', 'courtlog', 'verdict', 'property',
+                 'free', 'rollback', 'code'])
+_order('doctor', ['diagnose', 'cure', 'sober', 'relief', 'emergency', 'prices',
+                  'ethics', 'howitworks'])
+_order('nomad', ['nomad_guide', 'hire', 'hireoff', 'status'])
+_order('admin_service', ['tps', 'near', 'save', 'luckperms', 'skript', 'menus', 'host', 'ahelp'])
+

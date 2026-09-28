@@ -60,23 +60,53 @@ function vz_mute(p: player, on: boolean):
         make console execute command "lp user %{_p}% permission unset voicechat.speak"
         send "{@prefix}&7Ты вышел из зоны тишины — голос снова работает." to {_p}
 
-every 2 seconds:
+# Привести право говорить в соответствие с тем, где игрок стоит сейчас.
+function vz_check(p: player):
+    set {_in} to vz_in({_p})
+    if {vz::in::%uuid of {_p}%} is true:
+        if {_in} is false:
+            vz_mute({_p}, false)
+    else:
+        if {_in} is true:
+            vz_mute({_p}, true)
+
+# Основной путь — события границы региона: голос пропадает на первом шаге
+# в зону, а не через две секунды, и сервер не перебирает весь онлайн.
+# ⚠ Событие приходит ДО того, как игрок встал на новое место: `regions at`
+# в этот тик ещё смотрит на старую точку. Отсюда `wait 1 tick`.
+on region enter:
+    if {vz::zone::%event-region%} is true:
+        wait 1 tick
+        if player is online:
+            vz_check(player)
+
+on region exit:
+    if {vz::zone::%event-region%} is true:
+        wait 1 tick
+        if player is online:
+            vz_check(player)
+
+# Страховка раз в полминуты. Событий границы нет для случаев, когда игрок
+# не шёл через границу: телепорт Администрации внутрь зоны, зону объявили
+# (`/voicezone add`) под стоящими людьми, игрока добавили в участники
+# региона. Раньше весь контроль держался на опросе всех игроков раз в
+# 2 секунды — теперь опрос только подчищает то, что пропустили события.
+every 30 seconds:
     if size of {vz::zone::*} > 0:
         loop all players:
-            set {_in} to vz_in(loop-player)
-            if {vz::in::%uuid of loop-player%} is true:
-                if {_in} is false:
-                    vz_mute(loop-player, false)
-            else:
-                if {_in} is true:
-                    vz_mute(loop-player, true)
+            vz_check(loop-player)
 
+# Вход проверяется всегда, а не только по флагу: игрок мог выйти из игры
+# снаружи, а зону за это время объявили там, где он появится.
 on join:
-    if {vz::in::%uuid of player%} is true:
+    if size of {vz::zone::*} > 0:
         wait 2 seconds
         if player is online:
-            if vz_in(player) is false:
-                vz_mute(player, false)
+            vz_check(player)
+    else if {vz::in::%uuid of player%} is true:
+        wait 2 seconds
+        if player is online:
+            vz_check(player)
 
 # ⚠ Регион берётся ПОД НОГАМИ админа, а не по имени из аргумента. Ключ
 # зоны — строковый вид региона Skript ("%region%"), и он не обязан

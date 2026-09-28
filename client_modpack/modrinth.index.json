@@ -214,6 +214,66 @@
         "https://cdn.modrinth.com/data/IwCkru1D/versions/4mer2Cys/cicada-lib-0.15.3%2B26.1.jar"
       ],
       "fileSize": 360541
+    },
+    {
+      "path": "mods/rei.jar",
+      "hashes": {
+        "sha1": "ef3de380a27f5d2de145f94de95cccf9e47f1cb8",
+        "sha512": "91478d2c27359f3637cd30408f38b10579a8c9cdc0f1e61ab69b07550ee0a60dafccdb593bf1253a21f2dc32af5099610107094a5c6096c82a5ee0c23879a56b"
+      },
+      "env": {
+        "client": "required",
+        "server": "optional"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/nfn13YXA/versions/EAlqUmgQ/RoughlyEnoughItems-26.1.819.jar"
+      ],
+      "fileSize": 2406734
+    },
+    {
+      "path": "mods/architectury.jar",
+      "hashes": {
+        "sha1": "20ba471517801dec6b3c13ff724c83e56d105ef5",
+        "sha512": "3dab8df9f64fb98fa0567a988c7ad52dc7761cd972bc1324591241183e1cba1c75edbd045d2d312e694a558c8aca4de6459825497851e10fa3174524a653716c"
+      },
+      "env": {
+        "client": "required",
+        "server": "required"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/lhGA9TYQ/versions/Y7kRthh0/architectury-fabric-20.1.16.jar"
+      ],
+      "fileSize": 622804
+    },
+    {
+      "path": "mods/cloth-config.jar",
+      "hashes": {
+        "sha1": "832f9047bc4af13587709c74f7c37e1c8579d1eb",
+        "sha512": "8bfb75f2cac0a9910316c6a368a228c0f8f1261ac6f03dec5fba594e1619ac04334a3df4fb29778d61d0b8290d55949371a523d722b35501bf9a2902956d3b17"
+      },
+      "env": {
+        "client": "required",
+        "server": "optional"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/9s6osm5g/versions/GFM8zh9J/cloth-config-26.1.154.jar"
+      ],
+      "fileSize": 1135373
+    },
+    {
+      "path": "mods/forge-config-api-port.jar",
+      "hashes": {
+        "sha1": "82e4deaa210b75d3b51a268769ad24cc85796235",
+        "sha512": "44951fd147de9282c7a483eec0863e0838e98f68579b4d5852e4aaf038b82f03558c9dfd05fa3a4e5aa60ce5ede15cbbac59d4527d379494619804740f9a184f"
+      },
+      "env": {
+        "client": "required",
+        "server": "optional"
+      },
+      "downloads": [
+        "https://cdn.modrinth.com/data/ohNO6lps/versions/jUe0ucoE/ForgeConfigAPIPort-v26.1.5-mc26.1.x-Fabric.jar"
+      ],
+      "fileSize": 609711
     }
   ],
   "dependencies": {

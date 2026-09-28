@@ -34,7 +34,7 @@ items:
       - '&aЛКМ &8— как отправить'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo mailsend'
+      - '[player] ekbdo mailsend<delay=2>'
 
   'clear':
     material: HOPPER
@@ -77,7 +77,7 @@ items:
     slot: 45
     display_name: '&7Назад'
     left_click_commands:
-      - '[openguimenu] ekb_duty'
+      - '[openguimenu] ekb_duty_spawn'
 
   'close':
     material: BARRIER

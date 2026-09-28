@@ -13,54 +13,31 @@ open_requirement:
 
 items:
 
-  'inspect':
-    material: WOODEN_AXE
+  'helper_logs':
+    material: OBSERVER
     slot: 13
-    display_name: '&6&lИнспектор CoreProtect'
+    display_name: '&b&lЛоги и записи'
     lore:
-      - '&7ЛКМ/ПКМ по блоку — история изменений.'
+      - '&7Инспектор, поиск по логам, X-Ray, повторы.'
       - ''
-      - '&aЛКМ &8— /co i'
+      - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[close]'
-      - '[player] co i'
+      - '[openguimenu] ekb_helper_logs'
 
-  'lookup':
-    material: BOOK
+  'helper_mode':
+    material: COMPASS
     slot: 20
-    display_name: '&e&lПоиск по логам'
+    display_name: '&a&lРежим и перемещение'
     lore:
-      - '&8/co lookup u:<ник> t:3h r:20'
+      - '&7Ваниш, режим игры, наблюдатель, телепорты.'
       - ''
-      - '&7Смотреть можно всё — это и есть'
-      - '&7твоя главная работа.'
-      - ''
-      - '&aЛКМ &8— выбрать игрока и срок'
+      - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[close]'
-      - '[player] ekbdo colookup'
-
-  'openinv':
-    material: ENDER_CHEST
-    slot: 22
-    display_name: '&5&lЗаглянуть в инвентарь'
-    lore:
-      - '&8/oi <ник> &7— инвентарь'
-      - '&8/oe <ник> &7— эндер-сундук'
-      - ''
-      - '&4Редактировать нельзя: изъятие краденого'
-      - '&4— только по решению Суда.'
-      - ''
-      - '&aЛКМ &8— инвентарь &8· &aПКМ &8— эндер-сундук'
-      - '&aПКМ &8— выполнить'
-    left_click_commands:
-      - '[player] ekbmenu inv'
-    right_click_commands:
-      - '[player] ekbmenu ender'
+      - '[openguimenu] ekb_helper_mode'
 
   'spawnbuild':
     material: BRICKS
-    slot: 24
+    slot: 22
     display_name: '&6&lПраво стройки в городе'
     lore:
       - '&7Главный город закрыт для стройки всем,'
@@ -73,61 +50,24 @@ items:
       - '&aЛКМ &8— открыть список'
     left_click_commands:
       - '[close]'
-      - '[player] spawnbuild'
+      - '[player] spawnbuild<delay=2>'
 
-  'vanish':
-    material: POTION
-    slot: 28
-    display_name: '&8&lВаниш'
+  'roles':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
+    slot: 24
+    display_name: '&d&lРоли и права'
     lore:
-      - '&7Стать невидимым для игроков.'
+      - '&7Выбираешь голову игрока и щёлкаешь'
+      - '&7по ролям: судья, врач, гражданин, должности.'
+      - '&cГруппу admin меню не выдаёт вообще.'
       - ''
-      - '&4Главного админа в ванише ты не увидишь:'
-      - '&4право sv.see тебе закрыто намеренно.'
-      - ''
-      - '&aЛКМ &8— /sv'
+      - '&aЛКМ &8— открыть раздачу ролей'
     left_click_commands:
-      - '[close]'
-      - '[player] sv'
-
-  'tp':
-    material: ENDER_PEARL
-    slot: 29
-    display_name: '&b&lСлужебные телепорты'
-    lore:
-      - '&8/tp <ник> &8· &8/tphere <ник> &8· &8/tppos'
-      - ''
-      - '&7Только при исполнении: доставка в тюрьму,'
-      - '&7выезд по иску, разбор жалоб.'
-      - '&4Использовать в личной RP-игре запрещено'
-      - '&4— Конституция 1.1.2, это злоупотребление.'
-      - ''
-      - '&aЛКМ &8— телепорт к игроку'
-      - '&aПКМ &8— призвать к себе'
-    left_click_commands:
-      - '[close]'
-      - '[player] ekbdo tpto'
-    right_click_commands:
-      - '[close]'
-      - '[player] ekbdo tphere'
-
-  'tps':
-    material: CLOCK
-    slot: 30
-    display_name: '&a&lTPS сервера'
-    lore:
-      - '&7Нагрузка и тики.'
-      - '&4Профилировщик spark закрыт: он сам'
-      - '&4нагружает сервер.'
-      - ''
-      - '&aЛКМ &8— /spark tps'
-    left_click_commands:
-      - '[close]'
-      - '[player] spark tps'
+      - '[player] ekbroles'
 
   'brewery':
     material: POTION
-    slot: 31
+    slot: 30
     display_name: '&6&lБар'
     lore:
       - '&8/brew set <ник> 0 &7— протрезвить'
@@ -138,29 +78,25 @@ items:
       - '&aЛКМ &8— протрезвить игрока'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo brewset'
+      - '[player] ekbdo brewset<delay=2>'
 
-  'gamemode':
-    material: GRASS_BLOCK
-    slot: 32
-    display_name: '&a&lРежим игры'
+  'tps':
+    material: CLOCK
+    slot: 31
+    display_name: '&a&lTPS сервера'
     lore:
-      - '&7Творческий — строить и проверять,'
-      - '&7наблюдатель — смотреть, не вмешиваясь.'
-      - '&8Права essentials.gamemode.* у группы есть.'
+      - '&7Нагрузка и тики.'
+      - '&4Профилировщик spark закрыт: он сам'
+      - '&4нагружает сервер.'
       - ''
-      - '&eПКМ &8— выживание'
-      - ''
-      - '&aЛКМ &8— творческий'
-      - '&aПКМ &8— выполнить'
+      - '&aЛКМ &8— /spark tps'
     left_click_commands:
-      - '[player] gmc'
-    right_click_commands:
-      - '[player] gms'
+      - '[close]'
+      - '[player] spark tps<delay=2>'
 
   'denied':
     material: BARRIER
-    slot: 33
+    slot: 32
     display_name: '&4&lЧто тебе закрыто'
     lore:
       - '&8coreprotect.rollback &7— откаты, а с ними'
@@ -172,64 +108,6 @@ items:
       - '&8ekb.deathnote.admin &7— Тетрадь Смерти'
       - ''
       - '&7Это не ошибка прав, а устройство группы.'
-
-  'spectator':
-    material: ENDER_EYE
-    slot: 34
-    display_name: '&b&lНаблюдатель'
-    lore:
-      - '&7Пройти сквозь стены и посмотреть,'
-      - '&7что там строят.'
-      - ''
-      - '&eПКМ &8— вернуться в выживание'
-      - ''
-      - '&aЛКМ &8— наблюдатель'
-      - '&aПКМ &8— выполнить'
-    left_click_commands:
-      - '[player] gmsp'
-    right_click_commands:
-      - '[player] gms'
-
-  'roles':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
-    slot: 39
-    display_name: '&d&lРоли и права'
-    lore:
-      - '&7Выбираешь голову игрока и щёлкаешь'
-      - '&7по ролям: судья, врач, гражданин, должности.'
-      - '&cГруппу admin меню не выдаёт вообще.'
-      - ''
-      - '&aЛКМ &8— открыть раздачу ролей'
-    left_click_commands:
-      - '[player] ekbroles'
-
-  'xray':
-    material: DIAMOND_ORE
-    slot: 40
-    display_name: '&b&lПодозрения X-Ray'
-    lore:
-      - '&7MinerTrack копит подозрения и никого'
-      - '&7не кикает: решает проверка, а не счётчик.'
-      - ''
-      - '&8Уведомления приходят тебе сами.'
-      - ''
-      - '&aЛКМ &8— история игрока'
-    left_click_commands:
-      - '[close]'
-      - '[player] ekbdo mtcheck'
-
-  'replays':
-    material: ENDER_EYE
-    slot: 41
-    display_name: '&5&lЗаписи BetterReplay'
-    lore:
-      - '&7Повтор записанного Администрацией.'
-      - '&8Смотреть — можно, писать и удалять — главный админ.'
-      - ''
-      - '&aЛКМ &8— список записей'
-    left_click_commands:
-      - '[close]'
-      - '[player] replay list'
 
   'header':
     material: PLAYER_HEAD

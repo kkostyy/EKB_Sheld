@@ -72,10 +72,27 @@ function rl_title(id: text) :: text:
         return "Теневое Сообщество"
     return {_id}
 
-# id -> нода прав (для групп — специальная пометка group:)
+# id -> роль в LuckPerms. С 28.09.2026 почти каждая роль — ГРУППА с тем же
+# именем, что id (judge, doctor, …): только группы DiscordSRV умеет
+# синхронизировать с ролями Discord, и в обе стороны — выдал роль в
+# Discord, и она появилась в игре, выдал в игре — появилась в Discord
+# (карту группа -> роль пишет discord_bot/setup-guild.js --roles-only).
+#
+# ⚠ Теневое Сообщество осталось голым правом: у роли Discord список
+# участников виден всем, а подполье по определению никому не показано.
 function rl_node(id: text) :: text:
     if {_id} is "helper":
         return "group:restricted_admin"
+    if {_id} is "shadow":
+        return "ekb.shadow.member"
+    if rl_perm({_id}) is "":
+        return ""
+    return "group:%{_id}%"
+
+# id -> право, которое даёт группа роли. До 28.09.2026 это право и было
+# ролью (выдавалось игроку напрямую); такие старые записи переводятся
+# в группу сами — rl_migrate() на входе.
+function rl_perm(id: text) :: text:
     if {_id} is "judge":
         return "ekb.menu.judge"
     if {_id} is "doctor":
@@ -184,16 +201,18 @@ function rl_staff(t: player) :: boolean:
         return true
     return false
 
-# Кочевник — состояние по умолчанию: право `ekb.menu.nomad` лежит на группе
-# `default`, которую наследуют все. Поэтому «снять кочевника» — это не
-# `unset`, а явный ЗАПРЕТ на игроке: у LuckPerms явная нода бьёт
-# унаследованную. Вернуть кочевника — наоборот, `unset`, чтобы снова
-# заработало наследование от `default`.
+# Кочевник — группа `nomad` (с 28.09.2026; до этого право лежало на
+# `default` и снималось явным запретом на игроке). Группа нужна ради
+# Discord: роль Nomad синхронизируется только с группой. По умолчанию её
+# ставит rl_fix() на входе — всем, у кого нет госроли.
+# `permission unset` в обе стороны снимает старый явный запрет, который
+# иначе перебил бы группу.
 function rl_nomad_set(target: text, on: boolean):
+    make console execute command "lp user %{_target}% permission unset ekb.menu.nomad"
     if {_on} is true:
-        make console execute command "lp user %{_target}% permission unset ekb.menu.nomad"
+        make console execute command "lp user %{_target}% parent add nomad"
     else:
-        make console execute command "lp user %{_target}% permission set ekb.menu.nomad false"
+        make console execute command "lp user %{_target}% parent remove nomad"
 
 function rl_icon(id: text) :: item:
     if {_id} is "helper":
@@ -467,6 +486,11 @@ function rl_toggle(p: player, target: text, id: text):
                 replace all "group:" with "" in {_g}
                 if rl_has({_t}, {_id}) is true:
                     make console execute command "lp user %{_target}% parent remove %{_g}%"
+                    # Старое прямое право (до групп) держало бы роль и
+                    # после снятия группы.
+                    set {_old} to rl_perm({_id})
+                    if {_old} is not "":
+                        make console execute command "lp user %{_target}% permission unset %{_old}%"
                     send "{@prefix}&cСнято: &f%{_name}%&c у &f%{_target}%&c." to {_p}
                     send "{@prefix}&cТы больше не «%{_name}%»." to {_t}
                 else:
@@ -519,3 +543,94 @@ function rl_sync(by: player, target: text, id: text):
                         send "{@prefix}&7Должностей не осталось — &f%{_target}%&7 снова кочевник." to {_by}
                         send "{@prefix}&7Ты снова кочевник: ничей и свободный." to {_t}
                         send "&8 Теперь тебя можно нанимать — &b/hire status" to {_t}
+
+# ---------------------------------------------------------------------------
+# Группы ролей и синхронизация с Discord
+# ---------------------------------------------------------------------------
+#
+# Роль теперь может прийти не только из этого меню, но и из Discord
+# (DiscordSRV, synchronization.yml). Такая выдача меню не проходит, поэтому
+# правило «кочевник XOR госроль» и теги ролей досчитываются здесь: на входе
+# и раз в минуту по онлайну. Оффлайн-игрока догонит вход.
+#
+# ⚠ Администрацию (rl_staff) не трогаем: у главного админа `*`, и по правам
+# он «состоит» во всех группах — миграция выдала бы ему все роли разом.
+
+# Группы и их права создаются командами LuckPerms при первой загрузке
+# скрипта. Флаг — номер версии: поменял набор групп — подними его, и
+# установка пройдёт заново (команды LuckPerms идемпотентны).
+# ⚠ Вес выше нуля обязателен: у `default` стоят МИНУСЫ на ekb.duty.*, а
+# унаследованные ноды LuckPerms сравнивает по весу групп — при нулевом
+# весе минус `default` перебил бы плюс должности.
+on load:
+    if {roles::lp_groups} is not 1:
+        set {_ids::*} to "judge", "sheriff", "mayor", "council", "treasurer", "guard", "doctor", "detective", "clerk", "builder", "postman", "barman", "dealer", "journalist", "capital", "citizen", "streamer" and "youtuber"
+        set {_w} to 40
+        loop {_ids::*}:
+            set {_perm} to rl_perm(loop-value)
+            make console execute command "lp creategroup %loop-value%"
+            make console execute command "lp group %loop-value% permission set %{_perm}% true"
+            make console execute command "lp group %loop-value% setweight %{_w}%"
+            if {_w} > 12:
+                remove 2 from {_w}
+        make console execute command "lp creategroup nomad"
+        make console execute command "lp group nomad permission set ekb.menu.nomad true"
+        make console execute command "lp group nomad setweight 2"
+        make console execute command "lp group default permission unset ekb.menu.nomad"
+        set {roles::lp_groups} to 1
+        send "[РОЛИ] Группы ролей LuckPerms созданы (синхронизация с Discord)" to console
+
+    # Версия 2 (28.09.2026): права ДЕЛА, а не только меню. Группа судьи
+    # несла одно ekb.menu.judge — судья видел кнопки приговора, отката,
+    # разбора имущества и /courtlog, а ни одна не срабатывала: все они
+    # закрыты coreprotect.rollback и правами плагинов. Нашёл audit_menus.py.
+    if {roles::lp_groups_v2} is not set:
+        make console execute command "lp group judge permission set coreprotect.rollback true"
+        make console execute command "lp group judge permission set coreprotect.restore true"
+        make console execute command "lp group judge permission set coreprotect.lookup true"
+        make console execute command "lp group judge permission set coreprotect.inspect true"
+        make console execute command "lp group judge permission set courtbridge.use true"
+        make console execute command "lp group judge permission set advancedreports.staff true"
+        # Помощник смотрит логи Суда (/courtlog) — «смотреть можно, менять нельзя».
+        make console execute command "lp group restricted_admin permission set courtbridge.use true"
+        set {roles::lp_groups_v2} to true
+        send "[РОЛИ] Права судьи выданы группе judge (v2)" to console
+
+# Старые роли-права -> группы. Проверка дешёвая, зовётся на каждом входе.
+function rl_migrate(p: player):
+    if rl_staff({_p}) is false:
+        set {_ids::*} to "judge", "doctor", "citizen", "capital", "mayor", "council", "treasurer", "guard", "sheriff", "builder", "postman", "clerk", "barman", "dealer", "detective", "journalist", "streamer" and "youtuber"
+        loop {_ids::*}:
+            set {_perm} to rl_perm(loop-value)
+            set {_grp} to "group.%loop-value%"
+            if {_p} has permission {_perm}:
+                if {_p} does not have permission {_grp}:
+                    make console execute command "lp user %{_p}% parent add %loop-value%"
+                    make console execute command "lp user %{_p}% permission unset %{_perm}%"
+
+# Кочевник ровно тогда, когда нет ни одной госроли.
+function rl_fix(p: player):
+    if rl_staff({_p}) is false:
+        set {_name} to "%{_p}%"
+        set {_n} to rl_state_count({_p})
+        if {_n} > 0:
+            if {_p} has permission "group.nomad":
+                rl_nomad_set({_name}, false)
+        else:
+            if {_p} does not have permission "group.nomad":
+                rl_nomad_set({_name}, true)
+
+on join:
+    # LuckPerms грузит пользователя асинхронно — как в role_colors.sk.
+    wait 3 seconds
+    if player is online:
+        rl_migrate(player)
+        wait 20 ticks
+        if player is online:
+            rl_fix(player)
+
+every 1 minute:
+    loop all players:
+        rl_fix(loop-player)
+        # Тег роли: rc_apply сам сравнивает со старым и молчит без перемен.
+        rc_apply(loop-player, false)

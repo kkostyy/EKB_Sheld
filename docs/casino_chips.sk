@@ -1,0 +1,172 @@
+# EKB SHIELD — casino_chips.sk
+# Касса Большого зала: алмаз <-> жетон казино, через Казну Спавна.
+# Требует docs/treasury.sk и docs/casino_house.sk. Ставится в plugins/Skript/scripts/
+#
+# Зачем касса, а не алмазы прямо в CasinoRoulette.
+#
+# Плагин умеет играть на предметы (economy-mode: ITEM), но выигрыш он
+# кладёт игроку ГОЛЫМ ItemStack из воздуха: на алмазах каждое удачное
+# вращение печатало бы валюту — ровно то, от чего сервер отказался
+# (Казна конечна, скупщик платит из неё, почта и бар — в неё).
+# Поэтому плагин играет на ЖЕТОНЫ, а алмазом жетон становится только здесь:
+#   /chips buy N  — N алмазов в Казну, N жетонов в руки;
+#   /chips sell N — N жетонов сдаёшь, N алмазов из Казны.
+# Выигрыш жетонами — это долг Казны перед игроком. Пуста Казна — касса
+# не платит, жетоны ждут. Перевес дома в играх (plugins/CasinoRoulette/
+# config.yml) держит Казну в плюсе на длинной дистанции.
+#
+# ⚠ Жетон — petrified_oak_slab. В выживании его нет вовсе (ни крафта, ни
+# дропа), плагин опознаёт валюту ТОЛЬКО по материалу — значит, подделать
+# жетон из добытого нельзя. Выглядит фишкой благодаря ресурспаку
+# (items/petrified_oak_slab.json), а зовётся «Жетон казино» через lang.
+# ⚠ Алиаса «petrified oak slab» у Skript может не быть (как у копий 26.1),
+# поэтому тип сверяется по строке, а выдача и изъятие идут ванильными
+# `minecraft:give` / `minecraft:clear` — они алиасов не требуют.
+#
+# Команды:
+#   /chips               — курс, сколько жетонов у тебя, сколько в кассе
+#   /chips buy <N>       — купить жетоны
+#   /chips sell <N|all>  — сдать жетоны
+#   /casinohall          — Большой зал: живёт в casino_house.sk вместе с
+#                          правилами «закрыто» и «только в здании»
+#
+# ⚠ Покупка жетонов — это ставка в будущем, поэтому подчиняется тем же
+# правилам, что игры: закрыто или не в здании — не продаём. Сдать жетоны
+# можно и в закрытом казино (жетон — долг Казны), но только в здании:
+# касса стоит там же, где столы.
+
+options:
+    prefix: &6&l[КАССА] &r
+    line: &8&m----------------------------------------
+    maxbuy: 256          # за один раз: больше — это уже не игра, а перевод Казне
+
+# Жетон ли это.
+function cc_is(i: item) :: boolean:
+    if {_i} is air:
+        return false
+    set {_t} to "%type of {_i}%" in lowercase
+    if {_t} contains "petrified":
+        return true
+    return false
+
+# Жетонов в рюкзаке (слоты 0-35: на 36-40 Skript 2.16.2 падает, см. treasury.sk).
+function cc_count(p: player) :: number:
+    set {_n} to 0
+    loop integers from 0 to 35:
+        set {_i} to tr_item(slot loop-number of {_p}'s inventory)
+        if cc_is({_i}) is true:
+            add item amount of {_i} to {_n}
+    return {_n}
+
+function cc_give(p: player, n: number):
+    make console execute command "minecraft:give %{_p}% minecraft:petrified_oak_slab %{_n}%"
+
+function cc_take(p: player, n: number):
+    make console execute command "minecraft:clear %{_p}% minecraft:petrified_oak_slab %{_n}%"
+
+command /chips [<text>] [<text>]:
+    description: Касса казино — алмазы на жетоны и обратно, через Казну
+    aliases: /жетоны, /касса
+    executable by: players
+    trigger:
+        if arg-1 is not set:
+            send "{@line}"
+            send "{@prefix}&7Курс: &b1💎&7 = &f1 жетон&7, в обе стороны, без комиссии."
+            send "&7 У тебя жетонов: &f%cc_count(player)%"
+            send "&7 В Казне на выплату: &b%tr_balance()%💎"
+            send "&8 • &b/chips buy <N>&8 — купить, &b/chips sell <N|all>&8 — сдать"
+            send "&8 • &b/casinohall&8 — рулетка, слоты и краш"
+            send "&8 • Выигрыш платит Казна: пуста — жетоны ждут, не сгорают."
+            send "{@line}"
+            stop
+
+        if arg-1 is "buy":
+            if cz_can_play(player) is false:
+                stop
+            set {_n} to arg-2 parsed as integer
+            if {_n} is not set:
+                send "{@prefix}&cСколько? &7/chips buy <N>"
+                stop
+            if {_n} < 1:
+                send "{@prefix}&cСколько? &7/chips buy <N>"
+                stop
+            if {_n} > {@maxbuy}:
+                send "{@prefix}&cЗа раз — не больше &f{@maxbuy}&c жетонов."
+                stop
+            if tr_wallet(player) < {_n}:
+                send "{@prefix}&cНужно &b%{_n}%💎&c россыпью, у тебя &b%tr_wallet(player)%&c."
+                stop
+            # Место под жетоны проверяется ДО оплаты: ванильный give при
+            # полном рюкзаке роняет излишек на землю, а там он деспавнится.
+            if tr_wallet_free(player) < ceil({_n} / 64):
+                send "{@prefix}&cОсвободи в рюкзаке &f%ceil({_n} / 64)%&c слот(а) под жетоны."
+                stop
+            # tr_pay кладёт платёж в ОДИН слот Казны, отсюда пачки по 64.
+            set {_paid} to 0
+            set {_err} to ""
+            while {_paid} < {_n}:
+                set {_c} to min(64, {_n} - {_paid})
+                set {_r} to tr_pay(player, {_c})
+                if {_r} is not "ok":
+                    set {_err} to {_r}
+                    exit loop
+                add {_c} to {_paid}
+            if {_paid} > 0:
+                cc_give(player, {_paid})
+                send "{@prefix}&aКуплено жетонов: &f%{_paid}%&a за &b%{_paid}%💎&a."
+                cz_log("касса: %player% купил %{_paid}% жетонов за %{_paid}% алмазов")
+            if {_err} is not "":
+                send "{@prefix}%{_err}%"
+            stop
+
+        if arg-1 is "sell":
+            if cz_inside(player) is false:
+                send "{@prefix}&cКасса — в здании казино. Там и сдают жетоны."
+                stop
+            set {_have} to cc_count(player)
+            if arg-2 is "all":
+                set {_n} to {_have}
+            else:
+                set {_n} to arg-2 parsed as integer
+            if {_n} is not set:
+                send "{@prefix}&cСколько? &7/chips sell <N|all>"
+                stop
+            if {_n} < 1:
+                send "{@prefix}&7Жетонов нет — сдавать нечего."
+                stop
+            if {_have} < {_n}:
+                send "{@prefix}&cУ тебя только &f%{_have}%&c жетонов."
+                stop
+            # Сначала забираем жетоны, потом платим: наоборот — и на
+            # выплате можно было бы успеть выбросить жетоны из рюкзака.
+            # Что Казна не выдала — возвращается жетонами, а не пропадает.
+            cc_take(player, {_n})
+            set {_out} to 0
+            set {_err} to ""
+            while {_out} < {_n}:
+                set {_c} to min(64, {_n} - {_out})
+                set {_r} to tr_payout(player, {_c})
+                if {_r} is not "ok":
+                    set {_err} to {_r}
+                    exit loop
+                add {_c} to {_out}
+            if {_out} < {_n}:
+                cc_give(player, {_n} - {_out})
+            if {_out} > 0:
+                send "{@prefix}&aСдано жетонов: &f%{_out}%&a, получено &b%{_out}%💎&a из Казны."
+                cz_log("касса: %player% сдал %{_out}% жетонов, получил %{_out}% алмазов из Казны")
+            if {_err} is not "":
+                cz_log("касса: %player% не получил %{_n} - {_out}% алмазов — в Казне пусто")
+                send "{@prefix}%{_err}%"
+                send "&8 Невыплаченные &f%{_n} - {_out}%&8 жетонов остались у тебя."
+            stop
+
+        send "{@prefix}&cНеизвестное действие. Смотри &b/chips"
+
+# Жетон — не плита. Поставленный, он стал бы блоком и перестал быть
+# деньгами, а сломанный вернулся бы уже обычной плитой без смысла.
+on place:
+    set {_t} to "%type of event-block%" in lowercase
+    if {_t} contains "petrified":
+        cancel event
+        send "{@prefix}&7Жетоны не ставят — их меняют в кассе: &b/chips" to player

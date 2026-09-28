@@ -94,7 +94,7 @@ items:
     slot: 45
     display_name: '&7Назад'
     left_click_commands:
-      - '[openguimenu] ekb_duty'
+      - '[openguimenu] ekb_duty_spawn'
 
   'close':
     material: BARRIER

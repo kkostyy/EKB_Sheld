@@ -78,7 +78,7 @@ items:
       - '&aЛКМ &8— выдать книгу себе'
     left_click_commands:
       - '[close]'
-      - '[player] drillbook'
+      - '[player] drillbook<delay=2>'
 
   'heads':
     material: PLAYER_HEAD

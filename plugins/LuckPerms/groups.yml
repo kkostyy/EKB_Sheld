@@ -408,4 +408,19 @@ groups:
       #     (5 -> 10, тарифы в plugins/ImageFrame/config.yml):
       #       /lp user <ник> permission unset imageframe.createlimit.default
       #       /lp user <ник> permission set   imageframe.createlimit.citizen true ---
-      - ekb.menu.nomad
+      # ekb.menu.nomad с 28.09.2026 НЕ здесь, а в группе nomad (ниже): роль
+      # Discord синхронизируется только с группой. Ставит её menu_roles.sk.
+
+# ---------------------------------------------------------------------------
+# Группы ролей (28.09.2026). Создаются САМИ — `on load` в docs/menu_roles.sk,
+# командами LuckPerms. Каждая даёт ровно одно право, прежнее право роли:
+#   judge ekb.menu.judge · doctor ekb.menu.doctor · citizen ekb.menu.citizen
+#   capital ekb.menu.capital · mayor/council/treasurer/guard ekb.town.<id>
+#   sheriff/builder/postman/clerk/barman/dealer/detective/journalist ekb.duty.<id>
+#   streamer/youtuber ekb.media.<id> · nomad ekb.menu.nomad
+# Веса 40…12 (nomad 2) — выше нуля обязательно, иначе минусы ekb.duty.* у
+# default перебили бы плюс должности. С ролями Discord их связывает
+# DiscordSRV (synchronization.yml), карту пишет
+# `node discord_bot/setup-guild.js --roles-only --apply`.
+# Теневое Сообщество (ekb.shadow.member) группой НЕ стало — в Discord его
+# состав видели бы все.

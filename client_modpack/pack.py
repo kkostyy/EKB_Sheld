@@ -13,7 +13,7 @@ HERE = Path(__file__).resolve().parent
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE.parent / "ekb_shield_client.mrpack"
 # Второй аргумент — альтернативный индекс (например, собранный под другую версию игры).
 INDEX = Path(sys.argv[2]) if len(sys.argv) > 2 else HERE / "modrinth.index.json"
-SKIP_NAMES = {"README.md", "build_index.py", "pack.py", ".DS_Store", "Thumbs.db"}
+SKIP_NAMES = {"README.md", "build_index.py", "pack.py", "pack_offline.py", ".DS_Store", "Thumbs.db"}
 # Индексы других версий не должны попадать внутрь архива как лишние файлы
 
 index = json.loads(INDEX.read_text(encoding="utf-8"))
@@ -27,7 +27,11 @@ for f in index["files"]:
 members = [p for p in sorted(HERE.rglob("*"))
            if p.is_file() and p.name not in SKIP_NAMES and not p.name.endswith(".pyc")
            and not p.name.startswith("index_")
-           and p.name != "modrinth.index.json"]
+           and p.name != "modrinth.index.json"
+           # Кэш офлайн-сборки (pack_offline.py): 30 МБ модов, которые в
+           # обычном .mrpack идут ссылками. Попав внутрь, раздули бы пак
+           # с 11 КБ до 31 МБ — так и было 28.09.2026.
+           and "__jarcache__" not in p.parts and "__pycache__" not in p.parts]
 
 # ⚠️ Свободно лежащий .jar в корне client_modpack/ в архив НЕ идёт.
 # Лаунчер ставит моды двумя способами: по ссылкам из modrinth.index.json либо

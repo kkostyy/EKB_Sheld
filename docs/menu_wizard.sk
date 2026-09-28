@@ -127,6 +127,11 @@ on script load:
     wz_arg("mailsend", "player", "Кому", "noself")
     wz_arg("mailsend", "text", "Текст письма", "")
 
+    # Голосовое лично (pv-addon-voice-messages). `/vm direct <ник>` — запись
+    # начнётся сразу, отправка кнопкой [Отправить] в чате. Нужен Plasmo Voice.
+    wz_new("vmdirect", "Голосовое лично", 1 of note block, "", "vm direct @1", "Говори после команды, потом [Отправить] в чате.")
+    wz_arg("vmdirect", "player", "Кому голосовое", "noself")
+
     wz_new("parcel", "Отправить посылку", 1 of chest, "", "parcel @1", "Уедет предмет из главной руки. Посылка стоит 4 алмаза.")
     wz_arg("parcel", "player", "Кому", "noself")
 

@@ -6,249 +6,55 @@ size: 54
 
 items:
 
-  'voice':
-    material: NOTE_BLOCK
-    slot: 10
-    display_name: '&d&lГолосовая связь'
-    lore:
-      - '&7Шёпот, группы, музыка, объявления.'
-      - '&8Нужен мод Plasmo Voice из модпака.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    left_click_commands:
-      - '[openguimenu] ekb_voice'
-
-  'skins':
-    material: texture-%skinsrestorer_texture_id_or_steve%
-    slot: 11
-    display_name: '&f&lСкины'
-    lore:
-      - '&7Сервер в offline-режиме: скин задаёт плагин.'
-      - ''
-      - '&aЛКМ &8— каталог скинов'
-      - '&aПКМ &8— вернуть стандартный'
-    left_click_commands:
-      - '[player] skins'
-    right_click_commands:
-      - '[player] skin clear'
-
-  'skincolor':
-    material: WHITE_WOOL
-    slot: 12
-    display_name: '&f&lСкины по цвету'
-    lore:
-      - '&7Все скины сервера, разложенные по цвету одежды.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    left_click_commands:
-      - '[openguimenu] ekb_skinscolor'
-
-  'skinname':
-    material: ARMOR_STAND
+  'profile_me':
+    material: CLOCK
     slot: 13
-    display_name: '&b&lСкин по нику'
+    display_name: '&d&lМоё состояние'
     lore:
-      - '&aЛКМ &8— как взять чужой скин'
-    left_click_commands:
-      - '[close]'
-      - '[player] ekbdo skinset'
-
-  'freedom':
-    material: IRON_DOOR
-    slot: 14
-    display_name: '&a&lКуда выйти из тюрьмы'
-    lore:
-      - '&7Кровать, спавн или крыльцо Суда.'
-      - '&8Работает только в день освобождения.'
-      - ''
-      - '&aЛКМ &8— выбрать точку'
-    left_click_commands:
-      - '[player] freedom'
-
-  'status':
-    material: GLASS_BOTTLE
-    slot: 15
-    display_name: '&d&lСостояние'
-    lore:
-      - '&7Зависимость, ломка, время без дозы.'
-      - ''
-      - '&aЛКМ &8— проверить себя'
-    left_click_commands:
-      - '[player] addiction'
-
-  'mail':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
-    slot: 16
-    display_name: '&f&lПочта'
-    lore:
-      - '&aЛКМ &8— как отправить'
-      - '&aПКМ &8— очистить почту'
-    left_click_commands:
-      - '[message] &8&lПочта: &7/mailsend <ник> <текст>'
-    right_click_commands:
-      - '[player] mailclear'
-
-  'contracts':
-    material: IRON_SWORD
-    slot: 19
-    display_name: '&4&lКонтракты'
-    lore:
-      - '&7Тёмная сторона: заказы на устранение.'
-      - '&4Вне контракта убивать нельзя — статья 4.'
+      - '&7Зависимость, время в игре,'
+      - '&7куда выйти из тюрьмы.'
       - ''
       - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[openguimenu] ekb_contracts'
+      - '[openguimenu] ekb_profile_me'
 
-  'masks':
-    material: CARVED_PUMPKIN
+  'profile_look':
+    material: ARMOR_STAND
     slot: 20
-    display_name: '&8&lЛичина'
+    display_name: '&f&lВнешность'
     lore:
-      - '&7Чужой скин и псевдоним вместо ника'
-      - '&7в списке игроков.'
+      - '&7Скины, скин по цвету и по нику, Личина.'
       - ''
       - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[openguimenu] ekb_masks'
+      - '[openguimenu] ekb_profile_look'
 
-  'shadow':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
-    slot: 21
-    display_name: '&4&lТеневое Сообщество'
-    lore:
-      - '&7Место сбора, Личина, доска контрактов.'
-      - '&8Видно только своим.'
-      - ''
-      - '&aЛКМ &8— открыть'
-    view_requirement:
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.shadow.member
-    left_click_commands:
-      - '[openguimenu] ekb_blackmarket'
-
-  'onair':
-    material: REDSTONE_TORCH
+  'profile_comm':
+    material: BELL
     slot: 22
-    display_name: '&d&lАнонс эфира'
+    display_name: '&d&lСвязь'
     lore:
-      - '&7Стрим или ролик — на весь сервер.'
-      - '&7Бесплатно, раз в 4 часа.'
-      - '&8Право Стримера и Ютубера.'
+      - '&7Голос, почта, Discord, клавиши,'
+      - '&7чёрный список и анонс эфира.'
       - ''
-      - '&aЛКМ &8— как анонсировать'
-    view_requirement:
-      minimum_requirements: 1
-      requirements:
-        perm1:
-          type: has permission
-          permission: ekb.media.streamer
-        perm2:
-          type: has permission
-          permission: ekb.media.youtuber
+      - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[close]'
-      - '[player] ekbdo onair'
+      - '[openguimenu] ekb_profile_comm'
 
-  'pose':
-    material: OAK_STAIRS
-    slot: 23
-    display_name: '&a&lПоза'
-    lore:
-      - '&7Сесть на месте или лечь.'
-      - '&8Отыгрыш: раненый лежит, гость сидит за столом.'
-      - ''
-      - '&aЛКМ &8— сесть'
-      - '&aПКМ &8— лечь'
-    left_click_commands:
-      - '[player] gsit'
-    right_click_commands:
-      - '[player] glay'
-
-  'carry':
-    material: LEAD
+  'profile_act':
+    material: SADDLE
     slot: 24
-    display_name: '&6&lНести на руках'
+    display_name: '&6&lДействия'
     lore:
-      - '&7Взять человека на плечи — раненого до Клиники'
-      - '&7или пьяного до дома.'
-      - '&8Он принимает: /aceptar, отказ: /rechazar'
-      - '&8Отпустить: /soltar'
+      - '&7Поза и нести на руках.'
       - ''
-      - '&aЛКМ &8— как это работает'
+      - '&aЛКМ &8— открыть'
     left_click_commands:
-      - '[close]'
-      - '[player] ekbdo carry'
-
-  'bugreport':
-    material: REDSTONE
-    slot: 25
-    display_name: '&c&lСообщить о баге'
-    lore:
-      - '&7Не жалоба на игрока, а поломка механики.'
-      - '&8Жалобы на людей — кнопка ниже.'
-      - ''
-      - '&aЛКМ &8— как сообщить'
-    left_click_commands:
-      - '[close]'
-      - '[player] bugreport'
-
-  'reports':
-    material: BOOK
-    slot: 28
-    display_name: '&e&lМои жалобы'
-    lore:
-      - '&aЛКМ &8— что я отправлял'
-      - '&aПКМ &8— как пожаловаться'
-    left_click_commands:
-      - '[player] myreports'
-    right_click_commands:
-      - '[message] &8&lЖалоба: &7/report <ник> <причина>'
-
-  'discord':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzcwNWU2OTI5M2UzMmFmMWQ2ODZlMzcwMTIxNTBiOTc5NDFhZjE4ZWEwNGQwYWJhYzdlNjIxYWUyMjdiMTI4NSJ9fX0=
-    slot: 29
-    display_name: '&9&lПривязка Discord'
-    lore:
-      - '&7Без привязки на сервер не пускают.'
-      - '&7Бот пришлёт код — отправь его боту в личку.'
-      - ''
-      - '&aЛКМ &8— получить код'
-    left_click_commands:
-      - '[close]'
-      - '[player] discord link'
-
-  'keybind':
-    material: TRIPWIRE_HOOK
-    slot: 30
-    display_name: '&f&lГорячие клавиши'
-    lore:
-      - '&7Стрелка вниз — это меню.'
-      - '&7Переназначить: Настройки → Управление → Keybind.'
-      - '&8Нужен мод Keybind из модпака сервера.'
-      - ''
-      - '&aЛКМ &8— что назначено'
-    left_click_commands:
-      - '[close]'
-      - '[player] kbind list'
-
-  'ignore':
-    material: BARRIER
-    slot: 31
-    display_name: '&c&lЧёрный список'
-    lore:
-      - '&7Игнор не отменяет УК: оскорбления — в Суд.'
-      - ''
-      - '&aЛКМ &8— как скрыть игрока'
-    left_click_commands:
-      - '[close]'
-      - '[player] ekbdo ignore'
+      - '[openguimenu] ekb_profile_act'
 
   'citizen':
     material: SHIELD
-    slot: 32
+    slot: 28
     display_name: '&a&lГражданство'
     lore:
       - '&7Права и обязанности гражданина.'
@@ -264,7 +70,7 @@ items:
 
   'capital':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmVlZjdlNTZjZGU3NDA3NzJkZmI3NmRkZDJmNTg0YmU4OTA3Yjg1OTc2NjhlNDAyNjM0OTg2NDY5MjMwYWE0OSJ9fX0=
-    slot: 33
+    slot: 29
     display_name: '&b&lЖитель Спавна'
     lore:
       - '&7Мэрия, Клиника, Рынок, Почта.'
@@ -280,7 +86,7 @@ items:
 
   'nomad':
     material: LEATHER_BOOTS
-    slot: 34
+    slot: 30
     display_name: '&7&lКочевник'
     lore:
       - '&7Как получить гражданство и где заработать.'
@@ -288,6 +94,46 @@ items:
       - '&aЛКМ &8— открыть'
     left_click_commands:
       - '[openguimenu] ekb_nomad'
+
+  'contracts':
+    material: IRON_SWORD
+    slot: 31
+    display_name: '&4&lКонтракты'
+    lore:
+      - '&7Тёмная сторона: заказы на устранение.'
+      - '&4Вне контракта убивать нельзя — статья 4.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_contracts'
+
+  'shadow':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=
+    slot: 32
+    display_name: '&4&lТеневое Сообщество'
+    lore:
+      - '&7Место сбора, Личина, доска контрактов.'
+      - '&8Видно только своим.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    view_requirement:
+      requirements:
+        perm1:
+          type: has permission
+          permission: ekb.shadow.member
+    left_click_commands:
+      - '[openguimenu] ekb_blackmarket'
+
+  'profile_help':
+    material: WRITABLE_BOOK
+    slot: 33
+    display_name: '&e&lПоддержка'
+    lore:
+      - '&7Сообщить о баге и мои жалобы.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_profile_help'
 
   'header':
     material: PLAYER_HEAD

@@ -162,7 +162,7 @@ items:
     slot: 45
     display_name: '&7Назад'
     left_click_commands:
-      - '[openguimenu] ekb_profile'
+      - '[openguimenu] ekb_profile_look'
 
   'close':
     material: BARRIER

@@ -47,9 +47,24 @@ items:
     left_click_commands:
       - '[player] contract mine'
 
+  'mail':
+    material: PLAYER_HEAD
+    slot: 24
+    display_name: '&8&lГолову — почтой'
+    lore:
+      - '&7Держи голову-доказательство в руке.'
+      - '&7Почта сама знает адрес заказчика,'
+      - '&7в отправителе — твой псевдоним.'
+      - '&7Марка 4💎, награда — при вручении.'
+      - '&8Лично — ПКМ по заказчику, в Личине.'
+      - ''
+      - '&aЛКМ &8— отправить'
+    left_click_commands:
+      - '[player] contract mail'
+
   'law':
     material: IRON_BARS
-    slot: 24
+    slot: 30
     display_name: '&6&lЧто говорит закон'
     lore:
       - '&7Статья 4 — самосуд, статья 5 — контракт.'
@@ -73,7 +88,7 @@ items:
       - '&aЛКМ &8— как дать показания'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo report'
+      - '[player] ekbdo report<delay=2>'
 
   'header':
     material: IRON_SWORD

@@ -59,7 +59,7 @@ items:
     display_name: '&f&lШахматная фигура'
     lore:
       - '&aЛКМ &8— выдать себе'
-    model_data: 33210
+    model_data: 33211
     left_click_commands:
       - '[player] givetable chess'
 
@@ -69,7 +69,7 @@ items:
     display_name: '&f&lШашка'
     lore:
       - '&aЛКМ &8— выдать себе'
-    model_data: 33200
+    model_data: 33201
     left_click_commands:
       - '[player] givetable checker'
 

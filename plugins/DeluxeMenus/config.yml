@@ -25,7 +25,7 @@
 # /menu открыто всем: внутри показываются только те разделы, на которые
 # у игрока есть право (view_requirement у каждой кнопки).
 
-debug: LOWEST
+debug: HIGHEST   # LOWEST печатал в лог сотни строк «requirement» на каждый /dm reload
 check_updates: true
 
 gui_menus:
@@ -169,3 +169,45 @@ gui_menus:
     file: skinscolor.yml
   ekb_admin_tech:
     file: admin_tech.yml
+  ekb_profile_look:
+    file: profile_look.yml
+  ekb_profile_comm:
+    file: profile_comm.yml
+  ekb_profile_act:
+    file: profile_act.yml
+  ekb_profile_help:
+    file: profile_help.yml
+  ekb_admin_watch:
+    file: admin_watch.yml
+  ekb_admin_setup:
+    file: admin_setup.yml
+  ekb_helper_logs:
+    file: helper_logs.yml
+  ekb_helper_mode:
+    file: helper_mode.yml
+  ekb_gadgets:
+    file: gadgets.yml
+  ekb_duty_spawn:
+    file: duty_spawn.yml
+  ekb_voice_info:
+    file: voice_info.yml
+  ekb_voice_staff:
+    file: voice_staff.yml
+  ekb_trade_shops:
+    file: trade_shops.yml
+  ekb_trade_info:
+    file: trade_info.yml
+  ekb_casino_bar:
+    file: casino_bar.yml
+  ekb_casino_cash:
+    file: casino_cash.yml
+  ekb_town_info:
+    file: town_info.yml
+  ekb_world_map:
+    file: world_map.yml
+  ekb_nomad_guide:
+    file: nomad_guide.yml
+  ekb_town_diplomacy:
+    file: town_diplomacy.yml
+  ekb_profile_me:
+    file: profile_me.yml

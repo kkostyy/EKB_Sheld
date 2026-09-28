@@ -1,0 +1,211 @@
+menu_title: '&8Точки и установка'
+open_command:
+  - adminsetup
+size: 54
+open_requirement:
+  requirements:
+    perm:
+      type: has permission
+      permission: ekb.menu.admin
+      deny_commands:
+        - '[message] &cЭто меню Администрации.'
+
+items:
+
+  'setup_treasury':
+    material: DIAMOND
+    slot: 13
+    display_name: '&b&lКазна: установка'
+    lore:
+      - '&7Казна — физические сундуки, а не число.'
+      - '&7Через неё ходят все деньги сервера.'
+      - '&8Мало места — добавь ещё сундук.'
+      - ''
+      - '&aЛКМ &8— команды установки'
+      - '&aПКМ &8— баланс'
+    left_click_commands:
+      - '[message] &b&lКАЗНА: &7/settreasury &8— назначить первый (начинает заново)'
+      - '[message] &b&lКАЗНА: &7/addtreasury &8— добавить ещё сундук'
+      - '[message] &b&lКАЗНА: &7/deltreasury &8— убрать сундук'
+      - '[message] &8Двойной сундук — один контейнер на 54 слота.'
+    right_click_commands:
+      - '[player] treasury'
+
+  'setup_depot':
+    material: BRICKS
+    slot: 20
+    display_name: '&6&lСклад: установка'
+    lore:
+      - '&7Отдельные сундуки под сданное сырьё.'
+      - '&8Нет склада — скупщик работает, но сырьё списывается.'
+      - ''
+      - '&aЛКМ &8— команды установки'
+      - '&aПКМ &8— что на складе'
+    left_click_commands:
+      - '[message] &6&lСКЛАД: &7/setdepot &8— назначить первый (начинает заново)'
+      - '[message] &6&lСКЛАД: &7/adddepot &8— добавить ещё сундук'
+      - '[message] &6&lСКЛАД: &7/deldepot &8— убрать сундук'
+    right_click_commands:
+      - '[player] depot'
+
+  'setup_borders':
+    material: FILLED_MAP
+    slot: 22
+    display_name: '&a&lГраницы государств'
+    lore:
+      - '&7Глава обходит землю ногами, Администрация'
+      - '&7утверждает — и полигон ложится на карту.'
+      - ''
+      - '&aЛКМ &8— команды границ'
+      - '&aПКМ &8— список границ'
+    left_click_commands:
+      - '[message] &a&lГРАНИЦЫ: &7/borderapply <город> &8— утвердить заявку'
+      - '[message] &a&lГРАНИЦЫ: &7/borderdrop <город> &8— снять с карты'
+      - '[message] &a&lГРАНИЦЫ: &7/bordercolor <город> <#rrggbb> &8— сменить цвет'
+      - '[message] &8Утверждать надо стоя в том же мире: выделение WorldEdit твоё.'
+    right_click_commands:
+      - '[player] borders'
+
+  'setup_shadow':
+    material: NETHER_STAR
+    slot: 24
+    display_name: '&4&lТеневой Рынок: точка'
+    lore:
+      - '&7Место сбора и скин Личины.'
+      - '&8Координаты видят только участники Сообщества.'
+      - ''
+      - '&aЛКМ &8— команды точки'
+      - '&aПКМ &8— выбрать скин Личины'
+    left_click_commands:
+      - '[close]'
+      - '[player] setshadowpoint<delay=2>'
+    right_click_commands:
+      - '[close]'
+      - '[player] ekbdo shadowskin<delay=2>'
+
+  'setup_buyer':
+    material: HOPPER
+    slot: 31
+    display_name: '&a&lСкупщик: товары и цены'
+    lore:
+      - '&7Окно как у торговца Shopkeepers:'
+      - '&7что берёт, какой партией, за сколько.'
+      - ''
+      - '&aЛКМ &8— настроить'
+    left_click_commands:
+      - '[player] skupka edit'
+
+  'header':
+    material: LODESTONE
+    slot: 4
+    display_name: '&e&lТочки и установка'
+    lore:
+      - '&7Один раз поставить — и забыть.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_admin'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

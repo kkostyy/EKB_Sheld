@@ -16,7 +16,7 @@ items:
       - '&aЛКМ &8— как отправить'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo mailsend'
+      - '[player] ekbdo mailsend<delay=2>'
 
   'parcel':
     material: CHEST
@@ -29,7 +29,7 @@ items:
       - '&aЛКМ &8— как отправить'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo parcel'
+      - '[player] ekbdo parcel<delay=2>'
 
   'box':
     material: BARREL

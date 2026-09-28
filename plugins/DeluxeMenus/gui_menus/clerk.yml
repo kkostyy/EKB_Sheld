@@ -62,13 +62,14 @@ items:
     display_name: '&a&lСкупщик'
     lore:
       - '&7Половина прайса, платит Казна.'
+      - '&7Ассортимент и цены — окном, как у торговца.'
       - ''
       - '&aЛКМ &8— открыть окно'
-      - '&aПКМ &8— список и цены'
+      - '&aПКМ &8— настроить товары и цены'
     left_click_commands:
       - '[player] skupka'
     right_click_commands:
-      - '[player] skupka прайс'
+      - '[player] skupka edit'
 
   'lots':
     material: OAK_SIGN
@@ -112,7 +113,7 @@ items:
     slot: 45
     display_name: '&7Назад'
     left_click_commands:
-      - '[openguimenu] ekb_duty'
+      - '[openguimenu] ekb_duty_spawn'
 
   'close':
     material: BARRIER

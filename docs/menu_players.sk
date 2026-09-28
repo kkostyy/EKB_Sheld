@@ -538,7 +538,11 @@ function ekb_run(p: player, action: text, target: text):
     else if {_action} is "heal":
         make {_p} execute command "addiction cure %{_target}%"
     else if {_action} is "sober":
-        make {_p} execute command "brew set %{_target}% 0"
+        # От консоли: у врача и бармена нет права BreweryX на `brew set`, а
+        # допуск к действию уже проверил ekb_allowed(). От имени игрока
+        # кнопка вытрезвителя молча не делала ничего (28.09.2026).
+        make console execute command "brew set %{_target}% 0"
+        send "{@prefix}&a%{_target}% протрезвел." to {_p}
     else if {_action} is "inv":
         make {_p} execute command "oi %{_target}%"
     else if {_action} is "ender":

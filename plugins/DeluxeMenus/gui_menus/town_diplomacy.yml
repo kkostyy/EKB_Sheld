@@ -1,0 +1,160 @@
+menu_title: '&8Дипломатия'
+open_command:
+  - diplomacy
+size: 54
+
+items:
+
+  'ally':
+    material: GOLDEN_APPLE
+    slot: 13
+    display_name: '&a&lСоюзники'
+    lore:
+      - '&7До 4 союзов. Союзники не бьют друг друга,'
+      - '&7если PvP города выключено.'
+      - ''
+      - '&aЛКМ &8— как заключить'
+    left_click_commands:
+      - '[close]'
+      - '[player] ekbdo clanally<delay=2>'
+
+  'enemy':
+    material: IRON_SWORD
+    slot: 20
+    display_name: '&c&lВраги'
+    lore:
+      - '&7До 2 враждующих городов.'
+      - '&4Война без объявления в Discord за 24 часа —'
+      - '&4нарушение Конституции 1.2.'
+      - ''
+      - '&aЛКМ &8— как объявить'
+    left_click_commands:
+      - '[close]'
+      - '[player] ekbdo clanenemy<delay=2>'
+
+  'pvp':
+    material: SHIELD
+    slot: 22
+    display_name: '&6&lPvP между своими'
+    lore:
+      - '&7Бьют ли жители города друг друга.'
+      - '&7Выключено — удар по своему не проходит.'
+      - ''
+      - '&aЛКМ &8— переключить'
+    left_click_commands:
+      - '[player] clan pvp'
+
+  'header':
+    material: WHITE_BANNER
+    slot: 4
+    display_name: '&b&lДипломатия'
+    lore:
+      - '&7Война объявляется здесь, а ведётся — в поле.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_town_settings'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '

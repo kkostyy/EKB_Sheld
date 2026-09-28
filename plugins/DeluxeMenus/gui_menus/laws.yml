@@ -46,9 +46,19 @@ items:
       - '[message] &7→ приговор в ОНЛАЙН-часах → имущество уходит Суду.'
       - '[message] &7В камере нельзя ломать и ставить, есть и пить — можно.'
 
+  'court':
+    material: WRITABLE_BOOK
+    slot: 24
+    display_name: '&6&lПодать иск'
+    lore:
+      - '&aЛКМ &8— как подать'
+    left_click_commands:
+      - '[message] &6&lИСК: &7в Discord командой &f/иск&7, со статьёй УК и ником.'
+      - '[message] &7Доказательства собирать не нужно — CoreProtect помнит всё.'
+
   'prices':
     material: DIAMOND
-    slot: 24
+    slot: 30
     display_name: '&b&lЦены'
     lore:
       - '&aЛКМ &8— курс и главные цены'
@@ -59,7 +69,7 @@ items:
 
   'sheriff':
     material: IRON_SWORD
-    slot: 30
+    slot: 31
     display_name: '&c&lШериф Спавна'
     lore:
       - '&7Кто следит за порядком на Рынке'
@@ -71,7 +81,7 @@ items:
 
   'forensics':
     material: SPYGLASS
-    slot: 31
+    slot: 32
     display_name: '&9&lКриминалистика'
     lore:
       - '&7Осмотр места убийства, реестр происшествий.'
@@ -80,16 +90,6 @@ items:
       - '&aЛКМ &8— открыть'
     left_click_commands:
       - '[openguimenu] ekb_forensics'
-
-  'court':
-    material: WRITABLE_BOOK
-    slot: 32
-    display_name: '&6&lПодать иск'
-    lore:
-      - '&aЛКМ &8— как подать'
-    left_click_commands:
-      - '[message] &6&lИСК: &7в Discord командой &f/иск&7, со статьёй УК и ником.'
-      - '[message] &7Доказательства собирать не нужно — CoreProtect помнит всё.'
 
   'header':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDEzODk5MDExMWUyYTAwZmJkMTYwMTM0ZTZiNzIxYTk3NzBlODgyZGZjZGEzY2NkMjk0ZTI4NDE5NDM5MDI3ZiJ9fX0=

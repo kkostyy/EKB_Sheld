@@ -6,108 +6,21 @@ size: 54
 
 items:
 
-  'who':
-    material: LEATHER_BOOTS
+  'nomad_guide':
+    material: MAP
     slot: 13
-    display_name: '&7&lКто такой кочевник'
+    display_name: '&6&lПутеводитель'
     lore:
-      - '&7Ты ничей: ни государства, ни присяги,'
-      - '&7ни налогов, ни защиты.'
+      - '&7Кто такой кочевник, земли, гражданство,'
+      - '&7беженцы, опасности, дорога, заработок.'
       - ''
-      - '&7Конституция защищает тебя ровно так же,'
-      - '&7как и граждан: Суд принимает иск от любого.'
-      - '&7Но за твою землю никто не вступится —'
-      - '&7у тебя её просто нет.'
-
-  'land':
-    material: GRASS_BLOCK
-    slot: 20
-    display_name: '&a&lНейтральные земли'
-    lore:
-      - '&7Всё, что не занято государствами, —'
-      - '&7нейтральная земля. Строй где хочешь.'
-      - ''
-      - '&4Но помни: приватов на сервере нет.'
-      - '&4Твой сундук в лесу защищает только'
-      - '&4CoreProtect и приговор Суда — постфактум.'
-      - ''
-      - '&7Земли, открывшиеся при расширении мира,'
-      - '&7достаются всем на равных: преимущества'
-      - '&7не имеет никто (Конституция 4.5).'
-
-  'join':
-    material: SHIELD
-    slot: 22
-    display_name: '&6&lКак стать гражданином'
-    lore:
-      - '&7Два пути:'
-      - ''
-      - '&f1. &7Вступить в существующее государство —'
-      - '&7   договорись с Лидером, он подаст заявку.'
-      - '&f2. &7Основать своё: нужен Лидер, от 3 граждан,'
-      - '&7   территория и Устав в Discord.'
-      - ''
-      - '&7После признания Администрация выдаст'
-      - '&7право &fekb.menu.citizen&7 и меню гражданина.'
-      - '&8Конституция 2.3'
-
-  'refugee':
-    material: WHITE_BANNER
-    slot: 24
-    display_name: '&f&lСтатус беженца'
-    lore:
-      - '&7Не хочешь воевать — сдай оружие в Мэрию'
-      - '&7Спавна и живи в нейтральной зоне.'
-      - '&7База САП полностью безопасна.'
-      - ''
-      - '&8Конституция 5.6, 6.2'
-
-  'danger':
-    material: IRON_BARS
-    slot: 28
-    display_name: '&c&lЧего избегать'
-    lore:
-      - '&7Свободная жизнь не отменяет УК:'
-      - ''
-      - '&8Кража из чужих сундуков &7— возврат вдвое + 16💎'
-      - '&8Грабёж с убийством &7— 32–64💎 и тюрьма от 10ч'
-      - '&8Лавка вне Рынка &7— снос и конфискация'
-      - '&8Побег из тюрьмы &7— срок удваивается'
-      - ''
-      - '&7Срок идёт в ОНЛАЙН-часах: отсидеться'
-      - '&7в оффлайне не выйдет.'
-
-  'survive':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjhhMDY1NTg4YzdkYmYxMjk0NTk1YWJhNzc3OTFjM2FkNjVmMTliZjFjOWFkN2E1YzIzZGE0MGI4Mjg2MGI3In19fQ==
-    slot: 29
-    display_name: '&b&lЖизнь в дороге'
-    lore:
-      - '&7Телепортов нет ни у кого, кроме САП'
-      - '&7при исполнении. Всё расстояние — ногами.'
-      - ''
-      - '&7Граница мира растёт по достижениям:'
-      - '&74000 → 20000 блоков. Нижний мир всегда'
-      - '&71/8 от Обычного — по Аду дорога короче'
-      - '&7в восемь раз.'
-
-  'trade':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
-    slot: 30
-    display_name: '&e&lТорговля и заработок'
-    lore:
-      - '&7Рыночная Площадь Спавна открыта всем,'
-      - '&7включая кочевников.'
-      - ''
-      - '&7Строительная биржа платит за труд:'
-      - '&8терраформинг чанка &7— 32–48💎'
-      - '&8раскопка чанка до бедрока &7— 256–384💎'
-      - '&8незер-метро за 500 блоков &7— 32–48💎'
-      - ''
-      - '&7Для бездомного это самый честный доход.'
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_nomad_guide'
 
   'hire':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
-    slot: 31
+    slot: 20
     display_name: '&2&lМеня можно нанять'
     lore:
       - '&7Город или игрок зовёт тебя на работу,'
@@ -120,11 +33,11 @@ items:
       - '&aЛКМ &8— мои заявки и наймы'
     left_click_commands:
       - '[close]'
-      - '[player] hire status'
+      - '[player] hire status<delay=2>'
 
   'hireoff':
     material: BARRIER
-    slot: 32
+    slot: 22
     display_name: '&c&lЗакрыть себя от найма'
     lore:
       - '&7Заявки перестанут приходить.'
@@ -133,11 +46,11 @@ items:
       - '&aЛКМ &8— меня нельзя нанять'
     left_click_commands:
       - '[close]'
-      - '[player] hire off'
+      - '[player] hire off<delay=2>'
 
   'status':
     material: GLASS_BOTTLE
-    slot: 33
+    slot: 24
     display_name: '&d&lМоё состояние'
     lore:
       - '&7Зависимость от алкоголя и травы.'
@@ -145,7 +58,7 @@ items:
       - '&aЛКМ &8— /addiction'
     left_click_commands:
       - '[close]'
-      - '[player] addiction'
+      - '[player] addiction<delay=2>'
 
   'header':
     material: LEATHER_BOOTS

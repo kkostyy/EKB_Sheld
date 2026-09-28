@@ -47,20 +47,9 @@ items:
     left_click_commands:
       - '[player] ekbmenu heal'
 
-  'relief':
-    material: MILK_BUCKET
-    slot: 22
-    display_name: '&f&lОблегчить симптомы'
-    lore:
-      - '&7Молоко и рассол глушат ломку на 5 минут,'
-      - '&7но тягу не снимают. Это обезболивание,'
-      - '&7а не лечение.'
-      - ''
-      - '&7Молоко &f2💎&7, рассол &f8💎 &7(ещё и трезвит).'
-
   'sober':
     material: POTION
-    slot: 24
+    slot: 22
     display_name: '&6&lВытрезвитель'
     lore:
       - '&8/brew set <ник> 0 &7— полностью протрезвить'
@@ -73,9 +62,57 @@ items:
     left_click_commands:
       - '[player] ekbmenu sober'
 
+  'relief':
+    material: MILK_BUCKET
+    slot: 24
+    display_name: '&f&lОблегчить симптомы'
+    lore:
+      - '&7Молоко и рассол глушат ломку на 5 минут,'
+      - '&7но тягу не снимают. Это обезболивание,'
+      - '&7а не лечение.'
+      - ''
+      - '&7Молоко &f2💎&7, рассол &f8💎 &7(ещё и трезвит).'
+
+  'emergency':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWRlYmM3YjJiYzYxNTE0YmQ0NDY2NjUwMzc1NTFiZjdjODMzMjM3ZTgzMjBmZWZiNDg1NDExZjhmNDJmNjZjOCJ9fX0=
+    slot: 29
+    display_name: '&c&lВыезд к пациенту'
+    lore:
+      - '&7Телепорты врачу не положены, если он'
+      - '&7не сотрудник САП. Выезд — это дорога ногами,'
+      - '&7потому он и стоит отдельных &f32💎&7.'
+
+  'prices':
+    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
+    slot: 30
+    display_name: '&b&lПрайс Клиники'
+    lore:
+      - '&7Осмотр — бесплатно'
+      - '&7Курс от одной зависимости — &f64–96💎'
+      - '&7Курс сразу от обеих — &f128–160💎'
+      - '&7Выезд врача — &f+32💎'
+      - '&7Молоко &f2💎 &8· &7Рассол &f8💎'
+      - ''
+      - '&aЛКМ &8— весь Прайс-лист'
+    left_click_commands:
+      - '[openguimenu] ekb_laws'
+
+  'ethics':
+    material: PAPER
+    slot: 31
+    display_name: '&f&lПорядок приёма'
+    lore:
+      - '&f1. &7Осмотри пациента — &f/addiction info'
+      - '&f2. &7Назови цену по Прайс-листу.'
+      - '&f3. &7Возьми оплату алмазами.'
+      - '&f4. &7Проведи курс — &f/addiction cure'
+      - '&f5. &7Предупреди: повторные дозы вернут всё.'
+      - ''
+      - '&7Спор о деньгах решает Суд, как и любой другой.'
+
   'howitworks':
     material: BOOK
-    slot: 29
+    slot: 32
     display_name: '&e&lКак устроена зависимость'
     lore:
       - '&7Каждая доза — плюс единица к своей шкале.'
@@ -88,43 +125,6 @@ items:
       - ''
       - '&4Воздержание не лечит: шкала не падает'
       - '&4сама. Только курс или смерть.'
-
-  'ethics':
-    material: PAPER
-    slot: 30
-    display_name: '&f&lПорядок приёма'
-    lore:
-      - '&f1. &7Осмотри пациента — &f/addiction info'
-      - '&f2. &7Назови цену по Прайс-листу.'
-      - '&f3. &7Возьми оплату алмазами.'
-      - '&f4. &7Проведи курс — &f/addiction cure'
-      - '&f5. &7Предупреди: повторные дозы вернут всё.'
-      - ''
-      - '&7Спор о деньгах решает Суд, как и любой другой.'
-
-  'emergency':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWRlYmM3YjJiYzYxNTE0YmQ0NDY2NjUwMzc1NTFiZjdjODMzMjM3ZTgzMjBmZWZiNDg1NDExZjhmNDJmNjZjOCJ9fX0=
-    slot: 31
-    display_name: '&c&lВыезд к пациенту'
-    lore:
-      - '&7Телепорты врачу не положены, если он'
-      - '&7не сотрудник САП. Выезд — это дорога ногами,'
-      - '&7потому он и стоит отдельных &f32💎&7.'
-
-  'prices':
-    material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2QyNGRjNTgwNjljMTIxMmI1MjlhNGFlNWQ0ZTczYmUwOTkwZDQ2ZmU5MzcxYjFmNzllODE2NGI0Mjg1OWFjOCJ9fX0=
-    slot: 32
-    display_name: '&b&lПрайс Клиники'
-    lore:
-      - '&7Осмотр — бесплатно'
-      - '&7Курс от одной зависимости — &f64–96💎'
-      - '&7Курс сразу от обеих — &f128–160💎'
-      - '&7Выезд врача — &f+32💎'
-      - '&7Молоко &f2💎 &8· &7Рассол &f8💎'
-      - ''
-      - '&aЛКМ &8— весь Прайс-лист'
-    left_click_commands:
-      - '[openguimenu] ekb_laws'
 
   'header':
     material: basehead-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmU3YTgxMGQyMTEyMjc1Y2MxODIxZGNjNmUyOWRhM2QyYjhmYzY1OWFmNzI5MGEzY2I3MGJlNTM2YWUyMDQwYSJ9fX0=

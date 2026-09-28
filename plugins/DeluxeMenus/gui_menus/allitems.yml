@@ -42,7 +42,7 @@ items:
       - '[openguimenu] ekb_drinks'
 
   'artifacts':
-    material: NETHER_STAR
+    material: CLOCK
     slot: 22
     display_name: '&5&lОсобые артефакты'
     lore:
@@ -85,11 +85,22 @@ items:
     display_name: '&f&lНастольные игры'
     lore:
       - '&7TablePlays: кости, карты, шашки, нарды.'
-      - '&8CMD 33000-33790, моделей в паке нет.'
+      - '&8CMD 33000-33790, модели из пака TablePlays.'
       - ''
       - '&aЛКМ &8— открыть'
     left_click_commands:
       - '[openguimenu] ekb_tables'
+
+  'gadgets':
+    material: RECOVERY_COMPASS
+    slot: 32
+    display_name: '&7&lТехника'
+    lore:
+      - '&7Дрон-камикадзе, глушилка РЭБ, рации.'
+      - ''
+      - '&aЛКМ &8— открыть'
+    left_click_commands:
+      - '[openguimenu] ekb_gadgets'
 
   'header':
     material: CHEST

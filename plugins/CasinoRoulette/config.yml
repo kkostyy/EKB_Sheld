@@ -1,0 +1,144 @@
+# EKB SHIELD — CasinoRoulette 1.3.0, переделан под алмазы через Казну.
+#
+# ⚠ Валюта плагина — НЕ алмаз, а ЖЕТОН (petrified_oak_slab: в выживании не
+# добывается, ресурспак рисует его фишкой, lang-файл зовёт «Жетон казино»).
+# Алмаз <-> жетон 1:1 меняет только касса Спавна (docs/casino_chips.sk,
+# /chips), и обмен идёт через Казну. Так выигрыш не печатает алмазы: плагин
+# выдаёт жетоны, а жетон превращается в алмаз только за счёт Казны. Пустая
+# Казна — касса не платит, как у настоящего казино.
+# Поставь item-resource: DIAMOND — и плагин начнёт создавать алмазы из
+# воздуха при каждом выигрыше: он кладёт в рюкзак голый ItemStack.
+#
+# ⚠ Дефолтные цифры игр были в пользу ИГРОКА (посчитано по коду плагина):
+#   • слоты — 7 барабанов, выигрыш с трёх совпадений: игрок получал в
+#     среднем 4.3 ставки на каждую поставленную. Сейчас 0.83;
+#   • краш — выход на x5 давал 1.18 ставки. Сейчас максимум 0.88;
+#   • колесо фортуны — ставка на красный давала 1.29, а выход с сервера
+#     во время вращения возвращал ставку целиком: увидел проигрыш — вышел.
+#     Колесо выключено;
+#   • ежедневное бесплатное колесо — раздача жетонов даром, то есть долг
+#     Казны из ничего. Выключено.
+#   Рулетка честная: 37 лунок, выплата 36 — перевес дома 2.7%.
+
+# Core Economics Settings
+settings:
+      is-configured: true             # мастер настройки не нужен — конфиг готов
+      commission_percent: 0.0         # без комиссии: перевес дома уже в играх, а жетон должен быть равен алмазу
+      # VAULT        - Vault economy (not available / unreliable on Folia)
+      # PLAYERPOINTS - PlayerPoints, the usual choice on Folia
+      # ITEM         - the item named below is the currency
+      # AUTO         - Folia: PlayerPoints first; elsewhere Vault, then PlayerPoints, then internal
+      # INTERNAL     - built-in casino currency
+      economy-mode: "ITEM"
+      item-resource: "PETRIFIED_OAK_SLAB"   # жетон казино, НЕ алмаз (см. шапку)
+      custom-currency-name: "жетонов"
+
+# Economy mode specific limits
+economy:
+      internal:
+            starting-balance: 0             # New players start with zero currency
+            currency-symbol: "$"            # Prefix used by the built-in economy
+      vault:
+            min_exchange: 100               # Minimum amount for exchange (Vault)
+            min_bet: 1000                   # Minimum bet (Vault)
+            max_bet: 10000                  # Maximum bet (Vault)
+      item:
+            min_exchange: 1                 # жетоны меняются поштучно
+            min_bet: 1
+            max_bet: 16                     # максимальный выигрыш слотов x128 = 2048 жетонов — это уже вся Казна
+
+# Language Setting (e.g., en, ru)
+lang: ru
+
+# Update Checker
+check-for-updates: false   # Set to false to disable update notifications
+
+# Feature toggles (turn whole systems on/off)
+features:
+      fortune-wheel: false            # Fortune Wheel game. If false, Roulette takes its slot in the main menu
+      free-wheel: false               # Free daily Fortune Wheel
+      leaderboards: true              # Leaderboards menu
+
+# Sounds for menus and games (set enabled to false to mute everything)
+sounds:
+      enabled: true
+      click: UI_BUTTON_CLICK          # Clicking buttons
+      open_menu: BLOCK_CHEST_OPEN     # Opening a menu
+      spin: BLOCK_NOTE_BLOCK_PLING    # Wheel / daily-wheel spin tick
+      win: ENTITY_PLAYER_LEVELUP      # Winning
+      lose: ENTITY_VILLAGER_NO        # Losing
+      bet: ENTITY_EXPERIENCE_ORB_PICKUP # Buying, selling and placing bets
+      crash: ENTITY_GENERIC_EXPLODE   # Crash game explosion
+
+# Roulette Settings
+roulette:
+      enabled: true                   # Enable or disable Roulette game
+      timer_duration: 30              # Countdown time before spin (seconds)
+      payouts:
+            number: 36                    # Multiplier for exact number match
+            zero: 36                      # Multiplier for Zero (0)
+            color: 2                      # Multiplier for Red/Black
+            sector: 3                     # Multiplier for Dozens (1st12, 2nd12, 3rd12)
+
+# Crash Game Settings
+crash:
+      enabled: true                   # Enable or disable Crash game
+      start_multiplier: 0.10          # Initial multiplier
+      tick_speed: 2                   # Update speed (every X ticks)
+      increment: 0.01                 # Value added to multiplier per tick
+      generation:
+            # Порог, а не доля: roll < 0.40 — взрыв на x1.00, roll < 0.70 —
+            # между x0.5 и x1.1, иначе x1.5…x10 (эта ветка зашита в коде).
+            # При доле «высокой» ветки p лучший выход (x5) даёт 2.94·p ставки,
+            # поэтому p = 0.30 → максимум 0.88. У дефолта было 0.40 → 1.18.
+            instant_crash_chance: 0.40
+            low_crash_chance: 0.70
+
+# Slot Machine Weights & Custom Payout Multipliers
+slots:
+      enabled: true
+      # 7 барабанов, выигрыш — 3+ одинаковых, выплата = ставка·множитель·2^(совпадений-3).
+      # Посчитано моделированием (600 000 вращений): возврат 0.83 ставки,
+      # выигрыш в каждом третьем вращении, максимум x128.
+      weights:
+            COAL: 14
+            IRON_INGOT: 14
+            COPPER_INGOT: 14
+            REDSTONE: 12
+            LAPIS_LAZULI: 12
+            QUARTZ: 12
+            AMETHYST_SHARD: 10
+            GOLD_INGOT: 6
+            EMERALD: 3
+            DIAMOND: 2
+            NETHERITE_INGOT: 1
+      multipliers:
+            NETHERITE_INGOT: 64
+            DIAMOND: 30
+            EMERALD: 14
+            GOLD_INGOT: 6
+            DEFAULT: 2
+
+# Roulette simultaneous betting positions limits by Vault Groups or Permission Nodes
+# Supports custom groups from LuckPerms, PermissionsEx, or any other permission plugin
+# Format: "permission_node_or_group: limit"
+# Example: If player has permission "casino.limit.vip" or is in "vip" group, they get 10 selections
+selection_limits:
+      default: 5          # Default limit for all players
+      vip: 10             # For players with "casino.limit.vip" permission or in "vip" group
+      admin: 25           # For players with "casino.limit.admin" permission or in "admin" group
+      # Custom examples (uncomment and modify as needed):
+      # premium: 15        # For players with "casino.limit.premium" permission
+      # donor: 12           # For players with "casino.limit.donor" permission
+      # legendary: 20       # For players with "casino.limit.legendary" permission
+
+
+# Main menu additions
+main-menu:
+  top-winners-heads: true
+  top-winners-count: 9
+  buttons:
+    roulette-slot: 20
+    fortune-wheel-slot: 22
+    daily-casino-slot: 24
+    leaderboards-slot: 31

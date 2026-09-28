@@ -63,6 +63,10 @@ command /dice:
             send "{@prefix}&7Бармен ещё встряхивает стакан. Подожди пару секунд."
             stop
 
+        # Кости — тоже азарт: закрытое казино и игра вне здания (casino_house.sk).
+        if cz_can_play(player) is false:
+            stop
+
         if tr_ready() is false:
             send "{@prefix}&cКазна Спавна не назначена — касса закрыта."
             stop
@@ -91,15 +95,16 @@ command /dice:
             if {_p} is not "ok":
                 send "{@prefix}%{_p}%"
                 send "{@prefix}&cВыигрыш &b{@win}💎&c остался за Казной. Позови Мэрию."
-                send "[КАЗИНО] ДОЛГ: %player% выиграл {@win} алмазов, выдача не прошла" to console
+                cz_log("ДОЛГ: %player% выиграл {@win} алмазов в кости, выдача не прошла")
                 stop
             add 1 to {casino::wins::%{_k}%}
             send "{@prefix}&a&lВЫИГРЫШ! &fЗабирай &b{@win}💎&f."
             play sound "block.note_block.pling" with volume 1 to player
-            send "[КАЗИНО] %player% бросил %{_roll}% и выиграл {@win} алмазов" to console
+            cz_log("%player% бросил %{_roll}% в кости и выиграл {@win} алмазов")
         else:
             add 1 to {casino::loss::%{_k}%}
             send "{@prefix}&cМимо. &7Ставка &b{@bet}💎&7 ушла в Казну Спавна."
+            cz_log("%player% бросил %{_roll}% в кости и проиграл {@bet} алмаза")
             play sound "block.note_block.bass" with volume 1 to player
 
         set {_w} to {casino::wins::%{_k}%}

@@ -12,12 +12,15 @@
 $ErrorActionPreference = "Stop"
 
 $ServerDir = "D:\EKB_Shield\server"
-$BackupDir = "C:\Minecraft\backups"
+# На D, а не на C: на C 28.09.2026 оставалось 21 ГБ из 931, а неделя копий
+# мира весом 4.7 ГБ — это ~30 ГБ. Бэкап, который забивает системный диск,
+# убивает сервер вернее, чем отсутствие бэкапа.
+$BackupDir = "D:\EKB_Shield_backups"
 $KeepDays  = 7
 $Rcon      = Join-Path $PSScriptRoot "rcon.py"
 $Stamp     = Get-Date -Format "yyyy-MM-dd_HH-mm"
 $Archive   = Join-Path $BackupDir "world_$Stamp.zip"
-$Staging   = Join-Path $env:TEMP "ekb_backup_$Stamp"
+$Staging   = Join-Path $BackupDir "_staging_$Stamp"   # на том же диске D, не в %TEMP% на C
 
 Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Старт бэкапа..." -ForegroundColor Yellow
 New-Item -ItemType Directory -Path $BackupDir -Force | Out-Null
@@ -42,6 +45,24 @@ try {
         if (Test-Path $src) {
             robocopy $src (Join-Path $Staging $w) /E /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
         }
+    }
+    # Данные плагинов — не меньше мира: переменные Skript (тюрьма, контракты,
+    # Казна, почта), права LuckPerms, логи CoreProtect для Суда, аккаунты
+    # AuthMe и привязки DiscordSRV. Без jar'ов (их качают заново) и без
+    # тайлов веб-карты (squaremap перерисует сам).
+    robocopy (Join-Path $ServerDir "plugins") (Join-Path $Staging "plugins") /E /R:1 /W:1 /NFL /NDL /NJH /NJS /NP `
+        /XF *.jar /XD tiles _disabled | Out-Null
+    foreach ($f in @("server.properties", "purpur.yml", "spigot.yml", "bukkit.yml", "ops.json", "whitelist.json", "banned-players.json")) {
+        $src = Join-Path $ServerDir $f
+        if (Test-Path $src) { Copy-Item $src $Staging }
+    }
+    # Автозапись возвращаем СРАЗУ после копирования: сжатие идёт минутами,
+    # а мир к этому времени уже скопирован целиком.
+    if ($ServerUp) {
+        [System.IO.File]::WriteAllLines($tmp, @("save-on"), (New-Object System.Text.UTF8Encoding($false)))
+        & py -3 $Rcon "--file" $tmp | Out-Null
+        $ServerUp = $false
+        Write-Host "      копия снята, автозапись возобновлена"
     }
     Compress-Archive -Path (Join-Path $Staging "*") -DestinationPath $Archive -CompressionLevel Optimal
 }

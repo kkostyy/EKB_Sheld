@@ -103,7 +103,7 @@ items:
       - '&aЛКМ &8— как изменить'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo dncooldown'
+      - '[player] ekbdo dncooldown<delay=2>'
 
   'count':
     material: PAPER
@@ -115,7 +115,7 @@ items:
       - '&aЛКМ &8— как поправить'
     left_click_commands:
       - '[close]'
-      - '[player] ekbdo dncount'
+      - '[player] ekbdo dncount<delay=2>'
 
   'header':
     material: WRITABLE_BOOK

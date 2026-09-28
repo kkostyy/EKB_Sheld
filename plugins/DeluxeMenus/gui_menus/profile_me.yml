@@ -1,0 +1,161 @@
+menu_title: '&8Моё состояние'
+open_command:
+  - mystate
+  - состояние
+size: 54
+
+items:
+
+  'status':
+    material: GLASS_BOTTLE
+    slot: 13
+    display_name: '&d&lСостояние'
+    lore:
+      - '&7Зависимость, ломка, время без дозы.'
+      - ''
+      - '&aЛКМ &8— проверить себя'
+    left_click_commands:
+      - '[player] addiction'
+
+  'playtime':
+    material: CLOCK
+    slot: 20
+    display_name: '&e&lВремя в игре'
+    lore:
+      - '&7Сегодня: &f%playerTime_today_minutes%&7 мин'
+      - '&7За неделю: &f%playerTime_week_hours%&7 ч'
+      - '&7За месяц: &f%playerTime_month_hours%&7 ч'
+      - '&7Всего: &f%playerTime_total_hours%&7 ч  &e%playerTime_total_level%'
+      - ''
+      - '&8Считает PlayerTime: только время в сети.'
+      - ''
+      - '&aЛКМ &8— в чат'
+    left_click_commands:
+      - '[message] &e&lВремя в игре: &7сегодня &f%playerTime_today_minutes%&7 мин, неделя &f%playerTime_week_hours%&7 ч, всего &f%playerTime_total_hours%&7 ч'
+
+  'freedom':
+    material: IRON_DOOR
+    slot: 22
+    display_name: '&a&lКуда выйти из тюрьмы'
+    lore:
+      - '&7Кровать, спавн или крыльцо Суда.'
+      - '&8Работает только в день освобождения.'
+      - ''
+      - '&aЛКМ &8— выбрать точку'
+    left_click_commands:
+      - '[player] freedom'
+
+  'header':
+    material: CLOCK
+    slot: 4
+    display_name: '&d&lМоё состояние'
+    lore:
+      - '&7Как ты сейчас.'
+
+  'back':
+    material: ARROW
+    slot: 45
+    display_name: '&7Назад'
+    left_click_commands:
+      - '[openguimenu] ekb_profile'
+
+  'close':
+    material: BARRIER
+    slot: 49
+    display_name: '&cЗакрыть'
+    left_click_commands:
+      - '[close]'
+
+  # рамка ставится генератором, руками её не правят
+  'frame_0':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 0
+    display_name: ' '
+  'frame_1':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 1
+    display_name: ' '
+  'frame_2':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 2
+    display_name: ' '
+  'frame_3':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 3
+    display_name: ' '
+  'frame_5':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 5
+    display_name: ' '
+  'frame_6':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 6
+    display_name: ' '
+  'frame_7':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 7
+    display_name: ' '
+  'frame_8':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 8
+    display_name: ' '
+  'frame_9':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 9
+    display_name: ' '
+  'frame_17':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 17
+    display_name: ' '
+  'frame_18':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 18
+    display_name: ' '
+  'frame_26':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 26
+    display_name: ' '
+  'frame_27':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 27
+    display_name: ' '
+  'frame_35':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 35
+    display_name: ' '
+  'frame_36':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 36
+    display_name: ' '
+  'frame_44':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 44
+    display_name: ' '
+  'frame_46':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 46
+    display_name: ' '
+  'frame_47':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 47
+    display_name: ' '
+  'frame_48':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 48
+    display_name: ' '
+  'frame_50':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 50
+    display_name: ' '
+  'frame_51':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 51
+    display_name: ' '
+  'frame_52':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 52
+    display_name: ' '
+  'frame_53':
+    material: GRAY_STAINED_GLASS_PANE
+    slot: 53
+    display_name: ' '
