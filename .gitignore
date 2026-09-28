@@ -53,3 +53,9 @@ discord_bot/bot.log.old
 ely_meta_*.zip
 client_modpack/__jarcache__/
 ekb_shield_client_offline.mrpack
+
+# Кэш Python и собранный пак — результат сборки, не исходник.
+# Пак пересобирается pack_resourcepack.py и заливается на хостинг.
+__pycache__/
+*.pyc
+shield_resourcepack_*.zip
