@@ -1,4 +1,4 @@
-https://modrinth.com/plugin/casinoroulette/gallery
+https://modrinth.com/plugin/casinoroulette
 https://modrinth.com/plugin/squaremap-folia-regions
 https://modrinth.com/plugin/playertime
 https://modrinth.com/plugin/discordsrvoauth
